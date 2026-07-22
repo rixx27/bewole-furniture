@@ -13,6 +13,16 @@ return new class extends Migration
     {
         Schema::create('portfolios', function (Blueprint $table) {
             $table->id();
+            $table->string('title');
+            $table->string('slug')->unique();
+            $table->text('description')->nullable();
+            $table->string('image')->nullable();
+            $table->string('client')->nullable();
+            $table->string('category')->nullable();
+            $table->date('project_date')->nullable();
+            $table->string('location')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->integer('sort_order')->default(0);
             $table->timestamps();
         });
     }
@@ -25,3 +35,4 @@ return new class extends Migration
         Schema::dropIfExists('portfolios');
     }
 };
+

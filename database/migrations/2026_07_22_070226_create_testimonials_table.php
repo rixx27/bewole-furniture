@@ -13,6 +13,14 @@ return new class extends Migration
     {
         Schema::create('testimonials', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->string('position')->nullable();
+            $table->string('company')->nullable();
+            $table->text('message');
+            $table->string('avatar')->nullable();
+            $table->integer('rating')->default(5);
+            $table->boolean('is_active')->default(true);
+            $table->integer('sort_order')->default(0);
             $table->timestamps();
         });
     }
@@ -25,3 +33,4 @@ return new class extends Migration
         Schema::dropIfExists('testimonials');
     }
 };
+

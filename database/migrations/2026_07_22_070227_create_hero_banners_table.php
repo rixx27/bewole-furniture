@@ -13,6 +13,14 @@ return new class extends Migration
     {
         Schema::create('hero_banners', function (Blueprint $table) {
             $table->id();
+            $table->string('title');
+            $table->string('subtitle')->nullable();
+            $table->text('description')->nullable();
+            $table->string('image')->nullable();
+            $table->string('button_text')->nullable();
+            $table->string('button_url')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->integer('sort_order')->default(0);
             $table->timestamps();
         });
     }
@@ -25,3 +33,4 @@ return new class extends Migration
         Schema::dropIfExists('hero_banners');
     }
 };
+

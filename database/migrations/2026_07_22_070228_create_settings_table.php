@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('settings', function (Blueprint $table) {
             $table->id();
+            $table->string('key')->unique();
+            $table->text('value')->nullable();
+            $table->string('group')->default('general');
+            $table->string('type')->default('text');
+            $table->text('description')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }
@@ -25,3 +31,4 @@ return new class extends Migration
         Schema::dropIfExists('settings');
     }
 };
+
