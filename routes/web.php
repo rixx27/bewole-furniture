@@ -2,10 +2,15 @@
 
 use Illuminate\Support\Facades\Route;
 
+// Frontend routes
 Route::view('/', 'welcome')->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('dashboard', 'dashboard')->name('dashboard');
 });
 
-require __DIR__.'/settings.php';
+// Include auth routes
+require __DIR__.'/auth.php';
+
+// Include admin routes
+require __DIR__.'/admin.php';

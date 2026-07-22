@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
+// Settings routes (from settings.php)
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
 
@@ -24,3 +25,4 @@ Route::get('.well-known/passkey-endpoints', function () {
         'manage' => route('security.edit'),
     ]);
 })->name('well-known.passkeys');
+
