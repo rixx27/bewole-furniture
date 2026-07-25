@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
@@ -21,6 +22,7 @@ class Product extends Model
         'description',
         'short_description',
         'price',
+        'discount_percentage',
         'discount_price',
         'sku',
         'material',
@@ -28,7 +30,7 @@ class Product extends Model
         'color',
         'weight',
         'thumbnail',
-        'is_active',
+        'status',
         'is_featured',
         'stock',
         'sort_order',
@@ -44,7 +46,7 @@ class Product extends Model
         return [
             'price' => 'decimal:2',
             'discount_price' => 'decimal:2',
-            'is_active' => 'boolean',
+            'discount_percentage' => 'integer',
             'is_featured' => 'boolean',
             'stock' => 'integer',
         ];
@@ -55,7 +57,7 @@ class Product extends Model
      */
     public function getRouteKeyName(): string
     {
-        return 'slug';
+        return 'id';
     }
 
     /**
@@ -67,7 +69,37 @@ class Product extends Model
             if (empty($product->slug)) {
                 $product->slug = Str::slug($product->name);
             }
+            // Auto-calculate final price
+            $product->calculateFinalPrice();
         });
+
+        static::updating(function (Product $product) {
+            if (empty($product->slug)) {
+                $product->slug = Str::slug($product->name);
+            }
+            // Auto-calculate final price
+            $product->calculateFinalPrice();
+        });
+
+        static::deleted(function (Product $product) {
+            // Clean up thumbnail
+            if ($product->thumbnail) {
+                Storage::disk('public')->delete($product->thumbnail);
+            }
+        });
+    }
+
+    /**
+     * Calculate the final price based on discount percentage.
+     */
+    public function calculateFinalPrice(): void
+    {
+        if ($this->discount_percentage && $this->discount_percentage > 0) {
+            $this->discount_price = $this->price - ($this->price * $this->discount_percentage / 100);
+        } else {
+            $this->discount_price = $this->price;
+            $this->discount_percentage = null;
+        }
     }
 
     /**
@@ -83,7 +115,15 @@ class Product extends Model
      */
     public function images(): HasMany
     {
-        return $this->hasMany(ProductImage::class);
+        return $this->hasMany(ProductImage::class)->orderBy('sort_order');
+    }
+
+    /**
+     * Get the gallery images (non-primary).
+     */
+    public function galleryImages(): HasMany
+    {
+        return $this->hasMany(ProductImage::class)->where('is_primary', false)->orderBy('sort_order');
     }
 
     /**
@@ -100,6 +140,22 @@ class Product extends Model
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Get the reviews for the product.
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ProductReview::class);
+    }
+
+    /**
+     * Get the active reviews for the product.
+     */
+    public function activeReviews(): HasMany
+    {
+        return $this->hasMany(ProductReview::class)->where('is_active', true);
     }
 
     /**
@@ -123,11 +179,47 @@ class Product extends Model
      */
     public function getDiscountPercentageAttribute(): ?int
     {
-        if ($this->discount_price && $this->price > 0) {
+        if ($this->discount_price && $this->price > 0 && $this->price != $this->discount_price) {
             return (int) round((1 - $this->discount_price / $this->price) * 100);
         }
 
-        return null;
+        return $this->attributes['discount_percentage'] ?? null;
+    }
+
+    /**
+     * Check if product has discount.
+     */
+    public function getHasDiscountAttribute(): bool
+    {
+        return $this->discount_percentage && $this->discount_percentage > 0;
+    }
+
+    /**
+     * Get status label in Bahasa Indonesia.
+     */
+    public function getStatusLabelAttribute(): string
+    {
+        return match ($this->status) {
+            'active' => 'Aktif',
+            'inactive' => 'Tidak Aktif',
+            'pre_order' => 'Pre Order',
+            'sold_out' => 'Habis Terjual',
+            default => ucfirst($this->status),
+        };
+    }
+
+    /**
+     * Get status color class.
+     */
+    public function getStatusColorAttribute(): string
+    {
+        return match ($this->status) {
+            'active' => 'emerald',
+            'inactive' => 'red',
+            'pre_order' => 'amber',
+            'sold_out' => 'gray',
+            default => 'gray',
+        };
     }
 
     /**
@@ -135,7 +227,7 @@ class Product extends Model
      */
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('status', 'active');
     }
 
     /**

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Order extends Model
 {
@@ -75,6 +76,14 @@ class Order extends Model
     public function latestStatus()
     {
         return $this->hasOne(OrderStatusHistory::class)->latestOfMany();
+    }
+
+    /**
+     * Get the review associated with the order.
+     */
+    public function review(): HasOne
+    {
+        return $this->hasOne(ProductReview::class);
     }
 
     /**
