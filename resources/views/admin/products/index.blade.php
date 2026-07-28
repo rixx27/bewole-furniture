@@ -82,7 +82,6 @@
                         class="rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary">
                     <option value="">Semua Status</option>
                     <option value="active" {{ $statusFilter == 'active' ? 'selected' : '' }}>Aktif</option>
-                    <option value="inactive" {{ $statusFilter == 'inactive' ? 'selected' : '' }}>Tidak Aktif</option>
                     <option value="pre_order" {{ $statusFilter == 'pre_order' ? 'selected' : '' }}>Pre Order</option>
                     <option value="sold_out" {{ $statusFilter == 'sold_out' ? 'selected' : '' }}>Habis Terjual</option>
                 </select>
@@ -106,7 +105,7 @@
             <table class="w-full">
                 <thead>
                     <tr class="border-b border-border bg-bg-secondary/50">
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Produk</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Foto Produk</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Kategori</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Harga</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Stok</th>
@@ -166,7 +165,6 @@
                                 @php
                                     $statusColors = [
                                         'active' => 'emerald',
-                                        'inactive' => 'red',
                                         'pre_order' => 'amber',
                                         'sold_out' => 'gray',
                                     ];

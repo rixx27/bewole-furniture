@@ -59,7 +59,7 @@
                 <div class="md:col-span-2 p-6">
                     <div class="flex items-start justify-between gap-4">
                         <div>
-                            <h3 class="text-xl font-bold text-text-primary dark:text-white">{{ $product->name }}</h3>
+                            <h3 class="text-xl font-bold text-text-primary dark:text-black">{{ $product->name }}</h3>
                             <code class="mt-1 inline-block rounded bg-bg-secondary px-2 py-0.5 text-xs font-mono text-text-secondary">{{ $product->slug }}</code>
                         </div>
                         @if ($product->is_featured)
@@ -75,14 +75,13 @@
                     <div class="mt-6 grid grid-cols-2 gap-6">
                         <div>
                             <p class="text-xs font-semibold uppercase tracking-wider text-text-muted">Kategori</p>
-                            <p class="mt-1 text-sm text-text-primary dark:text-white">{{ $product->category->name ?? '-' }}</p>
+                            <p class="mt-1 text-sm text-text-primary dark:text-black">{{ $product->category->name ?? '-' }}</p>
                         </div>
                         <div>
                             <p class="text-xs font-semibold uppercase tracking-wider text-text-muted">Status</p>
                             @php
                                 $statusColors = [
                                     'active' => 'emerald',
-                                    'inactive' => 'red',
                                     'pre_order' => 'amber',
                                     'sold_out' => 'gray',
                                 ];
@@ -100,27 +99,27 @@
                                 <p class="text-xs text-text-muted line-through">{{ $product->formatted_price }}</p>
                                 <span class="mt-0.5 inline-block rounded bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600 dark:bg-red-950 dark:text-red-400">-{{ $product->discount_percentage }}%</span>
                             @else
-                                <p class="mt-1 text-lg font-bold text-text-primary dark:text-white">{{ $product->formatted_price }}</p>
+                                <p class="mt-1 text-lg font-bold text-text-primary dark:text-black">{{ $product->formatted_price }}</p>
                             @endif
                         </div>
                         <div>
                             <p class="text-xs font-semibold uppercase tracking-wider text-text-muted">Stok</p>
-                            <p class="mt-1 text-sm text-text-primary dark:text-white">{{ $product->stock }}</p>
+                            <p class="mt-1 text-sm text-text-primary dark:text-black">{{ $product->stock }}</p>
                         </div>
                     </div>
 
                     <div class="mt-6 grid grid-cols-2 gap-6">
                         <div>
                             <p class="text-xs font-semibold uppercase tracking-wider text-text-muted">Bahan</p>
-                            <p class="mt-1 text-sm text-text-primary dark:text-white">{{ $product->material ?? '-' }}</p>
+                            <p class="mt-1 text-sm text-text-primary dark:text-black">{{ $product->material ?? '-' }}</p>
                         </div>
                         <div>
                             <p class="text-xs font-semibold uppercase tracking-wider text-text-muted">Dimensi</p>
-                            <p class="mt-1 text-sm text-text-primary dark:text-white">{{ $product->dimensions ?? '-' }}</p>
+                            <p class="mt-1 text-sm text-text-primary dark:text-black">{{ $product->dimensions ?? '-' }}</p>
                         </div>
                         <div>
                             <p class="text-xs font-semibold uppercase tracking-wider text-text-muted">Berat</p>
-                            <p class="mt-1 text-sm text-text-primary dark:text-white">{{ $product->weight ?? '-' }}</p>
+                            <p class="mt-1 text-sm text-text-primary dark:text-black">{{ $product->weight ?? '-' }}</p>
                         </div>
                     </div>
                 </div>
@@ -130,7 +129,7 @@
         {{-- Deskripsi --}}
         <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden mb-6">
             <div class="border-b border-border bg-bg-secondary/50 px-6 py-3">
-                <h4 class="text-sm font-semibold text-text-primary dark:text-white">Deskripsi</h4>
+                <h4 class="text-sm font-semibold text-text-primary dark:text-black">Deskripsi</h4>
             </div>
             <div class="p-6 space-y-4">
                 <div>
@@ -148,7 +147,7 @@
         @if ($product->images->count() > 0)
             <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden mb-6">
                 <div class="border-b border-border bg-bg-secondary/50 px-6 py-3">
-                    <h4 class="text-sm font-semibold text-text-primary dark:text-white">Galeri Gambar ({{ $product->images->count() }})</h4>
+                    <h4 class="text-sm font-semibold text-text-primary dark:text-black">Galeri Gambar ({{ $product->images->count() }})</h4>
                 </div>
                 <div class="p-6">
                     <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
@@ -159,7 +158,7 @@
                                 <img src="{{ asset('storage/' . $image->image) }}"
                                      alt="Galeri {{ $loop->iteration }}"
                                      class="h-32 w-full rounded-lg border border-border object-cover transition-transform duration-200 group-hover:scale-105">
-                                <span class="absolute bottom-2 right-2 rounded bg-black/60 px-2 py-0.5 text-[10px] text-white">
+                                <span class="absolute bottom-2 right-2 rounded bg-black/60 px-2 py-0.5 text-[10px] text-black">
                                     #{{ $loop->iteration }}
                                 </span>
                             </a>
@@ -172,17 +171,17 @@
         {{-- Informasi Waktu --}}
         <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden mb-6">
             <div class="border-b border-border bg-bg-secondary/50 px-6 py-3">
-                <h4 class="text-sm font-semibold text-text-primary dark:text-white">Informasi Sistem</h4>
+                <h4 class="text-sm font-semibold text-text-primary dark:text-black">Informasi Sistem</h4>
             </div>
             <div class="p-6">
                 <div class="grid grid-cols-2 gap-6">
                     <div>
                         <p class="text-xs font-semibold uppercase tracking-wider text-text-muted">Dibuat Pada</p>
-                        <p class="mt-1 text-sm text-text-primary dark:text-white">{{ $product->created_at->locale('id')->isoFormat('dddd, D MMMM YYYY [pukul] HH:mm') }}</p>
+                        <p class="mt-1 text-sm text-text-primary dark:text-black">{{ $product->created_at->locale('id')->isoFormat('dddd, D MMMM YYYY [pukul] HH:mm') }}</p>
                     </div>
                     <div>
                         <p class="text-xs font-semibold uppercase tracking-wider text-text-muted">Diperbarui Pada</p>
-                        <p class="mt-1 text-sm text-text-primary dark:text-white">{{ $product->updated_at->locale('id')->isoFormat('dddd, D MMMM YYYY [pukul] HH:mm') }}</p>
+                        <p class="mt-1 text-sm text-text-primary dark:text-black">{{ $product->updated_at->locale('id')->isoFormat('dddd, D MMMM YYYY [pukul] HH:mm') }}</p>
                     </div>
                 </div>
             </div>

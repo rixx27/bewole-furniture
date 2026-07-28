@@ -27,7 +27,6 @@ class Product extends Model
         'sku',
         'material',
         'dimensions',
-        'color',
         'weight',
         'thumbnail',
         'status',
@@ -53,6 +52,11 @@ class Product extends Model
     }
 
     /**
+     * The valid status values for products.
+     */
+    public const STATUSES = ['active', 'pre_order', 'sold_out'];
+
+    /**
      * Get the route key for the model.
      */
     public function getRouteKeyName(): string
@@ -71,6 +75,8 @@ class Product extends Model
             }
             // Auto-calculate final price
             $product->calculateFinalPrice();
+            // Auto-set status based on stock on creation
+            $product->autoAdjustStatus();
         });
 
         static::updating(function (Product $product) {
@@ -79,6 +85,8 @@ class Product extends Model
             }
             // Auto-calculate final price
             $product->calculateFinalPrice();
+            // Auto-adjust status based on stock changes
+            $product->autoAdjustStatus();
         });
 
         static::deleted(function (Product $product) {
@@ -99,6 +107,28 @@ class Product extends Model
         } else {
             $this->discount_price = $this->price;
             $this->discount_percentage = null;
+        }
+    }
+
+    /**
+     * Auto-adjust status based on stock quantity.
+     *
+     * Rules:
+     * - If stock is 0 and status is NOT 'sold_out', change to 'pre_order'
+     * - If stock > 0 and status is 'pre_order', change to 'active'
+     * - 'sold_out' status is NEVER changed automatically
+     */
+    public function autoAdjustStatus(): void
+    {
+        // Never auto-change if status is sold_out
+        if ($this->status === 'sold_out') {
+            return;
+        }
+
+        if ($this->stock <= 0) {
+            $this->status = 'pre_order';
+        } elseif ($this->stock > 0 && $this->status === 'pre_order') {
+            $this->status = 'active';
         }
     }
 
@@ -201,7 +231,6 @@ class Product extends Model
     {
         return match ($this->status) {
             'active' => 'Aktif',
-            'inactive' => 'Tidak Aktif',
             'pre_order' => 'Pre Order',
             'sold_out' => 'Habis Terjual',
             default => ucfirst($this->status),
@@ -215,7 +244,6 @@ class Product extends Model
     {
         return match ($this->status) {
             'active' => 'emerald',
-            'inactive' => 'red',
             'pre_order' => 'amber',
             'sold_out' => 'gray',
             default => 'gray',

@@ -31,13 +31,14 @@ class StoreProductRequest extends FormRequest
             'price' => ['required', 'numeric', 'gt:0'],
             'discount_percentage' => ['nullable', 'integer', 'min:0', 'max:100'],
             'stock' => ['required', 'integer', 'min:0'],
+            'sku' => ['nullable', 'string', 'max:255', 'unique:products,sku'],
             'material' => ['required', 'string', 'max:255'],
             'dimensions' => ['nullable', 'string', 'max:255'],
             'weight' => ['nullable', 'string', 'max:255'],
-            'status' => ['required', Rule::in(['active', 'inactive', 'pre_order', 'sold_out'])],
+            'status' => ['required', Rule::in(['active', 'pre_order', 'sold_out'])],
             'is_featured' => ['boolean'],
             'thumbnail' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-            'gallery' => ['required', 'array', 'min:3'],
+            'gallery' => ['nullable', 'array'],
             'gallery.*' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ];
     }

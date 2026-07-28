@@ -85,11 +85,10 @@
                         <label for="status" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
                             Status <span class="text-red-500">*</span>
                         </label>
-                        <select id="status"
+                            <select id="status"
                                 name="status"
                                 class="w-full rounded-lg border {{ $errors->has('status') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary outline-hidden ring-0 transition-colors">
                             <option value="active" {{ old('status', $product->status) == 'active' ? 'selected' : '' }}>Aktif</option>
-                            <option value="inactive" {{ old('status', $product->status) == 'inactive' ? 'selected' : '' }}>Tidak Aktif</option>
                             <option value="pre_order" {{ old('status', $product->status) == 'pre_order' ? 'selected' : '' }}>Pre Order</option>
                             <option value="sold_out" {{ old('status', $product->status) == 'sold_out' ? 'selected' : '' }}>Habis Terjual</option>
                         </select>
@@ -307,7 +306,7 @@
             {{-- Panel Galeri --}}
             <div class="rounded-xl border border-border bg-card p-6 shadow-sm mb-6">
                 <h3 class="text-base font-semibold text-text-primary dark:text-white mb-1">Galeri Gambar</h3>
-                <p class="text-xs text-text-muted mb-5">Kelola gambar galeri produk. Klik gambar untuk menghapus (max. 2MB per gambar, format: JPG/PNG/WebP).</p>
+                <p class="text-xs text-text-muted mb-5">Kelola gambar galeri produk. Klik gambar untuk menghapus (opsional, max. 2MB per gambar, format: JPG/PNG/WebP).</p>
 
                 {{-- Existing Gallery --}}
                 @if ($product->images->count() > 0)

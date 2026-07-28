@@ -71,6 +71,7 @@ class ProductController extends Controller
         // Handle boolean
         $data['is_featured'] = $request->boolean('is_featured', false);
 
+
         // Upload thumbnail
         if ($request->hasFile('thumbnail')) {
             $data['thumbnail'] = $request->file('thumbnail')->store('products/thumbnails', 'public');
@@ -79,7 +80,7 @@ class ProductController extends Controller
         // Create product (final price auto-calculated in model boot)
         $product = Product::create($data);
 
-        // Upload gallery images
+        // Upload gallery images (optional)
         if ($request->hasFile('gallery')) {
             foreach ($request->file('gallery') as $index => $image) {
                 $path = $image->store('products/gallery', 'public');
