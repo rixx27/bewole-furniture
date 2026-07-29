@@ -14,19 +14,19 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
-            $table->string('name');
-            $table->string('slug')->unique();
+            $table->string('name', 255);
+            $table->string('slug', 255)->unique();
             $table->text('description')->nullable();
             $table->text('short_description')->nullable();
-            $table->decimal('price', 12, 2);
-            $table->decimal('discount_price', 12, 2)->nullable();
-            $table->string('sku')->nullable()->unique();
-            $table->string('material')->nullable();
-            $table->string('dimensions')->nullable();
-            $table->string('color')->nullable();
-            $table->string('weight')->nullable();
-            $table->string('thumbnail')->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->bigInteger('price');
+            $table->bigInteger('discount_price')->nullable();
+            $table->integer('discount_percentage')->nullable();
+            $table->string('sku', 100)->nullable();
+            $table->string('material', 255)->nullable();
+            $table->string('dimensions', 255)->nullable();
+            $table->decimal('weight', 10, 2)->nullable();
+            $table->string('thumbnail', 255)->nullable();
+            $table->string('status', 20)->default('active');
             $table->boolean('is_featured')->default(false);
             $table->integer('stock')->default(0);
             $table->integer('sort_order')->default(0);
@@ -42,4 +42,3 @@ return new class extends Migration
         Schema::dropIfExists('products');
     }
 };
-

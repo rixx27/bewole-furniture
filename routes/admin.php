@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 // Admin routes protected by authentication, email verification, and admin role
 Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
-    Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
+    Route::view('/dashboard', 'admin.dashboard.index')->name('dashboard');
 
     // Master Data
     Route::resource('categories', App\Http\Controllers\Admin\CategoryController::class)->names('categories');

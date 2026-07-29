@@ -141,14 +141,13 @@
                         <label for="price" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
                             Harga Asli (Rp) <span class="text-red-500">*</span>
                         </label>
-                        <input type="number"
-                               id="price"
-                               name="price"
-                               value="{{ old('price', $product->price) }}"
-                               placeholder="100000"
-                               min="1"
-                               step="0.01"
-                               class="w-full rounded-lg border {{ $errors->has('price') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors">
+                        <input type="text"
+                        id="price"
+                        name="price"
+                        value="{{ old('price', number_format($product->price, 0, ',', '.')) }}"
+                        placeholder="2.000.000"
+                        autocomplete="off"
+                        class="w-full rounded-lg border {{ $errors->has('price') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors">
                         @error('price')
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                         @enderror

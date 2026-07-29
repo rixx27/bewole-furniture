@@ -113,7 +113,7 @@
                                         </div>
                                     @endif
                                     <div>
-                                        <p class="text-sm font-medium text-text-primary dark:text-white">{{ $category->name }}</p>
+                                        <p class="text-sm font-medium text-text-primary dark:text-black">{{ $category->name }}</p>
                                         @if ($category->description)
                                             <p class="text-xs text-text-muted line-clamp-1">{{ $category->description }}</p>
                                         @endif

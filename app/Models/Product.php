@@ -43,8 +43,8 @@ class Product extends Model
     protected function casts(): array
     {
         return [
-            'price' => 'decimal:2',
-            'discount_price' => 'decimal:2',
+            'price' => 'integer',
+            'discount_price' => 'integer',
             'discount_percentage' => 'integer',
             'is_featured' => 'boolean',
             'stock' => 'integer',
@@ -85,8 +85,10 @@ class Product extends Model
             }
             // Auto-calculate final price
             $product->calculateFinalPrice();
-            // Auto-adjust status based on stock changes
-            $product->autoAdjustStatus();
+            // Auto-adjust status only when stock changes and status is not explicitly set
+            if ($product->isDirty('stock') && !$product->isDirty('status')) {
+                $product->autoAdjustStatus();
+            }
         });
 
         static::deleted(function (Product $product) {
@@ -103,7 +105,7 @@ class Product extends Model
     public function calculateFinalPrice(): void
     {
         if ($this->discount_percentage && $this->discount_percentage > 0) {
-            $this->discount_price = $this->price - ($this->price * $this->discount_percentage / 100);
+            $this->discount_price = (int) round($this->price - ($this->price * $this->discount_percentage / 100));
         } else {
             $this->discount_price = $this->price;
             $this->discount_percentage = null;

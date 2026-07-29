@@ -15,12 +15,14 @@
         <p class="mt-1 text-sm text-text-secondary">Tambahkan produk furniture baru.</p>
     </div>
 
-    {{-- Form --}}
+    {{-- Form Container --}}
     <div class="max-w-4xl xl:max-w-5xl">
         <form method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data">
             @csrf
 
+            {{-- ======================== --}}
             {{-- Panel Informasi Dasar --}}
+            {{-- ======================== --}}
             <div class="rounded-xl border border-border bg-card p-6 shadow-sm mb-6">
                 <h3 class="text-base font-semibold text-text-primary dark:text-white mb-1">Informasi Dasar</h3>
                 <p class="text-xs text-text-muted mb-5">Data utama produk furniture.</p>
@@ -84,10 +86,10 @@
                         <label for="status" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
                             Status <span class="text-red-500">*</span>
                         </label>
-                            <select id="status"
+                        <select id="status"
                                 name="status"
                                 class="w-full rounded-lg border {{ $errors->has('status') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary outline-hidden ring-0 transition-colors">
-                            <option value="active" {{ old('status', 'active') == 'active' ? 'selected' : 'selected' }}>Aktif</option>
+                            <option value="active" {{ old('status', 'active') == 'active' ? 'selected' : '' }}>Aktif</option>
                             <option value="pre_order" {{ old('status') == 'pre_order' ? 'selected' : '' }}>Pre Order</option>
                             <option value="sold_out" {{ old('status') == 'sold_out' ? 'selected' : '' }}>Habis Terjual</option>
                         </select>
@@ -96,6 +98,7 @@
                         @enderror
                     </div>
                 </div>
+                {{-- END grid --}}
 
                 {{-- Deskripsi Singkat --}}
                 <div class="mt-5">
@@ -128,8 +131,11 @@
                     @enderror
                 </div>
             </div>
+            {{-- END Panel Informasi Dasar --}}
 
+            {{-- ======================== --}}
             {{-- Panel Harga & Stok --}}
+            {{-- ======================== --}}
             <div class="rounded-xl border border-border bg-card p-6 shadow-sm mb-6">
                 <h3 class="text-base font-semibold text-text-primary dark:text-white mb-1">Harga & Stok</h3>
                 <p class="text-xs text-text-muted mb-5">Informasi harga dan ketersediaan stok.</p>
@@ -140,13 +146,13 @@
                         <label for="price" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
                             Harga Asli (Rp) <span class="text-red-500">*</span>
                         </label>
-                        <input type="number"
+                        <input type="text"
                                id="price"
                                name="price"
+                               inputmode="numeric"
                                value="{{ old('price') }}"
-                               placeholder="100000"
-                               min="1"
-                               step="0.01"
+                               placeholder="2.000.000"
+                               autocomplete="off"
                                class="w-full rounded-lg border {{ $errors->has('price') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors">
                         @error('price')
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
@@ -192,9 +198,13 @@
                         @enderror
                     </div>
                 </div>
+                {{-- END grid --}}
             </div>
+            {{-- END Panel Harga & Stok --}}
 
+            {{-- ======================== --}}
             {{-- Panel Detail Produk --}}
+            {{-- ======================== --}}
             <div class="rounded-xl border border-border bg-card p-6 shadow-sm mb-6">
                 <h3 class="text-base font-semibold text-text-primary dark:text-white mb-1">Detail Produk</h3>
                 <p class="text-xs text-text-muted mb-5">Informasi tambahan produk.</p>
@@ -263,9 +273,13 @@
                         </label>
                     </div>
                 </div>
+                {{-- END grid --}}
             </div>
+            {{-- END Panel Detail Produk --}}
 
+            {{-- ======================== --}}
             {{-- Panel Thumbnail --}}
+            {{-- ======================== --}}
             <div class="rounded-xl border border-border bg-card p-6 shadow-sm mb-6">
                 <h3 class="text-base font-semibold text-text-primary dark:text-white mb-1">Thumbnail</h3>
                 <p class="text-xs text-text-muted mb-5">Gambar utama produk (max. 2MB, format: JPG/PNG/WebP).</p>
@@ -291,10 +305,14 @@
                             <p class="mt-1 text-xs text-text-muted">Pilih gambar utama produk. Rasio 1:1 disarankan.</p>
                         </div>
                     </div>
+                    {{-- END flex --}}
                 </div>
             </div>
+            {{-- END Panel Thumbnail --}}
 
+            {{-- ======================== --}}
             {{-- Panel Galeri --}}
+            {{-- ======================== --}}
             <div class="rounded-xl border border-border bg-card p-6 shadow-sm mb-6">
                 <h3 class="text-base font-semibold text-text-primary dark:text-white mb-1">Galeri Gambar</h3>
                 <p class="text-xs text-text-muted mb-5">Unggah gambar galeri produk (opsional, max. 2MB per gambar, format: JPG/PNG/WebP).</p>
@@ -321,8 +339,11 @@
                     <div id="gallery-preview" class="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6"></div>
                 </div>
             </div>
+            {{-- END Panel Galeri --}}
 
+            {{-- ======================== --}}
             {{-- Actions --}}
+            {{-- ======================== --}}
             <div class="flex items-center gap-3">
                 <button type="submit"
                         class="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white transition-all hover:bg-primary-dark shadow-xs">
@@ -336,47 +357,85 @@
                     Batal
                 </a>
             </div>
+
         </form>
     </div>
+    {{-- END Form Container --}}
 
     @push('scripts')
     <script>
-        // Thumbnail preview
+        // ============================
+        // Thumbnail Preview
+        // ============================
         document.getElementById('thumbnail')?.addEventListener('change', function(e) {
             const file = e.target.files[0];
+
             if (file) {
                 const reader = new FileReader();
+
                 reader.onload = function(ev) {
-                    const preview = document.getElementById('thumbnail-preview');
-                    const img = document.getElementById('thumbnail-image');
-                    img.src = ev.target.result;
-                    preview.classList.remove('hidden');
+                    document.getElementById('thumbnail-image').src = ev.target.result;
+                    document.getElementById('thumbnail-preview').classList.remove('hidden');
                 };
+
                 reader.readAsDataURL(file);
             }
         });
 
-        // Gallery preview
+        // ============================
+        // Gallery Preview
+        // ============================
         document.getElementById('gallery')?.addEventListener('change', function(e) {
             const preview = document.getElementById('gallery-preview');
             preview.innerHTML = '';
+
             Array.from(e.target.files).forEach((file, index) => {
                 const reader = new FileReader();
+
                 reader.onload = function(ev) {
                     const div = document.createElement('div');
                     div.className = 'relative group';
                     div.innerHTML = `
-                        <img src="${ev.target.result}" alt="Gallery ${index + 1}"
-                             class="h-24 w-full rounded-lg border border-border object-cover">
-                        <span class="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-white shadow-xs">
+                        <img src="${ev.target.result}"
+                            class="h-24 w-full rounded-lg border border-border object-cover">
+
+                        <span class="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-white shadow">
                             ${index + 1}
                         </span>
                     `;
                     preview.appendChild(div);
                 };
+
                 reader.readAsDataURL(file);
             });
         });
+
+        // ===============================
+        // Format Harga Rupiah
+        // ===============================
+        const priceInput = document.getElementById('price');
+
+        if (priceInput) {
+            // Format saat mengetik
+            priceInput.addEventListener('input', function() {
+                let value = this.value.replace(/\D/g, '');
+
+                if (value === '') {
+                    this.value = '';
+                    return;
+                }
+
+                this.value = Number(value).toLocaleString('id-ID');
+            });
+
+            // Sebelum submit kirim angka asli (tanpa titik)
+            const form = priceInput.closest('form');
+            if (form) {
+                form.addEventListener('submit', function() {
+                    priceInput.value = priceInput.value.replace(/\./g, '');
+                });
+            }
+        }
     </script>
     @endpush
 

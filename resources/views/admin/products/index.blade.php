@@ -148,11 +148,11 @@
                             <td class="px-6 py-4">
                                 <div class="space-y-0.5">
                                     @if ($product->has_discount)
-                                        <p class="text-sm font-semibold text-text-primary dark:text-white">{{ $product->formatted_discount_price }}</p>
+                                        <p class="text-sm font-semibold text-text-primary dark:text-black">{{ $product->formatted_discount_price }}</p>
                                         <p class="text-xs text-text-muted line-through">{{ $product->formatted_price }}</p>
                                         <span class="inline-block rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-medium text-red-600 dark:bg-red-950 dark:text-red-400">-{{ $product->discount_percentage }}%</span>
                                     @else
-                                        <p class="text-sm font-semibold text-text-primary dark:text-white">{{ $product->formatted_price }}</p>
+                                        <p class="text-sm font-semibold text-text-primary dark:text-black">{{ $product->formatted_price }}</p>
                                     @endif
                                 </div>
                             </td>

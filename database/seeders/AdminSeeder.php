@@ -39,7 +39,6 @@ class AdminSeeder extends Seeder
                 'name' => 'Administrator',
                 'password' => Hash::make('mozaiq@03'),
                 'email_verified_at' => now(),
-                'is_admin' => true,
             ]
         );
 
