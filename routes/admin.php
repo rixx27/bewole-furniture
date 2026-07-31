@@ -21,7 +21,18 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
 
     // Transactions
     Route::resource('orders', App\Http\Controllers\Admin\OrderController::class)->names('orders');
+    Route::get('orders/{order}/invoice', [App\Http\Controllers\Admin\OrderController::class, 'invoice'])->name('orders.invoice');
+    Route::patch('orders/{order}/status', [App\Http\Controllers\Admin\OrderController::class, 'updateStatus'])->name('orders.update-status');
+    Route::patch('orders/{order}/shipping', [App\Http\Controllers\Admin\OrderController::class, 'updateShipping'])->name('orders.update-shipping');
+    Route::patch('orders/{order}/payment', [App\Http\Controllers\Admin\OrderController::class, 'updatePayment'])->name('orders.update-payment');
+    Route::post('orders/{order}/cancel', [App\Http\Controllers\Admin\OrderController::class, 'cancel'])->name('orders.cancel');
     Route::resource('product-reviews', App\Http\Controllers\Admin\ProductReviewController::class)->names('product-reviews');
+
+    // Reports
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/orders', [App\Http\Controllers\Admin\ReportController::class, 'orders'])->name('orders');
+        Route::get('/orders/pdf', [App\Http\Controllers\Admin\ReportController::class, 'ordersPdf'])->name('orders.pdf');
+    });
 
     // Website
     Route::resource('settings', App\Http\Controllers\Admin\SettingController::class)->names('settings');

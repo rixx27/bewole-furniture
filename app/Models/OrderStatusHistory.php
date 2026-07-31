@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\OrderStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -15,9 +16,21 @@ class OrderStatusHistory extends Model
     protected $fillable = [
         'order_id',
         'status',
-        'description',
+        'notes',
         'changed_by',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'created_at' => 'datetime',
+        ];
+    }
 
     /**
      * Get the order that owns the status history.
@@ -33,6 +46,24 @@ class OrderStatusHistory extends Model
     public function changedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'changed_by');
+    }
+
+    /**
+     * Get the status label attribute.
+     */
+    public function getStatusLabelAttribute(): string
+    {
+        $status = OrderStatus::tryFrom($this->status);
+        return $status ? $status->label() : $this->status;
+    }
+
+    /**
+     * Get the status color attribute.
+     */
+    public function getStatusColorAttribute(): string
+    {
+        $status = OrderStatus::tryFrom($this->status);
+        return $status ? $status->color() : 'gray';
     }
 }
 

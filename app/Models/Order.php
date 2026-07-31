@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
+use App\Enums\ShippingMethod;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -31,6 +34,13 @@ class Order extends Model
         'payment_status',
         'payment_method',
         'whatsapp_number',
+        'shipping_method',
+        'courier',
+        'tracking_number',
+        'driver_name',
+        'vehicle_number',
+        'shipping_date',
+        'pickup_date',
     ];
 
     /**
@@ -43,6 +53,8 @@ class Order extends Model
         return [
             'quantity' => 'integer',
             'total_price' => 'decimal:2',
+            'shipping_date' => 'date',
+            'pickup_date' => 'date',
         ];
     }
 
@@ -67,7 +79,7 @@ class Order extends Model
      */
     public function statusHistories(): HasMany
     {
-        return $this->hasMany(OrderStatusHistory::class);
+        return $this->hasMany(OrderStatusHistory::class)->orderBy('created_at', 'desc');
     }
 
     /**
@@ -95,6 +107,59 @@ class Order extends Model
     }
 
     /**
+     * Get the shipping method label attribute.
+     */
+    public function getShippingMethodLabelAttribute(): string
+    {
+        $method = ShippingMethod::tryFrom($this->shipping_method);
+        return $method ? $method->label() : '-';
+    }
+
+    /**
+     * Get the status label attribute.
+     */
+    public function getStatusLabelAttribute(): string
+    {
+        $status = OrderStatus::tryFrom($this->status);
+        return $status ? $status->label() : $this->status;
+    }
+
+    /**
+     * Get the status color attribute.
+     */
+    public function getStatusColorAttribute(): string
+    {
+        $status = OrderStatus::tryFrom($this->status);
+        return $status ? $status->color() : 'gray';
+    }
+
+    /**
+     * Get the payment status label attribute.
+     */
+    public function getPaymentStatusLabelAttribute(): string
+    {
+        $status = PaymentStatus::tryFrom($this->payment_status);
+        return $status ? $status->label() : $this->payment_status;
+    }
+
+    /**
+     * Get the payment status color attribute.
+     */
+    public function getPaymentStatusColorAttribute(): string
+    {
+        $status = PaymentStatus::tryFrom($this->payment_status);
+        return $status ? $status->color() : 'gray';
+    }
+
+    /**
+     * Get the subtotal (total price before shipping).
+     */
+    public function getSubtotalAttribute(): float
+    {
+        return (float) $this->total_price;
+    }
+
+    /**
      * Scope a query to only include orders with a specific status.
      */
     public function scopeWhereStatus($query, string $status)
@@ -108,6 +173,14 @@ class Order extends Model
     public function scopeLatest($query)
     {
         return $query->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Scope a query to filter by date range.
+     */
+    public function scopeDateRange($query, $startDate, $endDate)
+    {
+        return $query->whereBetween('created_at', [$startDate, $endDate]);
     }
 }
 

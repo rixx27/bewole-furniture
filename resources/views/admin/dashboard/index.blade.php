@@ -1,5 +1,7 @@
 @php
+    use App\Services\OrderService;
     $user = auth()->user();
+    $stats = app(OrderService::class)->getDashboardStats();
 @endphp
 
 <x-layouts::admin :title="'Dashboard'">
@@ -16,12 +18,54 @@
 
     {{-- Grid Statistik --}}
     <div class="mb-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-        {{-- Total Produk --}}
+        {{-- Total Pesanan --}}
         <div class="stat-card rounded-xl border border-border bg-card p-5 shadow-sm">
             <div class="flex items-start justify-between">
                 <div>
-                    <p class="text-xs font-semibold uppercase tracking-wider text-text-muted">Total Produk</p>
-                    <p class="mt-2 text-3xl font-bold tracking-tight text-text-primary dark:text-black">0</p>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-text-muted">Total Pesanan</p>
+                    <p class="mt-2 text-3xl font-bold tracking-tight text-text-primary dark:text-black">{{ $stats['totalOrders'] }}</p>
+                </div>
+                <div class="flex h-11 w-11 items-center justify-center rounded-lg bg-info/10 text-info">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="mt-3 flex items-center gap-1.5 text-xs">
+                <span class="inline-flex items-center gap-0.5 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-600">
+                    {{ $stats['pendingOrders'] }} pending
+                </span>
+                <span class="text-text-muted">pesanan</span>
+            </div>
+        </div>
+
+        {{-- Total Pendapatan --}}
+        <div class="stat-card rounded-xl border border-border bg-card p-5 shadow-sm">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-text-muted">Total Pendapatan</p>
+                    <p class="mt-2 text-3xl font-bold tracking-tight text-emerald-600">Rp {{ number_format($stats['totalRevenue'], 0, ',', '.') }}</p>
+                </div>
+                <div class="flex h-11 w-11 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="mt-3 flex items-center gap-1.5 text-xs">
+                <span class="inline-flex items-center gap-0.5 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-600">
+                    {{ $stats['completedOrders'] }} selesai
+                </span>
+                <span class="text-text-muted">pesanan</span>
+            </div>
+        </div>
+
+        {{-- Produk Terjual --}}
+        <div class="stat-card rounded-xl border border-border bg-card p-5 shadow-sm">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-text-muted">Produk Terjual</p>
+                    <p class="mt-2 text-3xl font-bold tracking-tight text-text-primary dark:text-black">{{ $stats['totalProductsSold'] }}</p>
                 </div>
                 <div class="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -30,77 +74,28 @@
                 </div>
             </div>
             <div class="mt-3 flex items-center gap-1.5 text-xs">
-                <span class="inline-flex items-center gap-0.5 rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
-                    <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
-                    0%
+                <span class="inline-flex items-center gap-0.5 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-600">
+                    {{ $stats['processingOrders'] }} diproses
                 </span>
-                <span class="text-text-muted">dari bulan lalu</span>
+                <span class="text-text-muted">pesanan</span>
             </div>
         </div>
 
-        {{-- Total Pesanan --}}
+        {{-- Pesanan Dikirim --}}
         <div class="stat-card rounded-xl border border-border bg-card p-5 shadow-sm">
             <div class="flex items-start justify-between">
                 <div>
-                    <p class="text-xs font-semibold uppercase tracking-wider text-text-muted">Total Pesanan</p>
-                    <p class="mt-2 text-3xl font-bold tracking-tight text-text-primary dark:text-black">0</p>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-text-muted">Dalam Pengiriman</p>
+                    <p class="mt-2 text-3xl font-bold tracking-tight text-text-primary dark:text-black">{{ $stats['shippedOrders'] }}</p>
                 </div>
-                <div class="flex h-11 w-11 items-center justify-center rounded-lg bg-info/10 text-info">
+                <div class="flex h-11 w-11 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
                     </svg>
                 </div>
             </div>
             <div class="mt-3 flex items-center gap-1.5 text-xs">
-                <span class="inline-flex items-center gap-0.5 rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
-                    <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
-                    0%
-                </span>
-                <span class="text-text-muted">dari bulan lalu</span>
-            </div>
-        </div>
-
-        {{-- Total Ulasan --}}
-        <div class="stat-card rounded-xl border border-border bg-card p-5 shadow-sm">
-            <div class="flex items-start justify-between">
-                <div>
-                    <p class="text-xs font-semibold uppercase tracking-wider text-text-muted">Total Ulasan</p>
-                    <p class="mt-2 text-3xl font-bold tracking-tight text-text-primary dark:text-black">0</p>
-                </div>
-                <div class="flex h-11 w-11 items-center justify-center rounded-lg bg-warning/10 text-warning">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>
-                    </svg>
-                </div>
-            </div>
-            <div class="mt-3 flex items-center gap-1.5 text-xs">
-                <span class="inline-flex items-center gap-0.5 rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
-                    <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
-                    0%
-                </span>
-                <span class="text-text-muted">dari bulan lalu</span>
-            </div>
-        </div>
-
-        {{-- Total Pengguna --}}
-        <div class="stat-card rounded-xl border border-border bg-card p-5 shadow-sm">
-            <div class="flex items-start justify-between">
-                <div>
-                    <p class="text-xs font-semibold uppercase tracking-wider text-text-muted">Total Pengguna</p>
-                    <p class="mt-2 text-3xl font-bold tracking-tight text-text-primary dark:text-black">{{ $totalUsers ?? 0 }}</p>
-                </div>
-                <div class="flex h-11 w-11 items-center justify-center rounded-lg bg-danger/10 text-danger">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/>
-                    </svg>
-                </div>
-            </div>
-            <div class="mt-3 flex items-center gap-1.5 text-xs">
-                <span class="inline-flex items-center gap-0.5 rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
-                    <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
-                    {{ $userCount ?? 0 }}%
-                </span>
-                <span class="text-text-muted">pengguna terdaftar</span>
+                <span class="text-text-muted">{{ $stats['completedOrders'] }} selesai</span>
             </div>
         </div>
     </div>
@@ -112,7 +107,7 @@
             <div class="mb-5 flex items-center justify-between">
                 <div>
                     <h3 class="text-base font-semibold text-text-primary dark:text-primary">Pesanan Bulanan</h3>
-                    <p class="mt-0.5 text-xs text-text-muted">Gambaran pesanan tahun ini</p>
+                    <p class="mt-0.5 text-xs text-text-muted">Gambaran pesanan tahun {{ now()->year }}</p>
                 </div>
                 <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary-light">
                     <svg class="h-4 w-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -121,13 +116,28 @@
                 </div>
             </div>
             <div class="flex h-60 items-center justify-center rounded-lg bg-bg-secondary">
-                <div class="text-center">
-                    <svg class="mx-auto mb-3 h-10 w-10 text-text-muted/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
-                    </svg>
-                    <p class="text-sm font-medium text-text-muted">Grafik akan segera hadir</p>
-                    <p class="mt-1 text-xs text-text-muted/60">Data akan muncul setelah ada pesanan masuk</p>
-                </div>
+                @if (collect($stats['chartData'])->sum('total') > 0)
+                    <div class="w-full h-full p-4">
+                        <div class="flex items-end gap-2 h-full">
+                            @foreach ($stats['chartData'] as $data)
+                                <div class="flex-1 flex flex-col items-center gap-1">
+                                    <span class="text-[10px] font-medium text-text-muted">{{ $data['count'] }}</span>
+                                    <div class="w-full rounded-t bg-primary/80 hover:bg-primary transition-colors"
+                                         style="height: {{ max(4, ($data['count'] / max(1, collect($stats['chartData'])->max('count'))) * 180) }}px">
+                                    </div>
+                                    <span class="text-[10px] text-text-muted">{{ $data['month'] }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @else
+                    <div class="text-center">
+                        <svg class="mx-auto mb-3 h-10 w-10 text-text-muted/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
+                        </svg>
+                        <p class="text-sm font-medium text-text-muted">Data akan muncul setelah ada pesanan masuk</p>
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -136,7 +146,7 @@
             <div class="mb-5 flex items-center justify-between">
                 <div>
                     <h3 class="text-base font-semibold text-text-primary dark:text-primary">Pendapatan Bulanan</h3>
-                    <p class="mt-0.5 text-xs text-text-muted">Gambaran pendapatan tahun ini</p>
+                    <p class="mt-0.5 text-xs text-text-muted">Gambaran pendapatan tahun {{ now()->year }}</p>
                 </div>
                 <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary-light">
                     <svg class="h-4 w-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -145,13 +155,28 @@
                 </div>
             </div>
             <div class="flex h-60 items-center justify-center rounded-lg bg-bg-secondary">
-                <div class="text-center">
-                    <svg class="mx-auto mb-3 h-10 w-10 text-text-muted/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"/>
-                    </svg>
-                    <p class="text-sm font-medium text-text-muted">Grafik akan segera hadir</p>
-                    <p class="mt-1 text-xs text-text-muted/60">Data akan muncul setelah ada pesanan masuk</p>
-                </div>
+                @if (collect($stats['chartData'])->sum('total') > 0)
+                    <div class="w-full h-full p-4">
+                        <div class="flex items-end gap-2 h-full">
+                            @foreach ($stats['chartData'] as $data)
+                                <div class="flex-1 flex flex-col items-center gap-1">
+                                    <span class="text-[10px] font-medium text-emerald-600">Rp{{ number_format($data['total'] / 1000, 0) }}k</span>
+                                    <div class="w-full rounded-t bg-emerald-400/80 hover:bg-emerald-500 transition-colors"
+                                         style="height: {{ max(4, ($data['total'] / max(1, collect($stats['chartData'])->max('total'))) * 180) }}px">
+                                    </div>
+                                    <span class="text-[10px] text-text-muted">{{ $data['month'] }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @else
+                    <div class="text-center">
+                        <svg class="mx-auto mb-3 h-10 w-10 text-text-muted/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"/>
+                        </svg>
+                        <p class="text-sm font-medium text-text-muted">Data akan muncul setelah ada pesanan masuk</p>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -181,16 +206,31 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-border/50">
-                        <tr>
-                            <td colspan="5" class="px-6 py-12 text-center">
-                                <div class="flex flex-col items-center">
-                                    <svg class="mb-2 h-8 w-8 text-text-muted/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"/>
-                                    </svg>
-                                    <p class="text-sm text-text-muted">Belum ada pesanan</p>
-                                </div>
-                            </td>
-                        </tr>
+                        @forelse ($stats['recentOrders'] as $order)
+                            <tr class="transition-colors hover:bg-bg-secondary/30">
+                                <td class="px-6 py-3 text-sm font-mono font-medium text-text-primary dark:text-white">{{ $order->order_code }}</td>
+                                <td class="px-6 py-3 text-sm text-text-secondary">{{ $order->customer_name }}</td>
+                                <td class="px-6 py-3 text-sm text-text-secondary">{{ $order->product?->name ?? '-' }}</td>
+                                <td class="px-6 py-3">
+                                    @php $color = $order->status_color; @endphp
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-{{ $color }}-50 px-2.5 py-0.5 text-xs font-medium text-{{ $color }}-700 dark:bg-{{ $color }}-950 dark:text-{{ $color }}-300">
+                                        {{ $order->status_label }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-3 text-sm text-text-muted">{{ $order->created_at->format('d/m/Y') }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center">
+                                    <div class="flex flex-col items-center">
+                                        <svg class="mb-2 h-8 w-8 text-text-muted/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"/>
+                                        </svg>
+                                        <p class="text-sm text-text-muted">Belum ada pesanan</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -294,4 +334,3 @@
     </div>
 
 </x-layouts::admin>
-
