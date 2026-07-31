@@ -39,18 +39,6 @@
     <span>Produk</span>
 </a>
 
-<a href="{{ route('admin.product-images.index') }}"
-    @class([
-        'sidebar-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
-        'bg-primary text-white shadow-sm' => request()->routeIs('admin.product-images.*'),
-        'text-sidebar-text hover:bg-sidebar-hover hover:text-sidebar-text-hover' => !request()->routeIs('admin.product-images.*'),
-    ])>
-    <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
-    </svg>
-    <span>Galeri Produk</span>
-</a>
-
 {{-- Konten Group --}}
 <div class="my-3 border-t border-white/10"></div>
 <p class="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.15em] text-sidebar-text/60">Konten</p>
@@ -67,35 +55,11 @@
     <span>Hero Banner</span>
 </a>
 
-<a href="{{ route('admin.portfolios.index') }}"
+    <a href="{{ route('admin.faqs.index') }}"
     @class([
         'sidebar-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
-        'bg-primary text-white shadow-sm' => request()->routeIs('admin.portfolios.*'),
-        'text-sidebar-text hover:bg-sidebar-hover hover:text-sidebar-text-hover' => !request()->routeIs('admin.portfolios.*'),
-    ])>
-    <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
-    </svg>
-    <span>Portofolio</span>
-</a>
-
-<a href="{{ route('admin.testimonials.index') }}"
-    @class([
-        'sidebar-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
-        'bg-primary text-white shadow-sm' => request()->routeIs('admin.testimonials.*'),
-        'text-sidebar-text hover:bg-sidebar-hover hover:text-sidebar-text-hover' => !request()->routeIs('admin.testimonials.*'),
-    ])>
-    <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
-    </svg>
-    <span>Testimoni</span>
-</a>
-
-<a href="{{ route('admin.faq.index') }}"
-    @class([
-        'sidebar-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
-        'bg-primary text-white shadow-sm' => request()->routeIs('admin.faq.*'),
-        'text-sidebar-text hover:bg-sidebar-hover hover:text-sidebar-text-hover' => !request()->routeIs('admin.faq.*'),
+        'bg-primary text-white shadow-sm' => request()->routeIs('admin.faqs.*'),
+        'text-sidebar-text hover:bg-sidebar-hover hover:text-sidebar-text-hover' => !request()->routeIs('admin.faqs.*'),
     ])>
     <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />

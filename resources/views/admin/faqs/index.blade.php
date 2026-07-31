@@ -1,5 +1,5 @@
 @php
-    $title = 'Daftar Produk';
+    $title = 'FAQ';
 @endphp
 
 <x-layouts::admin :title="$title">
@@ -40,23 +40,23 @@
     <div class="mb-6">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h2 class="text-2xl font-bold tracking-tight text-text-primary dark:text-black">Daftar Produk</h2>
-                <p class="mt-1 text-sm text-text-secondary">Kelola produk furniture Anda.</p>
+                <h2 class="text-2xl font-bold tracking-tight text-text-primary dark:text-black">FAQ</h2>
+                <p class="mt-1 text-sm text-text-secondary">Kelola daftar pertanyaan yang sering diajukan pelanggan.</p>
             </div>
-            <a href="{{ route('admin.products.create') }}"
+            <a href="{{ route('admin.faqs.create') }}"
                class="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-primary-dark shadow-xs">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15"/>
                 </svg>
-                Tambah Produk
+                Tambah FAQ
             </a>
         </div>
     </div>
 
-    {{-- Filter & Search --}}
+    {{-- Search --}}
     <div class="mb-6">
-        <form method="GET" action="{{ route('admin.products.index') }}">
-            <div class="flex flex-col gap-3 sm:flex-row">
+        <form method="GET" action="{{ route('admin.faqs.index') }}">
+            <div class="flex gap-3">
                 <div class="relative flex-1">
                     <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                         <svg class="h-4 w-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -66,31 +66,15 @@
                     <input type="text"
                            name="search"
                            value="{{ $search }}"
-                           placeholder="Cari produk..."
+                           placeholder="Cari FAQ berdasarkan pertanyaan..."
                            class="w-full rounded-lg border border-border bg-card py-2.5 pl-10 pr-4 text-sm text-text-primary placeholder-text-muted focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary">
                 </div>
-                <select name="category"
-                        class="rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary">
-                    <option value="">Semua Kategori</option>
-                    @foreach ($categories as $category)
-                        <option value="{{ $category->id }}" {{ $categoryFilter == $category->id ? 'selected' : '' }}>
-                            {{ $category->name }}
-                        </option>
-                    @endforeach
-                </select>
-                <select name="status"
-                        class="rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary">
-                    <option value="">Semua Status</option>
-                    <option value="active" {{ $statusFilter == 'active' ? 'selected' : '' }}>Aktif</option>
-                    <option value="pre_order" {{ $statusFilter == 'pre_order' ? 'selected' : '' }}>Pre Order</option>
-                    <option value="sold_out" {{ $statusFilter == 'sold_out' ? 'selected' : '' }}>Habis Terjual</option>
-                </select>
                 <button type="submit"
                         class="rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-text-secondary hover:bg-bg-secondary transition-colors">
                     Cari
                 </button>
-                @if ($search || $categoryFilter || $statusFilter)
-                    <a href="{{ route('admin.products.index') }}"
+                @if ($search)
+                    <a href="{{ route('admin.faqs.index') }}"
                        class="rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-text-secondary hover:bg-bg-secondary transition-colors">
                         Reset
                     </a>
@@ -105,80 +89,49 @@
             <table class="w-full">
                 <thead>
                     <tr class="border-b border-border bg-bg-secondary/50">
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Foto Produk</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Kategori</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Harga</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Stok</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Status</th>
-                        <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-text-muted">Aksi</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-muted w-12">No</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Pertanyaan</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-muted w-20">Urutan</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-muted w-24">Status</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-muted w-32">Tanggal Dibuat</th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-text-muted w-44">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border/50">
-                    @forelse ($products as $product)
+                    @forelse ($faqs as $faq)
                         <tr class="transition-colors hover:bg-bg-secondary/30">
                             <td class="px-6 py-4">
-                                <div class="flex items-center gap-3">
-                                    @if ($product->thumbnail)
-                                        <img src="{{ asset('storage/' . $product->thumbnail) }}"
-                                             alt="{{ $product->name }}"
-                                             class="h-12 w-12 shrink-0 rounded-lg object-cover">
-                                    @else
-                                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-secondary-light text-primary">
-                                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                                            </svg>
-                                        </div>
-                                    @endif
-                                    <div class="min-w-0">
-                                        <p class="text-sm font-medium text-text-secondary truncate max-w-[200px]">{{ $product->name }}</p>
-                                        @if ($product->is_featured)
-                                            <span class="inline-flex items-center gap-1 mt-0.5 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-950 dark:text-amber-300">
-                                                <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
-                                                    <path d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>
-                                                </svg>
-                                                Unggulan
-                                            </span>
-                                        @endif
-                                    </div>
+                                <span class="text-sm text-text-secondary">{{ $loop->iteration + ($faqs->currentPage() - 1) * $faqs->perPage() }}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="max-w-md">
+                                    <p class="text-sm font-medium text-text-primary dark:text-black">{{ $faq->question }}</p>
+                                    <p class="mt-0.5 text-xs text-text-muted line-clamp-1">{{ strip_tags(Str::limit($faq->answer, 100)) }}</p>
                                 </div>
                             </td>
                             <td class="px-6 py-4">
-                                <span class="text-sm text-text-secondary">{{ $product->category->name ?? '-' }}</span>
+                                <span class="text-sm text-text-secondary">{{ $faq->sort_order }}</span>
                             </td>
                             <td class="px-6 py-4">
-                                <div class="space-y-0.5">
-                                    @if ($product->has_discount)
-                                        <p class="text-sm font-semibold text-text-primary dark:text-black">{{ $product->formatted_discount_price }}</p>
-                                        <p class="text-xs text-text-muted line-through">{{ $product->formatted_price }}</p>
-                                        <span class="inline-block rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-medium text-red-600 dark:bg-red-950 dark:text-red-400">-{{ $product->discount_percentage }}%</span>
-                                    @else
-                                        <p class="text-sm font-semibold text-text-secondary">{{ $product->formatted_price }}</p>
-                                    @endif
-                                </div>
+                                @if ($faq->is_active)
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                        Aktif
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-700 dark:bg-red-950 dark:text-red-300">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-red-500"></span>
+                                        Nonaktif
+                                    </span>
+                                @endif
                             </td>
                             <td class="px-6 py-4">
-                                <span class="text-sm {{ $product->stock > 0 ? 'text-text-primary' : 'text-red-500' }}">
-                                    {{ $product->stock }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4">
-                                @php
-                                    $statusColors = [
-                                        'active' => 'emerald',
-                                        'pre_order' => 'amber',
-                                        'sold_out' => 'gray',
-                                    ];
-                                    $color = $statusColors[$product->status] ?? 'gray';
-                                @endphp
-                                <span class="inline-flex items-center gap-1 rounded-full bg-{{ $color }}-50 px-2.5 py-0.5 text-xs font-medium text-{{ $color }}-700 dark:bg-{{ $color }}-950 dark:text-{{ $color }}-300">
-                                    <span class="h-1.5 w-1.5 rounded-full bg-{{ $color }}-500"></span>
-                                    {{ $product->status_label }}
-                                </span>
+                                <span class="text-sm text-text-secondary">{{ $faq->created_at->locale('id')->isoFormat('D MMM YYYY') }}</span>
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center justify-end gap-2">
                                     {{-- Lihat --}}
-                                    <a href="{{ route('admin.products.show', $product) }}"
+                                    <a href="{{ route('admin.faqs.show', $faq) }}"
                                        class="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-text-secondary hover:bg-bg-secondary transition-colors"
                                        title="Lihat detail">
                                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -188,22 +141,22 @@
                                         Lihat
                                     </a>
 
-                                    {{-- Ubah --}}
-                                    <a href="{{ route('admin.products.edit', $product) }}"
+                                    {{-- Edit --}}
+                                    <a href="{{ route('admin.faqs.edit', $faq) }}"
                                        class="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-amber-600 hover:bg-amber-50 transition-colors"
-                                       title="Ubah produk">
+                                       title="Ubah FAQ">
                                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                         </svg>
-                                        Ubah
+                                        Edit
                                     </a>
 
                                     {{-- Hapus --}}
                                     <button type="button"
                                             x-data
-                                            x-on:click="$dispatch('open-modal', 'delete-product-{{ $product->id }}')"
+                                            x-on:click="$dispatch('open-modal', 'delete-faq-{{ $faq->id }}')"
                                             class="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors"
-                                            title="Hapus produk">
+                                            title="Hapus FAQ">
                                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                         </svg>
@@ -212,7 +165,7 @@
 
                                     {{-- Modal Konfirmasi Hapus --}}
                                     <div x-data="{ show: false }"
-                                         x-on:open-modal.window="if ($event.detail === 'delete-product-{{ $product->id }}') show = true"
+                                         x-on:open-modal.window="if ($event.detail === 'delete-faq-{{ $faq->id }}') show = true"
                                          x-show="show"
                                          x-cloak
                                          class="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -222,10 +175,12 @@
                                          x-transition:leave="transition ease-in duration-150"
                                          x-transition:leave-start="opacity-100"
                                          x-transition:leave-end="opacity-0">
+                                        {{-- Overlay --}}
                                         <div x-show="show"
                                              x-on:click="show = false"
                                              class="absolute inset-0 bg-black/50 backdrop-blur-sm">
                                         </div>
+                                        {{-- Modal Content --}}
                                         <div x-show="show"
                                              x-transition:enter="transition ease-out duration-300"
                                              x-transition:enter-start="opacity-0 scale-95 translate-y-4"
@@ -243,17 +198,12 @@
                                                 </div>
                                                 <div>
                                                     <h3 class="text-lg font-semibold text-text-primary dark:text-white">Konfirmasi Hapus</h3>
-                                                    <p class="text-sm text-text-secondary">Apakah Anda yakin ingin menghapus produk ini?</p>
+                                                    <p class="text-sm text-text-secondary">Apakah Anda yakin ingin menghapus FAQ ini?</p>
                                                 </div>
                                             </div>
 
                                             <div class="mb-5 rounded-lg bg-bg-secondary p-4">
-                                                <div class="flex items-center gap-3">
-                                                    @if ($product->thumbnail)
-                                                        <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" class="h-10 w-10 rounded-lg object-cover">
-                                                    @endif
-                                                    <p class="text-sm font-medium text-text-primary dark:text-white">{{ $product->name }}</p>
-                                                </div>
+                                                <p class="text-sm font-medium text-text-primary dark:text-white">{{ $faq->question }}</p>
                                             </div>
 
                                             <div class="flex items-center justify-end gap-3">
@@ -262,7 +212,7 @@
                                                         class="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-text-secondary hover:bg-bg-secondary transition-colors">
                                                     Batal
                                                 </button>
-                                                <form method="POST" action="{{ route('admin.products.destroy', $product) }}" class="inline">
+                                                <form method="POST" action="{{ route('admin.faqs.destroy', $faq) }}" class="inline">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit"
@@ -282,15 +232,15 @@
                                 <div class="flex flex-col items-center">
                                     <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-bg-secondary">
                                         <svg class="h-8 w-8 text-text-muted/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/>
                                         </svg>
                                     </div>
-                                    @if ($search || $categoryFilter || $statusFilter)
-                                        <p class="text-sm font-medium text-text-primary dark:text-white">Produk tidak ditemukan</p>
-                                        <p class="mt-1 text-xs text-text-muted">Tidak ada produk yang cocok dengan filter yang dipilih.</p>
+                                    @if ($search)
+                                        <p class="text-sm font-medium text-text-primary dark:text-white">FAQ tidak ditemukan</p>
+                                        <p class="mt-1 text-xs text-text-muted">Tidak ada FAQ yang cocok dengan pencarian "{{ $search }}"</p>
                                     @else
-                                        <p class="text-sm font-medium text-text-primary dark:text-white">Belum ada produk</p>
-                                        <p class="mt-1 text-xs text-text-muted">Mulai dengan menambahkan produk baru.</p>
+                                        <p class="text-sm font-medium text-text-primary dark:text-white">Belum ada FAQ</p>
+                                        <p class="mt-1 text-xs text-text-muted">Mulai dengan menambahkan pertanyaan yang sering diajukan.</p>
                                     @endif
                                 </div>
                             </td>
@@ -301,12 +251,11 @@
         </div>
 
         {{-- Pagination --}}
-        @if ($products->hasPages())
+        @if ($faqs->hasPages())
             <div class="border-t border-border px-6 py-4">
-                {{ $products->links() }}
+                {{ $faqs->links() }}
             </div>
         @endif
     </div>
 
 </x-layouts::admin>
-

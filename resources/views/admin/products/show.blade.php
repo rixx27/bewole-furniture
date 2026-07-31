@@ -119,7 +119,7 @@
                         </div>
                         <div>
                             <p class="text-xs font-semibold uppercase tracking-wider text-text-muted">Berat</p>
-                            <p class="mt-1 text-sm text-text-primary dark:text-black">{{ $product->weight ?? '-' }}</p>
+                            <p class="mt-1 text-sm text-text-primary dark:text-black">{{ $product->weight !== null ? rtrim(rtrim(number_format($product->weight, 2, '.', ''), '0'), '.') . ' kg' : '-' }}</p>
                         </div>
                     </div>
                 </div>

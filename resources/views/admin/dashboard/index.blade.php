@@ -21,7 +21,7 @@
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-xs font-semibold uppercase tracking-wider text-text-muted">Total Produk</p>
-                    <p class="mt-2 text-3xl font-bold tracking-tight text-text-primary dark:text-white">0</p>
+                    <p class="mt-2 text-3xl font-bold tracking-tight text-text-primary dark:text-black">0</p>
                 </div>
                 <div class="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -43,7 +43,7 @@
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-xs font-semibold uppercase tracking-wider text-text-muted">Total Pesanan</p>
-                    <p class="mt-2 text-3xl font-bold tracking-tight text-text-primary dark:text-white">0</p>
+                    <p class="mt-2 text-3xl font-bold tracking-tight text-text-primary dark:text-black">0</p>
                 </div>
                 <div class="flex h-11 w-11 items-center justify-center rounded-lg bg-info/10 text-info">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -65,7 +65,7 @@
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-xs font-semibold uppercase tracking-wider text-text-muted">Total Ulasan</p>
-                    <p class="mt-2 text-3xl font-bold tracking-tight text-text-primary dark:text-white">0</p>
+                    <p class="mt-2 text-3xl font-bold tracking-tight text-text-primary dark:text-black">0</p>
                 </div>
                 <div class="flex h-11 w-11 items-center justify-center rounded-lg bg-warning/10 text-warning">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -87,7 +87,7 @@
             <div class="flex items-start justify-between">
                 <div>
                     <p class="text-xs font-semibold uppercase tracking-wider text-text-muted">Total Pengguna</p>
-                    <p class="mt-2 text-3xl font-bold tracking-tight text-text-primary dark:text-white">{{ $totalUsers ?? 0 }}</p>
+                    <p class="mt-2 text-3xl font-bold tracking-tight text-text-primary dark:text-black">{{ $totalUsers ?? 0 }}</p>
                 </div>
                 <div class="flex h-11 w-11 items-center justify-center rounded-lg bg-danger/10 text-danger">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -111,7 +111,7 @@
         <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
             <div class="mb-5 flex items-center justify-between">
                 <div>
-                    <h3 class="text-base font-semibold text-text-primary dark:text-white">Pesanan Bulanan</h3>
+                    <h3 class="text-base font-semibold text-text-primary dark:text-primary">Pesanan Bulanan</h3>
                     <p class="mt-0.5 text-xs text-text-muted">Gambaran pesanan tahun ini</p>
                 </div>
                 <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary-light">
@@ -135,7 +135,7 @@
         <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
             <div class="mb-5 flex items-center justify-between">
                 <div>
-                    <h3 class="text-base font-semibold text-text-primary dark:text-white">Pendapatan Bulanan</h3>
+                    <h3 class="text-base font-semibold text-text-primary dark:text-primary">Pendapatan Bulanan</h3>
                     <p class="mt-0.5 text-xs text-text-muted">Gambaran pendapatan tahun ini</p>
                 </div>
                 <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary-light">
@@ -162,7 +162,7 @@
         <div class="rounded-xl border border-border bg-card shadow-sm">
             <div class="flex items-center justify-between border-b border-border px-6 py-4">
                 <div>
-                    <h3 class="text-base font-semibold text-text-primary dark:text-white">Pesanan Terbaru</h3>
+                    <h3 class="text-base font-semibold text-text-primary dark:text-primary">Pesanan Terbaru</h3>
                     <p class="text-xs text-text-muted">5 pesanan terakhir</p>
                 </div>
                 <a href="{{ route('admin.orders.index') }}" class="text-xs font-medium text-primary hover:text-primary-light transition-colors">
@@ -200,7 +200,7 @@
         <div class="rounded-xl border border-border bg-card shadow-sm">
             <div class="flex items-center justify-between border-b border-border px-6 py-4">
                 <div>
-                    <h3 class="text-base font-semibold text-text-primary dark:text-white">Ulasan Terbaru</h3>
+                    <h3 class="text-base font-semibold text-text-primary dark:text-primary">Ulasan Terbaru</h3>
                     <p class="text-xs text-text-muted">Umpan balik pelanggan terbaru</p>
                 </div>
                 <a href="{{ route('admin.product-reviews.index') }}" class="text-xs font-medium text-primary hover:text-primary-light transition-colors">
@@ -236,7 +236,7 @@
 
     {{-- Aksi Cepat --}}
     <div>
-        <h3 class="mb-4 text-base font-semibold text-text-primary dark:text-white">Aksi Cepat</h3>
+        <h3 class="mb-4 text-base font-semibold text-text-primary dark:text-black">Aksi Cepat</h3>
         <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {{-- Tambah Produk --}}
             <a href="{{ route('admin.products.create') }}" class="group flex items-center gap-4 rounded-xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:border-primary/30 hover:shadow-md">
@@ -246,7 +246,7 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-sm font-semibold text-text-primary dark:text-white">Tambah Produk</p>
+                    <p class="text-sm font-semibold text-text-primary dark:text-primary">Tambah Produk</p>
                     <p class="text-xs text-text-muted">Buat produk furniture baru</p>
                 </div>
             </a>
@@ -259,7 +259,7 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-sm font-semibold text-text-primary dark:text-white">Buat Kategori</p>
+                    <p class="text-sm font-semibold text-text-primary dark:text-info">Buat Kategori</p>
                     <p class="text-xs text-text-muted">Atur kategori produk</p>
                 </div>
             </a>
@@ -272,7 +272,7 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-sm font-semibold text-text-primary dark:text-white">Lihat Pesanan</p>
+                    <p class="text-sm font-semibold text-text-primary dark:text-warning">Lihat Pesanan</p>
                     <p class="text-xs text-text-muted">Kelola pesanan pelanggan</p>
                 </div>
             </a>
@@ -286,7 +286,7 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-sm font-semibold text-text-primary dark:text-white">Pengaturan Website</p>
+                    <p class="text-sm font-semibold text-text-primary dark:text-success">Pengaturan Website</p>
                     <p class="text-xs text-text-muted">Konfigurasi toko Anda</p>
                 </div>
             </a>

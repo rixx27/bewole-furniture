@@ -7,7 +7,6 @@
 ])
 
 @assets
-@vite('resources/js/passkeys.js')
 @endassets
 
 <div
