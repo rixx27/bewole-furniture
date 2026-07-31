@@ -60,9 +60,9 @@ class ProductReviewFactory extends Factory
             'product_id' => Product::factory(),
             'order_id' => Order::factory(),
             'rating' => $rating,
-            'review' => $this->faker->randomElement($furnitureReviews),
+            'comment' => $this->faker->randomElement($furnitureReviews),
             'is_verified' => true,
-            'is_active' => true,
+            'is_visible' => true,
             'created_at' => $this->faker->dateTimeBetween('-6 months', 'now'),
             'updated_at' => fn (array $attributes) => $attributes['created_at'],
         ];

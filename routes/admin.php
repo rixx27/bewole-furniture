@@ -26,7 +26,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
     Route::patch('orders/{order}/shipping', [App\Http\Controllers\Admin\OrderController::class, 'updateShipping'])->name('orders.update-shipping');
     Route::patch('orders/{order}/payment', [App\Http\Controllers\Admin\OrderController::class, 'updatePayment'])->name('orders.update-payment');
     Route::post('orders/{order}/cancel', [App\Http\Controllers\Admin\OrderController::class, 'cancel'])->name('orders.cancel');
-    Route::resource('product-reviews', App\Http\Controllers\Admin\ProductReviewController::class)->names('product-reviews');
+    Route::resource('product-reviews', App\Http\Controllers\Admin\ProductReviewController::class)->only(['index', 'show'])->names('product-reviews');
 
     // Reports
     Route::prefix('reports')->name('reports.')->group(function () {

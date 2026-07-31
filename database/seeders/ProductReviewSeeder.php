@@ -125,9 +125,9 @@ class ProductReviewSeeder extends Seeder
                 'product_id' => $productId,
                 'order_id' => $orderId,
                 'rating' => $rating,
-                'review' => $reviewText,
+                'comment' => $reviewText,
                 'is_verified' => true,
-                'is_active' => true,
+                'is_visible' => true,
                 'created_at' => $createdAt,
                 'updated_at' => $createdAt,
             ]);

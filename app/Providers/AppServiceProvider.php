@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Models\Order;
+use App\Models\ProductReview;
 use App\Policies\OrderPolicy;
+use App\Policies\ProductReviewPolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -36,6 +38,7 @@ class AppServiceProvider extends ServiceProvider
     protected function registerPolicies(): void
     {
         Gate::policy(Order::class, OrderPolicy::class);
+        Gate::policy(ProductReview::class, ProductReviewPolicy::class);
     }
 
     /**

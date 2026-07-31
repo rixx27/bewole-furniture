@@ -183,11 +183,11 @@ class Product extends Model
     }
 
     /**
-     * Get the active reviews for the product.
+     * Get the visible reviews for the product.
      */
-    public function activeReviews(): HasMany
+    public function visibleReviews(): HasMany
     {
-        return $this->hasMany(ProductReview::class)->where('is_active', true);
+        return $this->hasMany(ProductReview::class)->where('is_visible', true);
     }
 
     /**
