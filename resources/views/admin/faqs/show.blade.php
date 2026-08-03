@@ -87,11 +87,11 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-text-muted">Dibuat Pada</p>
-                        <p class="text-sm text-text-primary dark:text-white">{{ $faq->created_at->locale('id')->isoFormat('dddd, D MMMM YYYY [pukul] HH:mm') }}</p>
+                        <p class="text-sm text-text-primary dark:text-black">{{ $faq->created_at->locale('id')->isoFormat('dddd, D MMMM YYYY [pukul] HH:mm') }}</p>
                     </div>
                     <div>
                         <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-text-muted">Diperbarui Pada</p>
-                        <p class="text-sm text-text-primary dark:text-white">{{ $faq->updated_at->locale('id')->isoFormat('dddd, D MMMM YYYY [pukul] HH:mm') }}</p>
+                        <p class="text-sm text-text-primary dark:text-black">{{ $faq->updated_at->locale('id')->isoFormat('dddd, D MMMM YYYY [pukul] HH:mm') }}</p>
                     </div>
                 </div>
             </div>

@@ -2,12 +2,16 @@
 
 namespace App\Providers;
 
+use App\Models\CompanyProfile;
 use App\Models\Order;
 use App\Models\ProductReview;
 use App\Models\WebsiteSetting;
+use App\Policies\CompanyProfilePolicy;
 use App\Policies\OrderPolicy;
 use App\Policies\ProductReviewPolicy;
 use App\Policies\WebsiteSettingPolicy;
+use App\Repositories\CompanyProfileRepository;
+use App\Repositories\CompanyProfileRepositoryInterface;
 use App\Repositories\WebsiteSettingRepository;
 use App\Repositories\WebsiteSettingRepositoryInterface;
 use Carbon\CarbonImmutable;
@@ -41,6 +45,7 @@ class AppServiceProvider extends ServiceProvider
      */
     protected function registerPolicies(): void
     {
+        Gate::policy(CompanyProfile::class, CompanyProfilePolicy::class);
         Gate::policy(Order::class, OrderPolicy::class);
         Gate::policy(ProductReview::class, ProductReviewPolicy::class);
         Gate::policy(WebsiteSetting::class, WebsiteSettingPolicy::class);
@@ -51,6 +56,7 @@ class AppServiceProvider extends ServiceProvider
      */
     protected function registerRepositories(): void
     {
+        $this->app->bind(CompanyProfileRepositoryInterface::class, CompanyProfileRepository::class);
         $this->app->bind(WebsiteSettingRepositoryInterface::class, WebsiteSettingRepository::class);
     }
 

@@ -36,5 +36,6 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
 
     // Website
     Route::resource('settings', App\Http\Controllers\Admin\SettingController::class)->names('settings');
+    Route::get('company-profile', [App\Http\Controllers\Admin\CompanyProfileController::class, 'index'])->name('company-profile.index');
 });
 
