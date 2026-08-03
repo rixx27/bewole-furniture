@@ -7,14 +7,11 @@ use App\Http\Controllers\Controller;
 class SettingController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display the website settings management page.
      */
     public function index()
     {
-        return view('admin.placeholder', [
-            'title' => __('Settings'),
-            'description' => __('Manage website settings.'),
-        ]);
+        return view('admin.settings.index');
     }
 }
 

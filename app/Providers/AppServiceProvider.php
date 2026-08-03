@@ -4,8 +4,12 @@ namespace App\Providers;
 
 use App\Models\Order;
 use App\Models\ProductReview;
+use App\Models\WebsiteSetting;
 use App\Policies\OrderPolicy;
 use App\Policies\ProductReviewPolicy;
+use App\Policies\WebsiteSettingPolicy;
+use App\Repositories\WebsiteSettingRepository;
+use App\Repositories\WebsiteSettingRepositoryInterface;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -20,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->registerRepositories();
     }
 
     /**
@@ -39,6 +43,15 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::policy(Order::class, OrderPolicy::class);
         Gate::policy(ProductReview::class, ProductReviewPolicy::class);
+        Gate::policy(WebsiteSetting::class, WebsiteSettingPolicy::class);
+    }
+
+    /**
+     * Register repositories.
+     */
+    protected function registerRepositories(): void
+    {
+        $this->app->bind(WebsiteSettingRepositoryInterface::class, WebsiteSettingRepository::class);
     }
 
     /**

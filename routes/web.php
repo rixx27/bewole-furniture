@@ -8,10 +8,10 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::view('/', 'welcome')->name('home');
+Route::view('/', 'welcome')->name('home')->middleware('maintenance');
 
 // Public frontend routes
-Route::prefix('/')->name('frontend.')->group(function () {
+Route::middleware(['maintenance'])->prefix('/')->name('frontend.')->group(function () {
     Route::view('/about', 'frontend.about')->name('about');
     Route::view('/catalog', 'frontend.catalog')->name('catalog');
     Route::view('/portfolio', 'frontend.portfolio')->name('portfolio');
@@ -30,7 +30,7 @@ Route::prefix('/')->name('frontend.')->group(function () {
 |
 */
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'maintenance'])->group(function () {
     // Admin Dashboard (replaces Breeze default dashboard)
     Route::view('/dashboard', 'admin.dashboard.index')->name('dashboard');
 
