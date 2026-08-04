@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use App\Models\CompanyProfile;
 use App\Models\User;
 
 class CompanyProfilePolicy
@@ -18,7 +17,7 @@ class CompanyProfilePolicy
     /**
      * Determine whether the user can view the company profile.
      */
-    public function view(User $user, CompanyProfile $companyProfile): bool
+    public function view(User $user): bool
     {
         return $user->hasRole('admin');
     }
@@ -34,7 +33,7 @@ class CompanyProfilePolicy
     /**
      * Determine whether the user can update the company profile.
      */
-    public function update(User $user, CompanyProfile $companyProfile): bool
+    public function update(User $user): bool
     {
         return $user->hasRole('admin');
     }
@@ -42,7 +41,7 @@ class CompanyProfilePolicy
     /**
      * Determine whether the user can delete the company profile.
      */
-    public function delete(User $user, CompanyProfile $companyProfile): bool
+    public function delete(User $user): bool
     {
         return $user->hasRole('admin');
     }

@@ -2,15 +2,9 @@
 
 namespace App\Services;
 
-use App\Models\Category;
-use App\Models\CompanyAdvantage;
 use App\Models\CompanyMission;
 use App\Models\CompanyProfile;
 use App\Models\CompanyStatistic;
-use App\Models\Order;
-use App\Models\Product;
-use App\Models\ProductReview;
-use App\Models\User;
 use App\Repositories\CompanyProfileRepositoryInterface;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -21,6 +15,32 @@ class CompanyProfileService
      * The repository instance.
      */
     protected CompanyProfileRepositoryInterface $repository;
+
+    /**
+     * The four fixed manual statistics.
+     */
+    protected const STATISTICS = [
+        [
+            'key' => 'project_done',
+            'icon' => 'fa-solid fa-briefcase',
+            'title' => 'Project Selesai',
+        ],
+        [
+            'key' => 'customers',
+            'icon' => 'fa-solid fa-users',
+            'title' => 'Pelanggan',
+        ],
+        [
+            'key' => 'years_established',
+            'icon' => 'fa-solid fa-calendar-check',
+            'title' => 'Tahun Berdiri',
+        ],
+        [
+            'key' => 'cities_served',
+            'icon' => 'fa-solid fa-city',
+            'title' => 'Kota Terlayani',
+        ],
+    ];
 
     /**
      * Create a new service instance.
@@ -62,8 +82,7 @@ class CompanyProfileService
             $profile = $this->repository->create($profileData);
 
             $this->syncMissions($profile, $data['missions'] ?? []);
-            $this->syncAdvantages($profile, $data['advantages'] ?? []);
-            $this->syncStatistics($profile, $data['statistics'] ?? []);
+            $this->syncStatistics($profile, $data);
 
             return $this->get();
         });
@@ -77,7 +96,7 @@ class CompanyProfileService
         return DB::transaction(function () use ($profile, $data) {
             $profileData = $this->extractProfileData($data);
 
-// Handle image upload
+            // Handle image upload
             if (isset($profileData['company_image']) && $profileData['company_image'] instanceof UploadedFile) {
                 $this->repository->deleteOldFile($profile->company_image);
                 $profileData['company_image'] = $profileData['company_image']->store('company', 'public');
@@ -94,8 +113,7 @@ class CompanyProfileService
             $this->repository->update($profile, $profileData);
 
             $this->syncMissions($profile, $data['missions'] ?? []);
-            $this->syncAdvantages($profile, $data['advantages'] ?? []);
-            $this->syncStatistics($profile, $data['statistics'] ?? []);
+            $this->syncStatistics($profile, $data);
 
             return $this->get();
         });
@@ -134,66 +152,23 @@ class CompanyProfileService
     }
 
     /**
-     * Sync the repeatable advantages list.
+     * Sync the four fixed manual statistics.
      */
-    protected function syncAdvantages(CompanyProfile $profile, array $advantages): void
-    {
-        CompanyAdvantage::where('company_profile_id', $profile->id)->delete();
-
-        $items = collect($advantages)
-            ->filter(fn ($item) => !empty($item['content']))
-            ->values();
-
-        foreach ($items as $index => $item) {
-            CompanyAdvantage::create([
-                'company_profile_id' => $profile->id,
-                'content' => $item['content'],
-                'sort_order' => $index,
-            ]);
-        }
-    }
-
-    /**
-     * Sync the repeatable statistics list.
-     */
-    protected function syncStatistics(CompanyProfile $profile, array $statistics): void
+    protected function syncStatistics(CompanyProfile $profile, array $data): void
     {
         CompanyStatistic::where('company_profile_id', $profile->id)->delete();
 
-        $items = collect($statistics)
-            ->filter(fn ($item) => !empty($item['title']) && !empty($item['icon']))
-            ->values();
-
-        foreach ($items as $index => $item) {
+        foreach (static::STATISTICS as $index => $stat) {
             CompanyStatistic::create([
                 'company_profile_id' => $profile->id,
-                'icon' => $item['icon'],
-                'title' => $item['title'],
-                'type' => $item['type'] ?? CompanyStatistic::TYPE_AUTO,
-                'source' => $item['source'] ?? null,
-                'manual_value' => $item['manual_value'] ?? null,
+                'icon' => $stat['icon'],
+                'title' => $stat['title'],
+                'type' => CompanyStatistic::TYPE_MANUAL,
+                'source' => null,
+                'manual_value' => (string) ($data[$stat['key']] ?? 0),
                 'sort_order' => $index,
-                'is_active' => $item['is_active'] ?? true,
+                'is_active' => true,
             ]);
         }
-    }
-
-    /**
-     * Resolve the computed value for a statistic.
-     */
-    public function resolveStatisticValue(CompanyStatistic $statistic): ?string
-    {
-        if ($statistic->type === CompanyStatistic::TYPE_MANUAL) {
-            return $statistic->manual_value;
-        }
-
-        return match ($statistic->source) {
-            'products' => (string) Product::count(),
-            'orders' => (string) Order::count(),
-            'users' => (string) User::role('user')->count(),
-            'reviews' => (string) ProductReview::count(),
-            'categories' => (string) Category::count(),
-            default => null,
-        };
     }
 }

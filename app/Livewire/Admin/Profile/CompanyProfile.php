@@ -4,7 +4,6 @@ namespace App\Livewire\Admin\Profile;
 
 use App\Http\Requests\Admin\UpdateCompanyProfileRequest;
 use App\Models\CompanyProfile as CompanyProfileModel;
-use App\Models\CompanyStatistic;
 use App\Services\CompanyProfileService;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
@@ -32,29 +31,24 @@ class CompanyProfile extends Component
     // Section 2: Visi
     public string $vision = '';
 
-    // Section 3: Misi
+    // Section 3: Misi (repeater)
     public array $missions = [];
 
-    // Section 4: Keunggulan
-    public array $advantages = [];
-
-    // Section 5: Foto Perusahaan
+    // Section 4: Foto Perusahaan (opsional)
     public $company_image = null;
     public ?string $existing_company_image = null;
     public ?string $company_image_preview = null;
 
-    // Section 6: Statistik
-    public array $statistics = [];
+    // Section 5: Statistik Perusahaan (manual, angka)
+    public string $project_done = '0';
+    public string $customers = '0';
+    public string $years_established = '0';
+    public string $cities_served = '0';
 
     /**
      * Loading state.
      */
     public bool $isLoading = false;
-
-    /**
-     * Available statistic sources.
-     */
-    public array $statisticSources = [];
 
     /**
      * Boot the component with service.
@@ -69,8 +63,6 @@ class CompanyProfile extends Component
      */
     public function mount(): void
     {
-        $this->statisticSources = CompanyStatistic::SOURCES;
-
         $this->profile = $this->profileService->get();
 
         if ($this->profile) {
@@ -88,33 +80,26 @@ class CompanyProfile extends Component
         $this->existing_company_image = $this->profile->company_image;
 
         $this->missions = $this->profile->missions
-            ->map(function ($mission) {
-                return ['id' => $mission->id, 'content' => $mission->content];
-            })
+            ->map(fn ($mission) => ['id' => $mission->id, 'content' => $mission->content])
             ->values()
             ->toArray();
 
-        $this->advantages = $this->profile->advantages
-            ->map(function ($advantage) {
-                return ['id' => $advantage->id, 'content' => $advantage->content];
-            })
-            ->values()
-            ->toArray();
+        $stats = $this->profile->statistics->keyBy('title');
 
-        $this->statistics = $this->profile->statistics
-            ->map(function ($stat) {
-                return [
-                    'id' => $stat->id,
-                    'icon' => $stat->icon,
-                    'title' => $stat->title,
-                    'type' => $stat->type,
-                    'source' => $stat->source,
-                    'manual_value' => $stat->manual_value,
-                    'is_active' => $stat->is_active,
-                ];
-            })
-            ->values()
-            ->toArray();
+        $this->project_done = (string) $this->statValue($stats, 'Project Selesai');
+        $this->customers = (string) $this->statValue($stats, 'Pelanggan');
+        $this->years_established = (string) $this->statValue($stats, 'Tahun Berdiri');
+        $this->cities_served = (string) $this->statValue($stats, 'Kota Terlayani');
+    }
+
+    /**
+     * Get a single statistic value by title.
+     */
+    protected function statValue($stats, string $title): int
+    {
+        $stat = $stats->get($title);
+
+        return $stat ? (int) $stat->manual_value : 0;
     }
 
     /**
@@ -181,131 +166,6 @@ class CompanyProfile extends Component
         $this->moveItem($this->missions, $index, $index + 1);
     }
 
-    // ============ ADVANTAGE ============
-
-    /**
-     * Add an advantage row.
-     */
-    public function addAdvantage(): void
-    {
-        $this->advantages[] = ['id' => null, 'content' => ''];
-    }
-
-    /**
-     * Remove an advantage row.
-     */
-    public function removeAdvantage(int $index): void
-    {
-        unset($this->advantages[$index]);
-        $this->advantages = array_values($this->advantages);
-    }
-
-    /**
-     * Move an advantage row up.
-     */
-    public function moveAdvantageUp(int $index): void
-    {
-        if ($index === 0) {
-            return;
-        }
-        $this->moveItem($this->advantages, $index, $index - 1);
-    }
-
-    /**
-     * Move an advantage row down.
-     */
-    public function moveAdvantageDown(int $index): void
-    {
-        if ($index >= count($this->advantages) - 1) {
-            return;
-        }
-        $this->moveItem($this->advantages, $index, $index + 1);
-    }
-
-    // ============ STATISTIC ============
-
-    /**
-     * Add a statistic row.
-     */
-    public function addStatistic(): void
-    {
-        $this->statistics[] = [
-            'id' => null,
-            'icon' => 'fa-solid fa-chart-line',
-            'title' => '',
-            'type' => CompanyStatistic::TYPE_AUTO,
-            'source' => 'products',
-            'manual_value' => '',
-            'is_active' => true,
-        ];
-    }
-
-    /**
-     * Remove a statistic row.
-     */
-    public function removeStatistic(int $index): void
-    {
-        unset($this->statistics[$index]);
-        $this->statistics = array_values($this->statistics);
-    }
-
-    /**
-     * Move a statistic row up.
-     */
-    public function moveStatisticUp(int $index): void
-    {
-        if ($index === 0) {
-            return;
-        }
-        $this->moveItem($this->statistics, $index, $index - 1);
-    }
-
-    /**
-     * Move a statistic row down.
-     */
-    public function moveStatisticDown(int $index): void
-    {
-        if ($index >= count($this->statistics) - 1) {
-            return;
-        }
-        $this->moveItem($this->statistics, $index, $index + 1);
-    }
-
-    /**
-     * Toggle a statistic active state.
-     */
-    public function toggleStatistic(int $index): void
-    {
-        if (isset($this->statistics[$index])) {
-            $this->statistics[$index]['is_active'] = !$this->statistics[$index]['is_active'];
-        }
-    }
-
-    /**
-     * Resolve the computed value for a statistic (for display).
-     */
-    public function resolveStatisticValue(int $index): ?string
-    {
-        $item = $this->statistics[$index] ?? null;
-
-        if (!$item) {
-            return null;
-        }
-
-        if (($item['type'] ?? CompanyStatistic::TYPE_AUTO) === CompanyStatistic::TYPE_MANUAL) {
-            return $item['manual_value'] ?? '';
-        }
-
-        return match ($item['source'] ?? null) {
-            'products' => (string) \App\Models\Product::count(),
-            'orders' => (string) \App\Models\Order::count(),
-            'users' => (string) \App\Models\User::role('user')->count(),
-            'reviews' => (string) \App\Models\ProductReview::count(),
-            'categories' => (string) \App\Models\Category::count(),
-            default => null,
-        };
-    }
-
     /**
      * Create the initial profile.
      *
@@ -324,8 +184,10 @@ class CompanyProfile extends Component
                 'vision' => $this->vision,
                 'company_image' => $this->company_image,
                 'missions' => $this->missions,
-                'advantages' => $this->advantages,
-                'statistics' => $this->statistics,
+                'project_done' => $this->project_done,
+                'customers' => $this->customers,
+                'years_established' => $this->years_established,
+                'cities_served' => $this->cities_served,
             ];
 
             $this->profile = $this->profileService->create($data);
@@ -397,7 +259,8 @@ class CompanyProfile extends Component
             $this->loadProfile();
         } else {
             $this->reset([
-                'about', 'vision', 'missions', 'advantages', 'statistics',
+                'about', 'vision', 'missions',
+                'project_done', 'customers', 'years_established', 'cities_served',
             ]);
         }
 
@@ -425,7 +288,6 @@ class CompanyProfile extends Component
     {
         return view('livewire.admin.profile.company-profile', [
             'profile' => $this->profile,
-            'statisticSources' => $this->statisticSources,
         ]);
     }
 }
