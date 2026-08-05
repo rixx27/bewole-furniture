@@ -140,14 +140,6 @@
 <div class="my-3 border-t border-white/10"></div>
 <p class="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.15em] text-sidebar-text/60">Akun</p>
 
-<a href="{{ route('profile.edit') }}"
-    class="sidebar-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-text hover:bg-sidebar-hover hover:text-sidebar-text-hover transition-all duration-200">
-    <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-    </svg>
-    <span>Profil</span>
-</a>
-
 <form method="POST" action="{{ route('logout') }}">
     @csrf
     <button type="submit"

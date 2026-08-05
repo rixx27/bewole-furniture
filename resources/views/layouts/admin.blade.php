@@ -26,14 +26,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     @fluxAppearance
 </head>
-<body class="bg-bg-primary font-sans text-text-primary antialiased">
+<body x-data="{ mobileOpen: false }" x-on:toggle-mobile-sidebar.window="mobileOpen = !mobileOpen" class="bg-bg-primary font-sans text-text-primary antialiased">
 
     {{-- ============================================
          MOBILE SIDEBAR OVERLAY
          ============================================ --}}
-    <div x-data="{ mobileOpen: false }"
-         x-on:toggle-mobile-sidebar.window="mobileOpen = !mobileOpen"
-         x-show="mobileOpen"
+    <div x-show="mobileOpen"
          class="fixed inset-0 z-40 lg:hidden">
         <div x-show="mobileOpen"
              x-transition:enter="transition ease-out duration-200"
@@ -59,7 +57,7 @@
                     <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10">
                         <span class="text-sm font-bold text-white">B</span>
                     </div>
-                    <span class="text-base font-semibold tracking-tight text-sidebar-text">Bewole</span>
+                    <span class="text-base font-semibold tracking-tight text-sidebar-text">Bewole Jepara Furniture</span>
                 </a>
                 <button x-on:click="mobileOpen = false" class="rounded-lg p-1.5 text-sidebar-text hover:bg-white/10">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -67,7 +65,7 @@
                     </svg>
                 </button>
             </div>
-            <nav class="sidebar-scroll flex-1 space-y-1 overflow-y-auto px-4 py-6">
+            <nav x-on:click="if ($event.target.closest('a')) mobileOpen = false" class="sidebar-scroll flex-1 space-y-1 overflow-y-auto px-4 py-6">
                 @include('partials.admin-sidebar-menu')
             </nav>
             <div class="border-t border-white/10 px-4 py-4">
@@ -104,8 +102,8 @@
                             <span class="text-lg font-bold text-white">B</span>
                         </div>
                         <div>
-                            <span class="text-base font-bold tracking-tight text-white">Bewole</span>
-                            <span class="block text-[10px] font-medium uppercase tracking-[0.2em] text-sidebar-text">Panel Admin</span>
+                            <span class="text-base font-bold tracking-tight text-white">Bewole Jepara Furniture</span>
+                            <span class="block text-[10px] font-medium uppercase tracking-[0.2em] text-sidebar-text">Administrator</span>
                         </div>
                     </a>
                 </div>
@@ -135,12 +133,6 @@
                              x-transition:leave-start="opacity-100 scale-100"
                              x-transition:leave-end="opacity-0 scale-95"
                              class="absolute bottom-full left-0 right-0 mb-2 rounded-xl border border-white/10 bg-sidebar-hover p-1 shadow-xl">
-                            <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-text hover:bg-white/10">
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
-                                </svg>
-                                <span>Pengaturan</span>
-                            </a>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit" class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-300 hover:bg-white/10">
@@ -162,7 +154,7 @@
             {{-- Top Navbar --}}
             <header class="flex h-16 shrink-0 items-center justify-between border-b border-border bg-card px-4 shadow-xs lg:px-6">
                 <div class="flex items-center gap-4">
-                    <button x-on:click="$dispatch('toggle-mobile-sidebar')"
+                    <button x-on:click="window.dispatchEvent(new CustomEvent('toggle-mobile-sidebar'))"
                             class="flex items-center justify-center rounded-lg p-2 text-text-secondary hover:bg-bg-secondary lg:hidden">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
@@ -211,12 +203,6 @@
                                 <p class="text-sm font-medium text-text-primary">{{ auth()->user()->name }}</p>
                                 <p class="text-xs text-text-secondary">{{ auth()->user()->email }}</p>
                             </div>
-                            <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-text-primary hover:bg-bg-secondary">
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
-                                </svg>
-                                <span>Pengaturan Profil</span>
-                            </a>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit" class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950">
