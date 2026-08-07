@@ -135,18 +135,22 @@
                     <p class="text-sm text-text-secondary">{{ $hero->subtitle }}</p>
                 </div>
 
-                {{-- Tombol --}}
+{{-- Tombol --}}
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-text-muted">Tombol Utama</p>
                         <p class="text-sm text-text-primary dark:text-white">{{ $hero->primary_button_text }}</p>
-                        <code class="mt-0.5 inline-block rounded bg-bg-secondary px-2 py-0.5 text-xs font-mono text-text-secondary">{{ $hero->primary_button_link }}</code>
+                        <span class="mt-0.5 inline-block rounded bg-bg-secondary px-2 py-0.5 text-xs font-medium text-text-secondary">
+                            {{ \App\Enums\HeroButtonTarget::resolve($hero->primary_button_link)?->label() ?? '-' }}
+                        </span>
                     </div>
                     @if ($hero->secondary_button_text)
                         <div>
                             <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-text-muted">Tombol Kedua</p>
                             <p class="text-sm text-text-primary dark:text-white">{{ $hero->secondary_button_text }}</p>
-                            <code class="mt-0.5 inline-block rounded bg-bg-secondary px-2 py-0.5 text-xs font-mono text-text-secondary">{{ $hero->secondary_button_link }}</code>
+                            <span class="mt-0.5 inline-block rounded bg-bg-secondary px-2 py-0.5 text-xs font-medium text-text-secondary">
+                                {{ \App\Enums\HeroButtonTarget::resolve($hero->secondary_button_link)?->label() ?? '-' }}
+                            </span>
                         </div>
                     @endif
                 </div>

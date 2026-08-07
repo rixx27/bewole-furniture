@@ -123,20 +123,23 @@
                         @enderror
                     </div>
 
-                    <div>
+<div>
                         <label for="primary_button_link" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                            Link Tombol Utama <span class="text-red-500">*</span>
+                            Tujuan Tombol Utama <span class="text-red-500">*</span>
                         </label>
-                        <input type="text"
-                               id="primary_button_link"
-                               name="primary_button_link"
-                               x-model="form.primary_button_link"
-                               value="{{ old('primary_button_link') }}"
-                               placeholder="Misal: /products"
-                               class="w-full rounded-lg border {{ $errors->has('primary_button_link') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors">
+                        <select id="primary_button_link"
+                                name="primary_button_link"
+                                x-model="form.primary_button_link"
+                                class="w-full rounded-lg border {{ $errors->has('primary_button_link') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary outline-hidden ring-0 transition-colors">
+                            <option value="">-- Pilih Tujuan --</option>
+                            @foreach (\App\Enums\HeroButtonTarget::options() as $value => $label)
+                                <option value="{{ $value }}" {{ old('primary_button_link') == $value ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
+                        </select>
                         @error('primary_button_link')
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                         @enderror
+                        <p class="mt-1 text-xs text-text-muted">Pilih ke mana tombol utama akan mengarah.</p>
                     </div>
 
                     {{-- Tombol Kedua --}}
@@ -156,20 +159,23 @@
                         @enderror
                     </div>
 
-                    <div>
+<div>
                         <label for="secondary_button_link" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                            Link Tombol Kedua
+                            Tujuan Tombol Kedua
                         </label>
-                        <input type="text"
-                               id="secondary_button_link"
-                               name="secondary_button_link"
-                               x-model="form.secondary_button_link"
-                               value="{{ old('secondary_button_link') }}"
-                               placeholder="Misal: /about"
-                               class="w-full rounded-lg border {{ $errors->has('secondary_button_link') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors">
+                        <select id="secondary_button_link"
+                                name="secondary_button_link"
+                                x-model="form.secondary_button_link"
+                                class="w-full rounded-lg border {{ $errors->has('secondary_button_link') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary outline-hidden ring-0 transition-colors">
+                            <option value="">-- Pilih Tujuan --</option>
+                            @foreach (\App\Enums\HeroButtonTarget::options() as $value => $label)
+                                <option value="{{ $value }}" {{ old('secondary_button_link') == $value ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
+                        </select>
                         @error('secondary_button_link')
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                         @enderror
+                        <p class="mt-1 text-xs text-text-muted">Pilih ke mana tombol kedua akan mengarah.</p>
                     </div>
                 </div>
             </div>
