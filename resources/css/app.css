@@ -28,11 +28,24 @@
     --color-text-secondary: #78716C;
     --color-text-muted: #A8A29E;
     --color-success: #059669;
-    --color-warning: #D97706;
+--color-warning: #D97706;
     --color-danger: #DC2626;
     --color-info: #2563EB;
 
     --font-sans: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+    /* ============================================================
+       FRONTEND : Furniture Premium Palette
+       ============================================================ */
+    --color-wood-primary: #5B3A29;
+    --color-wood-primary-dark: #422818;
+    --color-wood-secondary: #A67C52;
+    --color-wood-secondary-light: #C9A97E;
+    --color-wood-bg: #F7F4EF;
+    --color-wood-surface: #FFFFFF;
+    --color-wood-text: #2D2D2D;
+    --color-wood-muted: #78716C;
+    --color-wood-border: #E7E0D6;
 }
 
 /* Custom scrollbar for sidebar */
@@ -180,4 +193,58 @@
 
 .animate-scale-up {
     animation: scaleUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ============================================================
+   FRONTEND : HERO SECTION ANIMATIONS
+   ============================================================ */
+
+/* Floating image */
+@keyframes heroFloat {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-18px); }
+}
+
+.animate-hero-float {
+    animation: heroFloat 6s ease-in-out infinite;
+}
+
+/* Scroll indicator bounce */
+@keyframes scrollBounce {
+    0%, 100% { transform: translateY(0); opacity: 0.9; }
+    50%      { transform: translateY(10px); opacity: 0.4; }
+}
+
+.animate-scroll-bounce {
+    animation: scrollBounce 2s ease-in-out infinite;
+}
+
+/* Entrance: fade + slide left */
+@keyframes fadeSlideLeft {
+    from { opacity: 0; transform: translateX(-40px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+.animate-fade-slide-left {
+    animation: fadeSlideLeft 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Entrance: fade + slide right */
+@keyframes fadeSlideRight {
+    from { opacity: 0; transform: translateX(40px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+.animate-fade-slide-right {
+    animation: fadeSlideRight 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Soft blob pulse */
+@keyframes blobPulse {
+    0%, 100% { transform: scale(1) translate(0, 0); }
+    50%      { transform: scale(1.1) translate(15px, -15px); }
+}
+
+.animate-blob {
+    animation: blobPulse 12s ease-in-out infinite;
 }

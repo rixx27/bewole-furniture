@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::view('/', 'welcome')->name('home')->middleware('maintenance');
+Route::get('/', [App\Http\Controllers\Frontend\HomeController::class, 'index'])
+    ->name('home')
+    ->middleware('maintenance');
 
 // Public frontend routes
 Route::middleware(['maintenance'])->prefix('/')->name('frontend.')->group(function () {
