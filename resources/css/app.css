@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 @import "tailwindcss";
 
@@ -32,7 +32,8 @@
     --color-danger: #DC2626;
     --color-info: #2563EB;
 
-    --font-sans: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, sans-serif;
+--font-sans: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
 
     /* ============================================================
        FRONTEND : Furniture Premium Palette
@@ -247,4 +248,48 @@
 
 .animate-blob {
     animation: blobPulse 12s ease-in-out infinite;
+}
+
+/* ============================================================
+   FRONTEND : FULLSCREEN HERO BANNER ANIMATIONS
+   ============================================================ */
+
+/* Badge: fade down */
+@keyframes fadeDownHero {
+    from { opacity: 0; transform: translateY(-24px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-hero-badge {
+    animation: fadeDownHero 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Title & description: fade up */
+@keyframes fadeUpHero {
+    from { opacity: 0; transform: translateY(32px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-hero-up {
+    animation: fadeUpHero 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Buttons: zoom + fade */
+@keyframes zoomFadeHero {
+    from { opacity: 0; transform: scale(0.92); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+.animate-hero-zoom {
+    animation: zoomFadeHero 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Hero background slow zoom (Ken Burns) for premium feel */
+@keyframes heroKenBurns {
+    0%   { transform: scale(1); }
+    100% { transform: scale(1.08); }
+}
+
+.animate-hero-kenburns {
+    animation: heroKenBurns 18s ease-in-out infinite alternate;
 }

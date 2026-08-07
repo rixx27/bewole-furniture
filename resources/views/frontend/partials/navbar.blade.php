@@ -13,8 +13,8 @@
     <nav
         class="mx-auto flex w-full max-w-7xl items-center justify-between rounded-full border px-4 py-3 transition-all duration-300 ease-out sm:px-6"
         :class="scrolled
-            ? 'border-wood-border/70 bg-white/80 shadow-lg shadow-wood-primary/10 supports-[backdrop-filter]:bg-white/70'
-            : 'border-white/40 bg-white/40 shadow-sm shadow-transparent supports-[backdrop-filter]:bg-white/30'"
+            ? 'border-wood-border/70 bg-white/85 shadow-lg shadow-wood-primary/10 supports-[backdrop-filter]:bg-white/75'
+            : 'border-white/40 bg-white/20 shadow-lg shadow-black/5 supports-[backdrop-filter]:bg-white/15'"
         style="backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%);"
     >
         {{-- Logo --}}
@@ -26,7 +26,8 @@
                     {{ strtoupper(substr($siteName, 0, 1)) }}
                 </span>
             @endif
-            <span class="hidden text-lg font-bold tracking-tight text-wood-text sm:block">{{ $siteName }}</span>
+            <span class="hidden text-lg font-bold tracking-tight sm:block"
+                  :class="scrolled ? 'text-wood-text' : 'text-white'">{{ $siteName }}</span>
         </a>
 
         {{-- Desktop Menu --}}
@@ -41,12 +42,14 @@
                 <a
                     href="{{ isset($item['route']) ? route($item['route']) : url($item['hash']) }}"
                     class="group relative rounded-full px-4 py-2 text-sm font-medium transition-colors duration-300"
-                    :class="{{ $routeName === ($item['route'] ?? null) ? 'text-wood-primary' : 'text-wood-muted hover:text-wood-primary' }}"
+                    :class="scrolled
+                        ? ({{ $routeName === ($item['route'] ?? null) ? "'text-wood-primary'" : "'text-wood-muted hover:text-wood-primary'" }})
+                        : ({{ $routeName === ($item['route'] ?? null) ? "'text-white'" : "'text-white/85 hover:text-white'" }})"
                 >
                     {{ $item['label'] }}
                     <span
-                        class="absolute inset-x-4 -bottom-0.5 h-0.5 origin-left scale-x-0 rounded-full bg-wood-secondary transition-transform duration-300 group-hover:scale-x-100"
-                        :class="{{ $routeName === ($item['route'] ?? null) ? 'scale-x-100' : '' }}"
+                        class="absolute inset-x-4 -bottom-0.5 h-0.5 origin-left scale-x-0 rounded-full transition-transform duration-300 group-hover:scale-x-100"
+                        :class="scrolled ? 'bg-wood-secondary' : 'bg-white'"
                     ></span>
                 </a>
             @endforeach
@@ -64,7 +67,8 @@
             <button
                 type="button"
                 @click="mobileOpen = !mobileOpen"
-                class="inline-flex items-center justify-center rounded-full p-2.5 text-wood-text transition-colors duration-200 hover:bg-wood-primary/10 lg:hidden"
+                class="inline-flex items-center justify-center rounded-full p-2.5 transition-colors duration-200 hover:bg-wood-primary/10 lg:hidden"
+                :class="scrolled ? 'text-wood-text' : 'text-white'"
                 :aria-expanded="mobileOpen"
                 aria-label="Buka menu"
             >
@@ -88,7 +92,7 @@
         x-transition:leave="transition ease-in duration-200"
         x-transition:leave-start="translate-y-0 opacity-100"
         x-transition:leave-end="-translate-y-4 opacity-0"
-        class="mx-auto mt-3 w-full max-w-7xl overflow-hidden rounded-3xl border border-wood-border/70 bg-white/85 shadow-xl shadow-wood-primary/10 supports-[backdrop-filter]:bg-white/75 lg:hidden"
+        class="mx-auto mt-3 w-full max-w-7xl overflow-hidden rounded-3xl border border-wood-border/70 bg-white/90 shadow-xl shadow-wood-primary/10 supports-[backdrop-filter]:bg-white/80 lg:hidden"
         style="backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%);"
     >
         <div class="flex flex-col p-3">

@@ -9,8 +9,9 @@
 @php
     $variants = [
         'primary' => 'bg-wood-primary text-white hover:bg-wood-primary-dark shadow-lg shadow-wood-primary/20',
-'secondary' => 'bg-wood-secondary text-white hover:bg-wood-primary-dark shadow-lg shadow-wood-secondary/20',
+        'secondary' => 'bg-wood-secondary text-white hover:bg-wood-primary-dark shadow-lg shadow-wood-secondary/20',
         'outline' => 'border border-wood-primary text-wood-primary hover:bg-wood-primary hover:text-white',
+        'outline-light' => 'border border-white/70 text-white hover:bg-white hover:text-wood-primary',
         'ghost' => 'text-wood-primary hover:bg-wood-primary/10',
         'light' => 'bg-white text-wood-primary hover:bg-wood-bg shadow-lg shadow-black/5',
     ];
