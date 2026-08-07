@@ -8,7 +8,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
     Route::view('/dashboard', 'admin.dashboard.index')->name('dashboard');
 
     // Master Data
-    Route::resource('categories', App\Http\Controllers\Admin\CategoryController::class)->names('categories');
+    Route::get('categories', App\Livewire\Admin\Category\CategoryManager::class)->name('categories.index');
     Route::resource('products', App\Http\Controllers\Admin\ProductController::class)->names('products');
     Route::resource('product-images', App\Http\Controllers\Admin\ProductImageController::class)->names('product-images');
 

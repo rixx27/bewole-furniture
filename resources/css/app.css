@@ -293,3 +293,91 @@
 .animate-hero-kenburns {
     animation: heroKenBurns 18s ease-in-out infinite alternate;
 }
+
+/* ============================================================
+   FRONTEND : EXPLORE OUR COLLECTION
+   Apple-style interactive category showcase
+   ============================================================ */
+
+/* --- Entrance reveal via IntersectionObserver (no AOS) --- */
+[data-reveal] {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+        opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+}
+
+[data-reveal].is-revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* --- Desktop/Tablet: smooth flex-grow when hovering a card --- */
+.category-showcase-desktop {
+    transition: gap 0.5s ease-in-out;
+}
+
+.category-showcase-desktop > div {
+    transition: flex-grow 0.5s ease-in-out;
+    will-change: flex-grow;
+}
+
+.category-showcase-desktop > div > a {
+    transition:
+        opacity 0.5s ease-in-out,
+        transform 0.5s ease-in-out,
+        box-shadow 0.5s ease-in-out;
+}
+
+/* --- Mobile: center card scale-up (scroll-snap, no autoplay) --- */
+.category-card-active {
+    transform: scale(1.035);
+    box-shadow: 0 24px 50px -12px rgba(0, 0, 0, 0.35);
+}
+
+.category-card-active [data-overlay] {
+    background-color: rgba(0, 0, 0, 0.55);
+}
+
+/* Hide scrollbar for the mobile scroller but keep scrollable */
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    [data-reveal] {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+
+    .category-showcase-desktop > div {
+        transition: none;
+    }
+
+    .category-showcase-desktop > div > a {
+        transition: none;
+    }
+
+
+    .category-card-active {
+        transform: none;
+        transition: none;
+    }
+
+    .group:hover .group-hover\:scale-\[1\.08\],
+    .group:hover .group-hover\:-translate-y-2,
+    .group:hover .group-hover\:translate-y-0,
+    .group:hover .group-hover\:opacity-100 {
+        transform: none !important;
+        transition: none !important;
+    }
+}

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Category extends Model
@@ -14,10 +15,12 @@ class Category extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'code',
         'name',
         'slug',
-        'image',
-        'description',
+        'cover_image',
+        'short_description',
+        'sort_order',
         'is_active',
     ];
 
@@ -30,6 +33,7 @@ class Category extends Model
     {
         return [
             'is_active' => 'boolean',
+            'sort_order' => 'integer',
         ];
     }
 
@@ -50,6 +54,9 @@ class Category extends Model
             if (empty($category->slug)) {
                 $category->slug = Str::slug($category->name);
             }
+            if (empty($category->code)) {
+                $category->code = static::generateNextCode();
+            }
         });
 
         static::updating(function (Category $category) {
@@ -57,6 +64,32 @@ class Category extends Model
                 $category->slug = Str::slug($category->name);
             }
         });
+
+        static::deleted(function (Category $category) {
+            if ($category->cover_image) {
+                Storage::disk('public')->delete($category->cover_image);
+            }
+        });
+    }
+
+    /**
+     * Generate the next sequential category code (CAT001, CAT002, ...).
+     */
+    protected static function generateNextCode(): string
+    {
+        $last = static::withTrashed()->max('id') ?? 0;
+
+        return 'CAT' . str_pad((string) ((int) $last + 1), 3, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Get the absolute URL for the cover image.
+     */
+    public function getCoverImageUrlAttribute(): ?string
+    {
+        return $this->cover_image
+            ? Storage::disk('public')->url($this->cover_image)
+            : null;
     }
 
     /**
@@ -74,5 +107,12 @@ class Category extends Model
     {
         return $query->where('is_active', true);
     }
-}
 
+    /**
+     * Scope a query to order categories by sort order then name.
+     */
+    public function scopeSorted($query)
+    {
+        return $query->orderBy('sort_order')->orderBy('name');
+    }
+}

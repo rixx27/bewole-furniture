@@ -10,6 +10,12 @@
     @include('frontend.partials.hero', ['hero' => $hero ?? null])
 
     {{-- ============================================================
+         EXPLORE OUR COLLECTION : Apple-style interactive showcase
+         Data kategori berasal dari Admin Panel (Category model).
+         ============================================================ --}}
+    <x-home.category-showcase />
+
+    {{-- ============================================================
          PHASE 3+ : Section berikutnya akan diletakkan di sini.
          ID disamakan dengan anchor HeroButtonTarget agar smooth
          scroll & tombol hero berfungsi.

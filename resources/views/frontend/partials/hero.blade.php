@@ -47,7 +47,7 @@
          CONTENT : kiri, vertical center, lebar 500–650px
          ============================================================ --}}
     <div class="relative z-10 mx-auto w-full max-w-7xl px-6 sm:px-8 lg:px-12">
-        <div class="max-w-xl lg:max-w-[650px] pt-24 pb-20 lg:pt-28 lg:pb-24">
+<div class="max-w-xl lg:max-w-[650px] pt-32 pb-24 lg:pt-28 lg:pb-24">
             {{-- Badge --}}
             <div class="animate-hero-badge mb-6 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-white backdrop-blur-sm">
                 <span class="text-wood-secondary-light">✦</span>
@@ -55,21 +55,21 @@
             </div>
 
             {{-- Title: besar, serif, putih --}}
-            <h1 class="animate-hero-up font-serif text-5xl font-bold leading-[1.1] tracking-tight text-white sm:text-6xl lg:text-7xl" style="animation-delay: 0.1s;">
+<h1 class="animate-hero-up max-w-xs font-serif text-4xl font-bold leading-[1.15] tracking-normal text-white sm:max-w-lg sm:text-5xl lg:max-w-3xl lg:leading-[1.1] lg:tracking-tight lg:text-7xl" style="animation-delay: 0.1s;">
                 {!! nl2br(e($hero?->title ?? 'Ciptakan Hunian Impian dengan Furniture Premium')) !!}
             </h1>
 
             {{-- Description --}}
             @if ($hero?->subtitle)
-                <p class="animate-hero-up mt-6 max-w-xl text-base leading-relaxed text-white/90 sm:text-lg" style="animation-delay: 0.2s;">
+<p class="animate-hero-up mt-6 max-w-[320px] text-sm leading-relaxed text-white/90 sm:max-w-xl sm:text-base" style="animation-delay: 0.2s;">
                     {{ $hero->subtitle }}
                 </p>
             @endif
 
             {{-- Buttons --}}
-            <div class="animate-hero-zoom mt-9 flex flex-col gap-4 sm:flex-row sm:items-center" style="animation-delay: 0.3s;">
+<div class="animate-hero-zoom mt-9 flex flex-col gap-3.5 sm:flex-row sm:items-center sm:gap-4" style="animation-delay: 0.3s;">
                 @if ($hero?->primary_button_text)
-                    <x-frontend.button :href="$primaryHref" variant="primary" size="lg" class="w-full sm:w-auto">
+<x-frontend.button :href="$primaryHref" variant="primary" size="lg" class="mx-auto w-full max-w-[300px] sm:mx-0 sm:w-auto sm:max-w-none">
                         {{ $hero->primary_button_text }}
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
@@ -78,7 +78,7 @@
                 @endif
 
                 @if ($hero?->secondary_button_text)
-                    <x-frontend.button :href="$secondaryHref" variant="outline-light" size="lg" class="w-full sm:w-auto">
+<x-frontend.button :href="$secondaryHref" variant="outline-light" size="lg" class="mx-auto w-full max-w-[300px] sm:mx-0 sm:w-auto sm:max-w-none">
                         {{ $hero->secondary_button_text }}
                     </x-frontend.button>
                 @endif
