@@ -32,9 +32,9 @@
 
         {{-- Desktop Menu --}}
         <div class="hidden items-center gap-1 lg:flex">
-            @foreach ([
+@foreach ([
                 ['label' => 'Home', 'route' => 'home', 'hash' => '#home'],
-                ['label' => 'Tentang Kami', 'hash' => '#about'],
+                ['label' => 'Tentang Kami', 'route' => 'frontend.about'],
                 ['label' => 'Produk', 'hash' => '#produk'],
                 ['label' => 'FAQ', 'hash' => '#faq'],
                 ['label' => 'Kontak', 'hash' => '#kontak'],
@@ -96,9 +96,9 @@
         style="backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%);"
     >
         <div class="flex flex-col p-3">
-            @foreach ([
+@foreach ([
                 ['label' => 'Home', 'route' => 'home', 'hash' => '#home'],
-                ['label' => 'Tentang Kami', 'hash' => '#about'],
+                ['label' => 'Tentang Kami', 'route' => 'frontend.about'],
                 ['label' => 'Produk', 'hash' => '#produk'],
                 ['label' => 'FAQ', 'hash' => '#faq'],
                 ['label' => 'Kontak', 'hash' => '#kontak'],

@@ -14,7 +14,7 @@ Route::get('/', [App\Http\Controllers\Frontend\HomeController::class, 'index'])
 
 // Public frontend routes
 Route::middleware(['maintenance'])->prefix('/')->name('frontend.')->group(function () {
-    Route::view('/about', 'frontend.about')->name('about');
+Route::view('/tentang-kami', 'frontend.about')->name('about');
     Route::view('/catalog', 'frontend.catalog')->name('catalog');
     Route::view('/portfolio', 'frontend.portfolio')->name('portfolio');
     Route::view('/testimonials', 'frontend.testimonials')->name('testimonials');

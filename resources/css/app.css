@@ -388,6 +388,64 @@
     }
 }
 
+/* ============================================================
+   FRONTEND : OUR PHILOSOPHY
+   Editorial scroll reveal — kiri & kanan (opacity + translate).
+   Berbeda dari Featured Pieces (fade-up) untuk menghindari
+   animasi yang identik.
+   ============================================================ */
+
+/* --- Reveal dari kiri (teks) --- */
+[data-reveal-side="left"] {
+    opacity: 0;
+    transform: translateX(-48px);
+    transition:
+        opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+}
+
+[data-reveal-side="left"].is-revealed {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* --- Reveal dari kanan (foto) + scale ringan 1.05 → 1 --- */
+[data-reveal-side="right"] {
+    opacity: 0;
+    transform: translateX(48px) scale(1.05);
+    transition:
+        opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+}
+
+[data-reveal-side="right"].is-revealed {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+}
+
+/* --- Hover foto: zoom sangat halus (scale 1.03), 500–700ms --- */
+.philosophy-image {
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+}
+
+.group:hover .philosophy-image {
+    transform: scale(1.03);
+}
+
+/* Pada layar kecil, gerakan lateral dibuat lebih pendek agar tetap halus. */
+@media (max-width: 767px) {
+    [data-reveal-side="left"] {
+        transform: translateX(-24px);
+    }
+
+    [data-reveal-side="right"] {
+        transform: translateX(24px) scale(1.05);
+    }
+}
+
 /* Respect users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
     [data-reveal] {
@@ -402,6 +460,19 @@
         transform: none;
         transition: none;
         will-change: auto;
+    }
+
+    [data-reveal-side="left"],
+    [data-reveal-side="right"] {
+        opacity: 1;
+        transform: none;
+        transition: none;
+        will-change: auto;
+    }
+
+    .philosophy-image {
+        transform: none;
+        transition: none;
     }
 
     .category-showcase-desktop > div {

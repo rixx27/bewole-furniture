@@ -20,8 +20,15 @@
          Produk unggulan dari database (status aktif / featured).
          Section ber-id "products" agar anchor Hero & menu berfungsi.
          ============================================================ --}}
-    <div id="about"></div>
+<div id="about"></div>
     <x-home.featured-products />
+
+    {{-- ============================================================
+         PHASE 4 : OUR PHILOSOPHY
+         Preview singkat perusahaan (Tentang Kami + foto).
+         Tombol "Selengkapnya" → halaman Tentang Kami.
+         ============================================================ --}}
+    <x-home.philosophy />
 
     <div id="why-us"></div>
     <div id="reviews"></div>
