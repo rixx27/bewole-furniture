@@ -15,23 +15,24 @@
          ============================================================ --}}
 <x-home.category-showcase />
 
-    {{-- ============================================================
+{{-- ============================================================
          PHASE 3+ : Featured Pieces
          Produk unggulan dari database (status aktif / featured).
          Section ber-id "products" agar anchor Hero & menu berfungsi.
          ============================================================ --}}
-<div id="about"></div>
     <x-home.featured-products />
 
     {{-- ============================================================
          PHASE 4 : OUR PHILOSOPHY
          Preview singkat perusahaan (Tentang Kami + foto).
-         Tombol "Selengkapnya" → halaman Tentang Kami.
+         Section ber-id "about" agar target Hero "about" menuju sini.
          ============================================================ --}}
     <x-home.philosophy />
 
-    <div id="why-us"></div>
-    <div id="reviews"></div>
-    <div id="faq"></div>
-    <div id="contact"></div>
+    {{-- Anchor targets pada elemen kosong: scroll-margin-top agar
+         tidak tertutup navbar fixed setelah smooth scroll. --}}
+    <div id="why-us" class="scroll-mt-24"></div>
+    <div id="reviews" class="scroll-mt-24"></div>
+    <div id="faq" class="scroll-mt-24"></div>
+    <div id="contact" class="scroll-mt-24"></div>
 @endsection

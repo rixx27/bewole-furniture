@@ -118,11 +118,71 @@ enum HeroButtonTarget: string
         return null;
     }
 
-    /**
+/**
      * Resolve a raw DB value to a valid target, falling back to null.
      */
     public static function resolve(?string $value): ?self
     {
         return self::fromLegacy($value);
+    }
+
+    /**
+     * Resolve a raw admin-supplied value to its final href.
+     *
+     * This is fully dynamic based on what the admin stored, e.g.:
+     *   "about"            → "#about"
+     *   "products"         → "#products"
+     *   "faq"              → "#faq"
+     *   "contact"          → "#contact"
+     *   "#about"           → "#about"            (no double "#")
+     *   "/tentang-kami"    → "/tentang-kami"     (page path)
+     *   "/produk"          → "/produk"           (page path)
+     *   "https://..."      → unchanged           (external URL)
+     *   "frontend.about"   → route("frontend.about")
+     *
+     * Returns null for empty values so the caller can hide the button.
+     */
+    public static function resolveHref(?string $value): ?string
+    {
+        $value = $value === null ? null : trim($value);
+
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        // Already a fragment anchor → keep as-is (never prepend "#" twice).
+        if (Str::startsWith($value, '#')) {
+            return $value;
+        }
+
+        // External URL → keep as-is.
+        if (Str::startsWith($value, ['http://', 'https://', '//'])) {
+            return $value;
+        }
+
+        // Page/route path (leading slash) → navigate to that path.
+        if (Str::startsWith($value, '/')) {
+            return $value;
+        }
+
+        // Canonical enum anchor value (about, products, faq, contact, ...).
+        $enum = self::tryFrom($value);
+        if ($enum !== null) {
+            return $enum->href();
+        }
+
+        // Legacy enum value (e.g. "product-page", "tracking").
+        $legacy = self::fromLegacy($value);
+        if ($legacy !== null) {
+            return $legacy->href();
+        }
+
+        // Valid Laravel route name → resolve to its URL.
+        if (\Illuminate\Support\Facades\Route::has($value)) {
+            return route($value);
+        }
+
+        // Fallback: treat any other value as a section anchor.
+        return '#' . ltrim($value, '#');
     }
 }

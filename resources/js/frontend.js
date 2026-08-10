@@ -237,9 +237,13 @@ document.addEventListener('click', function (e) {
 
     if (!target) return;
 
-    e.preventDefault();
+e.preventDefault();
 
-    const headerOffset = 88;
+    // Baca scroll-margin-top CSS (jika ada) agar offset konsisten
+    // dengan navbar fixed; fallback ke 88px bila tidak tersedia.
+    const computed = window.getComputedStyle(target);
+    const cssOffset = parseFloat(computed.scrollMarginTop) || 0;
+    const headerOffset = cssOffset > 0 ? cssOffset : 88;
     const elementPosition = target.getBoundingClientRect().top + window.scrollY;
     const offsetPosition = elementPosition - headerOffset;
 

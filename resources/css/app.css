@@ -49,6 +49,25 @@
     --color-wood-border: #E7E0D6;
 }
 
+/* ============================================================
+   GLOBAL SMOOTH SCROLL + ANCHOR OFFSET
+   scroll-margin-top menjaga section tidak tertutup navbar fixed.
+   ============================================================ */
+html {
+    scroll-behavior: smooth;
+}
+
+section[id],
+div[id] {
+    scroll-margin-top: 5.5rem; /* cukup untuk navbar floating/sticky */
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+}
+
 /* Custom scrollbar for sidebar */
 .sidebar-scroll::-webkit-scrollbar {
     width: 3px;

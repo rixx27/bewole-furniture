@@ -3,13 +3,14 @@
 
     $siteName = App\Helpers\WebsiteSettings::siteName();
 
-    // Resolve button targets from admin data.
-    $primaryHref = $hero && $hero->primary_button_link
-        ? (HeroButtonTarget::resolve($hero->primary_button_link)?->href() ?? '#')
-        : '#';
-    $secondaryHref = $hero && $hero->secondary_button_link
-        ? (HeroButtonTarget::resolve($hero->secondary_button_link)?->href() ?? '#')
-        : '#';
+    // Resolve button targets dynamically from admin data.
+    // Empty/unknown targets resolve to null → button is hidden.
+    $primaryHref = $hero?->primary_button_link
+        ? HeroButtonTarget::resolveHref($hero->primary_button_link)
+        : null;
+    $secondaryHref = $hero?->secondary_button_link
+        ? HeroButtonTarget::resolveHref($hero->secondary_button_link)
+        : null;
 
     $hasImage = $hero && $hero->image;
     $imageUrl = $hasImage ? asset('storage/' . $hero->image) : null;
@@ -68,7 +69,7 @@
 
             {{-- Buttons --}}
 <div class="animate-hero-zoom mt-9 flex flex-col gap-3.5 sm:flex-row sm:items-center sm:gap-4" style="animation-delay: 0.3s;">
-                @if ($hero?->primary_button_text)
+                @if ($hero?->primary_button_text && $primaryHref)
 <x-frontend.button :href="$primaryHref" variant="primary" size="lg" class="mx-auto w-full max-w-[300px] sm:mx-0 sm:w-auto sm:max-w-none">
                         {{ $hero->primary_button_text }}
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -77,7 +78,7 @@
                     </x-frontend.button>
                 @endif
 
-                @if ($hero?->secondary_button_text)
+                @if ($hero?->secondary_button_text && $secondaryHref)
 <x-frontend.button :href="$secondaryHref" variant="outline-light" size="lg" class="mx-auto w-full max-w-[300px] sm:mx-0 sm:w-auto sm:max-w-none">
                         {{ $hero->secondary_button_text }}
                     </x-frontend.button>

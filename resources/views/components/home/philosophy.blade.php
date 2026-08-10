@@ -6,7 +6,7 @@
 @endphp
 
 <section
-    id="philosophy"
+    id="about"
     aria-labelledby="philosophy-heading"
     class="relative overflow-hidden bg-wood-bg py-20 sm:py-24 lg:py-28"
 >

@@ -35,9 +35,9 @@
 @foreach ([
                 ['label' => 'Home', 'route' => 'home', 'hash' => '#home'],
                 ['label' => 'Tentang Kami', 'route' => 'frontend.about'],
-                ['label' => 'Produk', 'hash' => '#produk'],
+                ['label' => 'Produk', 'hash' => '#products'],
                 ['label' => 'FAQ', 'hash' => '#faq'],
-                ['label' => 'Kontak', 'hash' => '#kontak'],
+                ['label' => 'Kontak', 'hash' => '#contact'],
             ] as $item)
                 <a
                     href="{{ isset($item['route']) ? route($item['route']) : url($item['hash']) }}"
@@ -99,9 +99,9 @@
 @foreach ([
                 ['label' => 'Home', 'route' => 'home', 'hash' => '#home'],
                 ['label' => 'Tentang Kami', 'route' => 'frontend.about'],
-                ['label' => 'Produk', 'hash' => '#produk'],
+                ['label' => 'Produk', 'hash' => '#products'],
                 ['label' => 'FAQ', 'hash' => '#faq'],
-                ['label' => 'Kontak', 'hash' => '#kontak'],
+                ['label' => 'Kontak', 'hash' => '#contact'],
             ] as $item)
                 <a
                     href="{{ isset($item['route']) ? route($item['route']) : url($item['hash']) }}"
