@@ -13,9 +13,9 @@
          EXPLORE OUR COLLECTION : Apple-style interactive showcase
          Data kategori berasal dari Admin Panel (Category model).
          ============================================================ --}}
-<x-home.category-showcase />
+    <x-home.category-showcase />
 
-{{-- ============================================================
+    {{-- ============================================================
          PHASE 3+ : Featured Pieces
          Produk unggulan dari database (status aktif / featured).
          Section ber-id "products" agar anchor Hero & menu berfungsi.
@@ -29,10 +29,23 @@
          ============================================================ --}}
     <x-home.philosophy />
 
+    {{-- ============================================================
+         PHASE 5 : CUSTOM FURNITURE
+         Section CTA khusus untuk request furniture custom.
+         Section ber-id "custom-furniture".
+         ============================================================ --}}
+    <x-home.custom-furniture />
+
+    {{-- ============================================================
+         PHASE 6 : FAQ FRONTEND
+         Section FAQ dinamis dari database CRUD Admin.
+         Section ber-id "faq".
+         ============================================================ --}}
+    <x-home.faq />
+
     {{-- Anchor targets pada elemen kosong: scroll-margin-top agar
          tidak tertutup navbar fixed setelah smooth scroll. --}}
     <div id="why-us" class="scroll-mt-24"></div>
     <div id="reviews" class="scroll-mt-24"></div>
-    <div id="faq" class="scroll-mt-24"></div>
     <div id="contact" class="scroll-mt-24"></div>
 @endsection
