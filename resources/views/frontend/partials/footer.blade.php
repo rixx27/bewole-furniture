@@ -31,7 +31,7 @@
 
     // Explore links — existing routes only
     $exploreLinks = [
-        ['label' => 'Produk', 'hash' => '#products'],
+        ['label' => 'Produk', 'route' => 'products.index'],
         ['label' => 'Tentang Kami', 'route' => 'frontend.about'],
         ['label' => 'FAQ', 'hash' => '#faq'],
     ];

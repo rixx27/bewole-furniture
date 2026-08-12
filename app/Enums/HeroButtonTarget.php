@@ -59,7 +59,7 @@ enum HeroButtonTarget: string
             self::Faq => '#faq',
             self::Contact => '#contact',
             self::Tracking => route('frontend.tracking'),
-            self::ProductPage => route('frontend.catalog'),
+            self::ProductPage => route('products.index'),
             self::Login => route('login'),
             self::Register => route('register'),
         };

@@ -13,14 +13,23 @@ Route::get('/', [App\Http\Controllers\Frontend\HomeController::class, 'index'])
     ->middleware('maintenance');
 
 // Public frontend routes
-Route::middleware(['maintenance'])->prefix('/')->name('frontend.')->group(function () {
-Route::view('/tentang-kami', 'frontend.about')->name('about');
-    Route::view('/catalog', 'frontend.catalog')->name('catalog');
-    Route::view('/portfolio', 'frontend.portfolio')->name('portfolio');
-    Route::view('/testimonials', 'frontend.testimonials')->name('testimonials');
-    Route::view('/faq', 'frontend.faq')->name('faq');
-    Route::view('/contact', 'frontend.contact')->name('contact');
-    Route::view('/tracking', 'frontend.tracking')->name('tracking');
+Route::middleware(['maintenance'])->group(function () {
+    Route::prefix('/')->name('frontend.')->group(function () {
+        Route::view('/tentang-kami', 'frontend.about')->name('about');
+        Route::view('/portfolio', 'frontend.portfolio')->name('portfolio');
+        Route::view('/testimonials', 'frontend.testimonials')->name('testimonials');
+        Route::view('/faq', 'frontend.faq')->name('faq');
+        Route::view('/contact', 'frontend.contact')->name('contact');
+        Route::view('/tracking', 'frontend.tracking')->name('tracking');
+    });
+
+    // Product catalog — public
+    Route::get('/produk', [App\Http\Controllers\Frontend\ProductController::class, 'index'])->name('products.index');
+    Route::get('/catalog', fn () => redirect()->route('products.index'))->name('frontend.catalog');
+    Route::get('/produk/{product:slug}', [App\Http\Controllers\Frontend\ProductController::class, 'show'])->name('products.show');
+
+    // Cart — public (session-based, no login required to view/add)
+    Route::view('/keranjang', 'frontend.pages.cart')->name('cart.index');
 });
 
 /*
@@ -44,6 +53,9 @@ Route::middleware(['auth', 'verified', 'maintenance'])->group(function () {
     // User order management (users can only see their own orders)
     Route::get('/orders', [App\Http\Controllers\Frontend\OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order:order_code}', [App\Http\Controllers\Frontend\OrderController::class, 'show'])->name('orders.show');
+
+    // Checkout (requires login)
+    Route::view('/checkout', 'frontend.pages.checkout')->name('checkout.index');
 
     // User profile
     Route::view('/profile', 'frontend.profile')->name('profile');
