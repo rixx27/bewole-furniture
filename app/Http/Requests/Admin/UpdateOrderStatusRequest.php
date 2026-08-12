@@ -18,6 +18,7 @@ class UpdateOrderStatusRequest extends FormRequest
         return [
             'status' => ['required', new Enum(OrderStatus::class)],
             'notes' => ['nullable', 'string', 'max:1000'],
+            'description' => ['nullable', 'string', 'max:1000'],
         ];
     }
 
@@ -27,6 +28,7 @@ class UpdateOrderStatusRequest extends FormRequest
             'status.required' => 'Status wajib dipilih.',
             'status.Illuminate\Validation\Rules\Enum' => 'Status yang dipilih tidak valid.',
             'notes.max' => 'Catatan maksimal 1000 karakter.',
+            'description.max' => 'Catatan maksimal 1000 karakter.',
         ];
     }
 }

@@ -4,7 +4,7 @@
         {{-- Header --}}
         <div class="flex w-full flex-col text-center animate-fade-in">
             <h1 class="text-[1.75rem] font-semibold tracking-tight text-[#2D2D2D]">{{ __('Welcome Back') }}</h1>
-            <p class="mt-1.5 text-sm text-[#2D2D2D]/55">{{ __('Masuk untuk melanjutkan ke dashboard.') }}</p>
+            <p class="mt-1.5 text-sm text-[#2D2D2D]/55">{{ __('Masukkan data diri kamu') }}</p>
         </div>
 
         {{-- Session Status --}}

@@ -102,6 +102,10 @@ class WebsiteSettingService
             // Section 5: Maintenance Mode
             'is_maintenance' => $settings->is_maintenance ?? false,
             'maintenance_message' => $settings->maintenance_message,
+
+            // Section 6: Branding
+            'login_background' => $settings->login_background,
+            'login_quote' => $settings->login_quote,
         ];
     }
 
@@ -128,6 +132,8 @@ class WebsiteSettingService
             'working_hours' => null,
             'is_maintenance' => false,
             'maintenance_message' => null,
+            'login_background' => null,
+            'login_quote' => null,
         ];
     }
 }

@@ -91,8 +91,8 @@
                                     <p class="text-sm font-semibold text-text-primary dark:text-white">{{ $history->status_label }}</p>
                                     <span class="text-xs text-text-muted">{{ $history->created_at->format('d/m/Y H:i') }}</span>
                                 </div>
-                                @if ($history->notes)
-                                    <p class="mt-0.5 text-xs text-text-muted">{{ $history->notes }}</p>
+                                @if ($history->description)
+                                    <p class="mt-0.5 text-xs text-text-muted">{{ $history->description }}</p>
                                 @endif
                                 @if ($history->changedBy)
                                     <p class="mt-0.5 text-xs text-text-muted">— {{ $history->changedBy->name }}</p>

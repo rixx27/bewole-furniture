@@ -78,10 +78,10 @@
                     @foreach ($product->images as $img)
                         <button
                             type="button"
-                            wire:click="selectImage('{{ $img->image_path }}')"
-                            class="h-16 w-16 shrink-0 overflow-hidden rounded-2xl border-2 transition-all {{ $selectedImage === $img->image_path ? 'border-wood-primary ring-2 ring-wood-primary/20' : 'border-wood-border/60 opacity-70 hover:opacity-100' }}"
+                            wire:click="selectImage('{{ $img->image }}')"
+                            class="h-16 w-16 shrink-0 overflow-hidden rounded-2xl border-2 transition-all {{ $selectedImage === $img->image ? 'border-wood-primary ring-2 ring-wood-primary/20' : 'border-wood-border/60 opacity-70 hover:opacity-100' }}"
                         >
-                            <img src="{{ asset('storage/' . $img->image_path) }}" alt="{{ $product->name }}" class="h-full w-full object-cover">
+                            <img src="{{ asset('storage/' . $img->image) }}" alt="{{ $product->name }}" class="h-full w-full object-cover">
                         </button>
                     @endforeach
                 </div>

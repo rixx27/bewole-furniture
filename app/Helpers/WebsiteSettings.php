@@ -80,5 +80,30 @@ class WebsiteSettings
     {
         return static::get('maintenance_message');
     }
+
+    /**
+     * Get clean Google Maps Embed URL for iframe src attribute.
+     */
+    public static function googleMapsEmbedUrl(): ?string
+    {
+        $embed = static::get('google_maps_embed');
+
+        if (! $embed) {
+            return null;
+        }
+
+        $embed = trim((string) $embed);
+
+        if ($embed === '') {
+            return null;
+        }
+
+        // Extract src attribute if full <iframe src="..."> tag was pasted
+        if (preg_match('/src=["\']([^"\']+)["\']/', $embed, $matches)) {
+            return $matches[1];
+        }
+
+        return $embed;
+    }
 }
 

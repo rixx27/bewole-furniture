@@ -104,11 +104,11 @@
                     @forelse ($orders as $order)
                         <tr class="transition-colors hover:bg-bg-secondary/30">
                             <td class="px-6 py-4">
-                                <span class="text-sm font-mono font-medium text-text-primary dark:text-white">{{ $order->order_code }}</span>
+                                <span class="text-sm font-mono font-medium text-text-primary dark:text-black">{{ $order->order_code }}</span>
                             </td>
                             <td class="px-6 py-4">
                                 <div class="text-sm">
-                                    <p class="font-medium text-text-primary dark:text-white">{{ $order->customer_name }}</p>
+                                    <p class="font-medium text-text-primary dark:text-black">{{ $order->customer_name }}</p>
                                     <p class="text-xs text-text-muted">{{ $order->customer_phone }}</p>
                                 </div>
                             </td>
@@ -119,7 +119,7 @@
                                 <span class="text-sm text-text-secondary">{{ $order->quantity }}</span>
                             </td>
                             <td class="px-6 py-4">
-                                <span class="text-sm font-semibold text-text-primary dark:text-white">{{ $order->formatted_total_price }}</span>
+                                <span class="text-sm font-semibold text-text-primary dark:text-black">{{ $order->formatted_total_price }}</span>
                             </td>
                             <td class="px-6 py-4">
                                 <span class="text-sm text-text-secondary">{{ $order->shipping_method_label }}</span>

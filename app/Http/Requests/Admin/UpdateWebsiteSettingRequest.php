@@ -46,6 +46,10 @@ class UpdateWebsiteSettingRequest extends FormRequest
             // Section 5: Maintenance Mode
             'is_maintenance' => ['nullable', 'boolean'],
             'maintenance_message' => ['nullable', 'string'],
+
+            // Section 6: Branding
+            'login_background' => ['nullable', 'string', 'max:255'],
+            'login_quote' => ['nullable', 'string'],
         ];
     }
 

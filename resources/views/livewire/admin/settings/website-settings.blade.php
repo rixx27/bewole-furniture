@@ -46,17 +46,25 @@
     <div class="mb-6">
         <div class="flex items-center gap-2 text-xs text-text-muted mb-3">
             <span class="text-text-secondary">Pengaturan Website</span>
+            <span>/</span>
+            <span class="font-medium text-primary uppercase tracking-wider text-[11px]">
+                @if ($activeTab === 'info') Informasi Perusahaan
+                @elseif ($activeTab === 'contact') Kontak & Sosial Media
+                @elseif ($activeTab === 'seo') SEO & Metadata
+                @elseif ($activeTab === 'system') Sistem
+                @endif
+            </span>
         </div>
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h2 class="text-2xl font-bold tracking-tight text-text-primary dark:text-black">Pengaturan Website</h2>
-                <p class="mt-1 text-sm text-text-secondary">Atur identitas, kontak, media sosial, dan konfigurasi website Anda.</p>
+                <p class="mt-1 text-sm text-text-secondary">Kelola identitas, kontak, lokasi Google Maps, SEO, dan sistem global.</p>
             </div>
             <div class="flex items-center gap-3">
                 <button type="button"
                         wire:click="resetForm"
                         wire:loading.attr="disabled"
-                        class="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-text-secondary hover:bg-bg-secondary transition-colors">
+                        class="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-text-secondary hover:bg-bg-secondary transition-colors cursor-pointer">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                     </svg>
@@ -80,7 +88,7 @@
             <button type="button"
                     wire:click="createSettings"
                     wire:loading.attr="disabled"
-                    class="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-white transition-all hover:bg-primary-dark shadow-sm">
+                    class="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-white transition-all hover:bg-primary-dark shadow-sm cursor-pointer">
                 <svg wire:loading.remove wire:target="createSettings" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15"/>
                 </svg>
@@ -91,324 +99,432 @@
             </button>
         </div>
     @else
+        {{-- Section Navigation Tabs --}}
+        <div class="mb-6 border-b border-border">
+            <nav class="-mb-px flex space-x-2 overflow-x-auto sm:space-x-4" aria-label="Tabs">
+                <button type="button"
+                        wire:click="setTab('info')"
+                        @class([
+                            'flex items-center gap-2 border-b-2 py-3 px-4 text-sm font-medium whitespace-nowrap transition-colors cursor-pointer',
+                            'border-primary text-primary font-semibold' => $activeTab === 'info',
+                            'border-transparent text-text-secondary hover:border-border hover:text-text-primary' => $activeTab !== 'info',
+                        ])>
+                    <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h4m-4 0V11m0 0h4m-4 0H9"/>
+                    </svg>
+                    <span>Informasi Perusahaan</span>
+                </button>
+
+                <button type="button"
+                        wire:click="setTab('contact')"
+                        @class([
+                            'flex items-center gap-2 border-b-2 py-3 px-4 text-sm font-medium whitespace-nowrap transition-colors cursor-pointer',
+                            'border-primary text-primary font-semibold' => $activeTab === 'contact',
+                            'border-transparent text-text-secondary hover:border-border hover:text-text-primary' => $activeTab !== 'contact',
+                        ])>
+                    <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                    </svg>
+                    <span>Kontak & Sosial Media</span>
+                </button>
+
+                <button type="button"
+                        wire:click="setTab('seo')"
+                        @class([
+                            'flex items-center gap-2 border-b-2 py-3 px-4 text-sm font-medium whitespace-nowrap transition-colors cursor-pointer',
+                            'border-primary text-primary font-semibold' => $activeTab === 'seo',
+                            'border-transparent text-text-secondary hover:border-border hover:text-text-primary' => $activeTab !== 'seo',
+                        ])>
+                    <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <span>SEO & Metadata</span>
+                </button>
+
+                <button type="button"
+                        wire:click="setTab('system')"
+                        @class([
+                            'flex items-center gap-2 border-b-2 py-3 px-4 text-sm font-medium whitespace-nowrap transition-colors cursor-pointer',
+                            'border-primary text-primary font-semibold' => $activeTab === 'system',
+                            'border-transparent text-text-secondary hover:border-border hover:text-text-primary' => $activeTab !== 'system',
+                        ])>
+                    <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span>Sistem</span>
+                </button>
+            </nav>
+        </div>
+
         {{-- Settings Form --}}
         <form wire:submit="save" class="space-y-6">
-            {{-- ============================================ --}}
-            {{-- SECTION 1: IDENTITAS WEBSITE --}}
-            {{-- ============================================ --}}
-            <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-                <div class="border-b border-border bg-bg-secondary/50 px-6 py-4">
-                    <div class="flex items-center gap-3">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-base font-semibold text-text-primary dark:text-black">Identitas Website</h3>
-                            <p class="text-xs text-text-muted">Informasi dasar tentang website Anda.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="p-6">
-                    <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                        {{-- Nama Website --}}
-                        <div>
-                            <label for="site_name" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                                Nama Website
-                            </label>
-                            <input type="text"
-                                   id="site_name"
-                                   wire:model="site_name"
-                                   placeholder="Bewole Furniture"
-                                   class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
-                            @error('site_name') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
-                        </div>
 
-                        {{-- Tagline --}}
-                        <div>
-                            <label for="site_tagline" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                                Tagline
-                            </label>
-                            <input type="text"
-                                   id="site_tagline"
-                                   wire:model="site_tagline"
-                                   placeholder="Furniture Kualitas Terbaik"
-                                   class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
-                            @error('site_tagline') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
-                        </div>
-                    </div>
-
-                    {{-- Logo --}}
-                    <div class="mt-5">
-                        <label class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                            Logo Website
-                        </label>
-                        <div class="flex items-center gap-4">
-                            <div class="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-bg-secondary">
-                                @if ($logo_preview)
-                                    <img src="{{ $logo_preview }}" alt="Logo Preview" class="h-full w-full object-contain">
-                                @elseif ($existing_logo)
-                                    <img src="{{ asset('storage/' . $existing_logo) }}" alt="Logo" class="h-full w-full object-contain">
-                                @else
-                                    <svg class="h-8 w-8 text-text-muted/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"/>
-                                    </svg>
-                                @endif
+            {{-- ============================================ --}}
+            {{-- TAB A: INFORMASI PERUSAHAAN --}}
+            {{-- ============================================ --}}
+            @if ($activeTab === 'info')
+                <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+                    <div class="border-b border-border bg-bg-secondary/50 px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
+                                </svg>
                             </div>
-                            <div class="flex-1">
-                                <label class="relative cursor-pointer rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-text-secondary hover:bg-bg-secondary transition-colors">
-                                    <span>Pilih Logo</span>
-                                    <input type="file" wire:model="logo" accept="image/jpg,image/jpeg,image/png,image/svg+xml,image/webp" class="sr-only">
+                            <div>
+                                <h3 class="text-base font-semibold text-text-primary dark:text-black">Informasi Perusahaan</h3>
+                                <p class="text-xs text-text-muted">Nama, tagline, alamat, dan jam kerja perusahaan.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6 space-y-5">
+                        <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                            {{-- Nama Website --}}
+                            <div>
+                                <label for="site_name" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
+                                    Nama Perusahaan / Website
                                 </label>
-                                <p class="mt-1 text-xs text-text-muted">Logo juga digunakan sebagai favicon browser. JPG, PNG, SVG, WebP. Maks 2 MB.</p>
-                                @if ($existing_logo || $logo_preview)
-                                    <button type="button" wire:click="removeLogo" class="mt-1 text-xs text-red-500 hover:text-red-700 transition-colors">
-                                        Hapus Logo
-                                    </button>
-                                @endif
-                                @error('logo') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                                <input type="text"
+                                       id="site_name"
+                                       wire:model="site_name"
+                                       placeholder="Bewole Furniture"
+                                       class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
+                                @error('site_name') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                            </div>
+
+                            {{-- Tagline --}}
+                            <div>
+                                <label for="site_tagline" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
+                                    Tagline
+                                </label>
+                                <input type="text"
+                                       id="site_tagline"
+                                       wire:model="site_tagline"
+                                       placeholder="Furniture Kualitas Terbaik"
+                                       class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
+                                @error('site_tagline') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
 
-            {{-- ============================================ --}}
-            {{-- SECTION 2: INFORMASI KONTAK --}}
-            {{-- ============================================ --}}
-            <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-                <div class="border-b border-border bg-bg-secondary/50 px-6 py-4">
-                    <div class="flex items-center gap-3">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-base font-semibold text-text-primary dark:text-black">Informasi Kontak</h3>
-                            <p class="text-xs text-text-muted">Informasi kontak yang ditampilkan ke pengunjung.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="p-6">
-                    <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                        <div>
-                            <label for="email" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                                Email
-                            </label>
-                            <input type="email"
-                                   id="email"
-                                   wire:model="email"
-                                   placeholder="info@bewolefurniture.com"
-                                   class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
-                            @error('email') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
-                        </div>
-                        <div>
-                            <label for="phone" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                                Nomor Telepon
-                            </label>
-                            <input type="text"
-                                   id="phone"
-                                   wire:model="phone"
-                                   placeholder="(021) 1234 5678"
-                                   class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
-                            @error('phone') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
-                        </div>
-                        <div>
-                            <label for="whatsapp" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                                WhatsApp
-                            </label>
-                            <input type="text"
-                                   id="whatsapp"
-                                   wire:model="whatsapp"
-                                   placeholder="6281234567890"
-                                   class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
-                            @error('whatsapp') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
-                            <p class="mt-1 text-xs text-text-muted">Gunakan format internasional (contoh: 6281234567890).</p>
-                        </div>
+                        {{-- Alamat --}}
                         <div>
                             <label for="address" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                                Alamat Lengkap
+                                Alamat Lengkap Perusahaan
                             </label>
                             <textarea id="address"
                                       wire:model="address"
                                       rows="3"
-                                      placeholder="Jl. Contoh No. 123, Kota, Provinsi"
+                                      placeholder="Jl. Raya Jepara - Kudus KM 10, Tahunan, Jepara, Jawa Tengah"
                                       class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary resize-none"></textarea>
                             @error('address') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                         </div>
-                    </div>
-                    <div class="mt-5">
-                        <label for="google_maps_embed" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                            Google Maps Embed
-                        </label>
-                        <textarea id="google_maps_embed"
-                                  wire:model="google_maps_embed"
-                                  rows="3"
-                                  placeholder="<iframe src='...'></iframe>"
-                                  class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary resize-none"></textarea>
-                        @error('google_maps_embed') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+
+                        {{-- Jam & Hari Operasional --}}
+                        <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                            <div>
+                                <label for="working_days" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
+                                    Hari Operasional
+                                </label>
+                                <input type="text"
+                                       id="working_days"
+                                       wire:model="working_days"
+                                       placeholder="Senin - Sabtu"
+                                       class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
+                                @error('working_days') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label for="working_hours" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
+                                    Jam Operasional
+                                </label>
+                                <input type="text"
+                                       id="working_hours"
+                                       wire:model="working_hours"
+                                       placeholder="08:00 - 17:00 WIB"
+                                       class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
+                                @error('working_hours') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            @endif
 
             {{-- ============================================ --}}
-            {{-- SECTION 3: MEDIA SOSIAL --}}
+            {{-- TAB B: KONTAK & SOSIAL MEDIA --}}
             {{-- ============================================ --}}
-            <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-                <div class="border-b border-border bg-bg-secondary/50 px-6 py-4">
-                    <div class="flex items-center gap-3">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-base font-semibold text-text-primary dark:text-black">Media Sosial</h3>
-                            <p class="text-xs text-text-muted">Tautan media sosial website Anda.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="p-6">
-                    <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                        <div>
-                            <label for="facebook" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                                Facebook
-                            </label>
-                            <input type="url"
-                                   id="facebook"
-                                   wire:model="facebook"
-                                   placeholder="https://facebook.com/bewolefurniture"
-                                   class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
-                            @error('facebook') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
-                        </div>
-                        <div>
-                            <label for="instagram" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                                Instagram
-                            </label>
-                            <input type="url"
-                                   id="instagram"
-                                   wire:model="instagram"
-                                   placeholder="https://instagram.com/bewolefurniture"
-                                   class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
-                            @error('instagram') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
-                        </div>
-                        <div>
-                            <label for="tiktok" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                                TikTok
-                            </label>
-                            <input type="url"
-                                   id="tiktok"
-                                   wire:model="tiktok"
-                                   placeholder="https://tiktok.com/@bewolefurniture"
-                                   class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
-                            @error('tiktok') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- ============================================ --}}
-            {{-- SECTION 4: JAM OPERASIONAL --}}
-            {{-- ============================================ --}}
-            <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-                <div class="border-b border-border bg-bg-secondary/50 px-6 py-4">
-                    <div class="flex items-center gap-3">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-base font-semibold text-text-primary dark:text-black">Jam Operasional</h3>
-                            <p class="text-xs text-text-muted">Informasi jam kerja toko Anda.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="p-6">
-                    <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                        <div>
-                            <label for="working_days" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                                Hari Operasional
-                            </label>
-                            <input type="text"
-                                   id="working_days"
-                                   wire:model="working_days"
-                                   placeholder="Senin - Sabtu"
-                                   class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
-                            @error('working_days') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
-                        </div>
-                        <div>
-                            <label for="working_hours" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                                Jam Operasional
-                            </label>
-                            <input type="text"
-                                   id="working_hours"
-                                   wire:model="working_hours"
-                                   placeholder="08:00 - 17:00 WIB"
-                                   class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
-                            @error('working_hours') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- ============================================ --}}
-            {{-- SECTION 5: MAINTENANCE MODE --}}
-            {{-- ============================================ --}}
-            <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-                <div class="border-b border-border bg-bg-secondary/50 px-6 py-4">
-                    <div class="flex items-center gap-3">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-lg" :class="is_maintenance ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.42 15.17l-4.49 2.59m0-8.64l4.49 2.59m-4.49 2.6v2.59c0 .51.27.98.72 1.23l3.96 2.29c.45.26.99.26 1.44 0l3.96-2.29c.45-.26.72-.72.72-1.23v-2.59m0-5.18v-2.59c0-.51-.27-.98-.72-1.23l-3.96-2.29a1.414 1.414 0 00-1.44 0L7.23 3.99a1.458 1.458 0 00-.72 1.23v2.59m0 5.18c0 .51.27.98.72 1.23l3.96 2.29c.45.26.99.26 1.44 0"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-base font-semibold text-text-primary dark:text-black">Maintenance Mode</h3>
-                            <p class="text-xs text-text-muted">Aktifkan mode pemeliharaan website.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="p-6">
-                    <div class="flex items-center justify-between rounded-xl border border-border bg-bg-secondary/50 p-5">
-                        <div class="flex items-center gap-4">
-                            <div class="flex h-12 w-12 items-center justify-center rounded-xl" :class="is_maintenance ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'">
-                                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/>
+            @if ($activeTab === 'contact')
+                <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+                    <div class="border-b border-border bg-bg-secondary/50 px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-sm font-semibold text-text-primary dark:text-black">Website Maintenance</p>
-                                <p class="text-xs text-text-muted">Saat aktif, pengunjung akan melihat halaman maintenance.</p>
+                                <h3 class="text-base font-semibold text-text-primary dark:text-black">Kontak &amp; Sosial Media</h3>
+                                <p class="text-xs text-text-muted">Informasi komunikasi, tautan media sosial, dan peta Google Maps.</p>
                             </div>
                         </div>
-                        <button type="button"
-                                wire:click="$toggle('is_maintenance')"
-                                class="relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden"
-                                :class="is_maintenance ? 'bg-amber-500' : 'bg-gray-300 dark:bg-gray-600'"
-                                role="switch"
-                                :aria-checked="is_maintenance">
-                            <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out"
-                                  :class="is_maintenance ? 'translate-x-5' : 'translate-x-0'"></span>
-                        </button>
                     </div>
+                    <div class="p-6 space-y-6">
+                        {{-- Field Kontak --}}
+                        <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
+                            <div>
+                                <label for="email" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
+                                    Email
+                                </label>
+                                <input type="email"
+                                       id="email"
+                                       wire:model="email"
+                                       placeholder="info@bewolefurniture.com"
+                                       class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
+                                @error('email') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label for="phone" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
+                                    Nomor Telepon
+                                </label>
+                                <input type="text"
+                                       id="phone"
+                                       wire:model="phone"
+                                       placeholder="(0291) 1234 5678"
+                                       class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
+                                @error('phone') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label for="whatsapp" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
+                                    WhatsApp
+                                </label>
+                                <input type="text"
+                                       id="whatsapp"
+                                       wire:model="whatsapp"
+                                       placeholder="6281234567890"
+                                       class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
+                                @error('whatsapp') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                                <p class="mt-1 text-xs text-text-muted">Gunakan format internasional (contoh: 6281234567890).</p>
+                            </div>
+                        </div>
 
-                    <div x-show="$wire.is_maintenance" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="mt-5">
-                        <label for="maintenance_message" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                            Pesan Maintenance
-                        </label>
-                        <textarea id="maintenance_message"
-                                  wire:model="maintenance_message"
-                                  rows="4"
-                                  placeholder="Maaf, website sedang dalam masa pemeliharaan. Silakan kembali lagi nanti."
-                                  class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary resize-none"></textarea>
-                        @error('maintenance_message') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
-                        <p class="mt-1 text-xs text-text-muted">Pesan tetap tersimpan meskipun maintenance mode nonaktif.</p>
+                        {{-- Media Sosial --}}
+                        <div class="pt-4 border-t border-border">
+                            <h4 class="mb-4 text-xs font-bold uppercase tracking-wider text-text-muted">Media Sosial</h4>
+                            <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
+                                <div>
+                                    <label for="facebook" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
+                                        Facebook
+                                    </label>
+                                    <input type="url"
+                                           id="facebook"
+                                           wire:model="facebook"
+                                           placeholder="https://facebook.com/bewolefurniture"
+                                           class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
+                                    @error('facebook') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                                </div>
+                                <div>
+                                    <label for="instagram" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
+                                        Instagram
+                                    </label>
+                                    <input type="url"
+                                           id="instagram"
+                                           wire:model="instagram"
+                                           placeholder="https://instagram.com/bewolefurniture"
+                                           class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
+                                    @error('instagram') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                                </div>
+                                <div>
+                                    <label for="tiktok" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
+                                        TikTok
+                                    </label>
+                                    <input type="url"
+                                           id="tiktok"
+                                           wire:model="tiktok"
+                                           placeholder="https://tiktok.com/@bewolefurniture"
+                                           class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
+                                    @error('tiktok') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Google Maps Embed URL --}}
+                        <div class="pt-4 border-t border-border">
+                            <label for="google_maps_embed" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
+                                Google Maps Embed URL
+                            </label>
+                            <p class="mb-2 text-xs text-text-muted">
+                                Masukkan URL embed Google Maps untuk menampilkan lokasi perusahaan pada halaman Tentang Kami.
+                            </p>
+                            <textarea id="google_maps_embed"
+                                      wire:model="google_maps_embed"
+                                      rows="3"
+                                      placeholder="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3963.4... atau <iframe src='...'></iframe>"
+                                      class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary resize-none font-mono text-xs"></textarea>
+                            @error('google_maps_embed') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+
+                            {{-- Preview Box --}}
+                            @php
+                                $cleanEmbedUrl = App\Helpers\WebsiteSettings::googleMapsEmbedUrl();
+                            @endphp
+                            <div class="mt-4">
+                                <span class="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">Pratinjau Peta:</span>
+                                @if ($google_maps_embed)
+                                    <div class="overflow-hidden rounded-xl border border-border bg-bg-secondary p-2 shadow-xs">
+                                        <div class="aspect-[16/9] w-full overflow-hidden rounded-lg bg-gray-100">
+                                            @php
+                                                $previewUrl = trim($google_maps_embed);
+                                                if (preg_match('/src=["\']([^"\']+)["\']/', $previewUrl, $matches)) {
+                                                    $previewUrl = $matches[1];
+                                                }
+                                            @endphp
+                                            <iframe src="{{ $previewUrl }}"
+                                                    width="100%"
+                                                    height="100%"
+                                                    style="border:0;"
+                                                    allowfullscreen=""
+                                                    loading="lazy"
+                                                    referrerpolicy="no-referrer-when-downgrade"
+                                                    class="h-full w-full rounded-lg">
+                                            </iframe>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="flex items-center justify-center rounded-xl border border-dashed border-border bg-bg-secondary p-6 text-center text-xs text-text-muted">
+                                        Google Maps Embed URL belum diisi. Pratinjau akan tampil di sini setelah URL dimasukkan.
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            @endif
+
+            {{-- ============================================ --}}
+            {{-- TAB C: SEO & METADATA --}}
+            {{-- ============================================ --}}
+            @if ($activeTab === 'seo')
+                <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+                    <div class="border-b border-border bg-bg-secondary/50 px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-semibold text-text-primary dark:text-black">SEO &amp; Metadata</h3>
+                                <p class="text-xs text-text-muted">Logo, favicon browser, dan informasi SEO dasar.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        {{-- Logo Website --}}
+                        <div>
+                            <label class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
+                                Logo Website &amp; Favicon
+                            </label>
+                            <div class="flex items-center gap-4">
+                                <div class="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-bg-secondary">
+                                    @if ($logo_preview)
+                                        <img src="{{ $logo_preview }}" alt="Logo Preview" class="h-full w-full object-contain">
+                                    @elseif ($existing_logo)
+                                        <img src="{{ asset('storage/' . $existing_logo) }}" alt="Logo" class="h-full w-full object-contain">
+                                    @else
+                                        <svg class="h-8 w-8 text-text-muted/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"/>
+                                        </svg>
+                                    @endif
+                                </div>
+                                <div class="flex-1">
+                                    <label class="relative inline-block cursor-pointer rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-text-secondary hover:bg-bg-secondary transition-colors">
+                                        <span>Pilih Logo</span>
+                                        <input type="file" wire:model="logo" accept="image/jpg,image/jpeg,image/png,image/svg+xml,image/webp" class="sr-only">
+                                    </label>
+                                    <p class="mt-1 text-xs text-text-muted">Logo otomatis digunakan sebagai favicon browser. Format: JPG, PNG, SVG, WebP. Maksimal 2 MB.</p>
+                                    @if ($existing_logo || $logo_preview)
+                                        <button type="button" wire:click="removeLogo" class="mt-1 text-xs text-red-500 hover:text-red-700 transition-colors cursor-pointer block">
+                                            Hapus Logo
+                                        </button>
+                                    @endif
+                                    @error('logo') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Metadata Summary Preview --}}
+                        <div class="rounded-xl border border-border bg-bg-secondary/40 p-5 space-y-3">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-text-muted">Ringkasan Meta SEO</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-border/50 pb-2">
+                                    <span class="text-xs text-text-muted">Meta Title Utama:</span>
+                                    <span class="font-medium text-text-primary">{{ $site_name ?: 'Bewole Furniture' }} {{ $site_tagline ? '— ' . $site_tagline : '' }}</span>
+                                </div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                                    <span class="text-xs text-text-muted">Meta Deskripsi:</span>
+                                    <span class="font-medium text-text-primary truncate max-w-md">{{ $address ?: 'Toko & Workshop Luxury Furniture' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            {{-- ============================================ --}}
+            {{-- TAB D: SISTEM --}}
+            {{-- ============================================ --}}
+            @if ($activeTab === 'system')
+                <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+                    <div class="border-b border-border bg-bg-secondary/50 px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg" :class="is_maintenance ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.42 15.17l-4.49 2.59m0-8.64l4.49 2.59m-4.49 2.6v2.59c0 .51.27.98.72 1.23l3.96 2.29c.45.26.99.26 1.44 0l3.96-2.29c.45-.26.72-.72.72-1.23v-2.59m0-5.18v-2.59c0-.51-.27-.98-.72-1.23l-3.96-2.29a1.414 1.414 0 00-1.44 0L7.23 3.99a1.458 1.458 0 00-.72 1.23v2.59m0 5.18c0 .51.27.98.72 1.23l3.96 2.29c.45.26.99.26 1.44 0"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-semibold text-text-primary dark:text-black">Konfigurasi Sistem</h3>
+                                <p class="text-xs text-text-muted">Pengaturan mode pemeliharaan (maintenance mode) dan status sistem global.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between rounded-xl border border-border bg-bg-secondary/50 p-5">
+                            <div class="flex items-center gap-4">
+                                <div class="flex h-12 w-12 items-center justify-center rounded-xl" :class="is_maintenance ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'">
+                                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold text-text-primary dark:text-black">Maintenance Mode Website</p>
+                                    <p class="text-xs text-text-muted">Saat aktif, pengunjung non-admin akan diarahkan ke halaman pemeliharaan.</p>
+                                </div>
+                            </div>
+                            <button type="button"
+                                    wire:click="$toggle('is_maintenance')"
+                                    class="relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden"
+                                    :class="is_maintenance ? 'bg-amber-500' : 'bg-gray-300 dark:bg-gray-600'"
+                                    role="switch"
+                                    :aria-checked="is_maintenance">
+                                <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out"
+                                      :class="is_maintenance ? 'translate-x-5' : 'translate-x-0'"></span>
+                            </button>
+                        </div>
+
+                        <div x-show="$wire.is_maintenance" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="mt-5">
+                            <label for="maintenance_message" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
+                                Pesan Pemeliharaan (Maintenance Message)
+                            </label>
+                            <textarea id="maintenance_message"
+                                      wire:model="maintenance_message"
+                                      rows="4"
+                                      placeholder="Maaf, website sedang dalam masa pemeliharaan. Silakan kembali lagi nanti."
+                                      class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary resize-none"></textarea>
+                            @error('maintenance_message') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                            <p class="mt-1 text-xs text-text-muted">Pesan ini tetap tersimpan meskipun maintenance mode sedang nonaktif.</p>
+                        </div>
+                    </div>
+                </div>
+            @endif
 
             {{-- ============================================ --}}
             {{-- STICKY SAVE BUTTON --}}
@@ -420,12 +536,12 @@
                             <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
-                            Perubahan akan langsung diterapkan.
+                            Perubahan akan langsung disimpan ke database.
                         </span>
                     </p>
                     <button type="submit"
                             wire:loading.attr="disabled"
-                            class="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white transition-all hover:bg-primary-dark shadow-sm disabled:opacity-60 disabled:cursor-not-allowed">
+                            class="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white transition-all hover:bg-primary-dark shadow-sm disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer">
                         {{-- Loading Spinner --}}
                         <svg wire:loading wire:target="save" class="h-4 w-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
@@ -441,4 +557,3 @@
         </form>
     @endif
 </div>
-

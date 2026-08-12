@@ -44,6 +44,10 @@ class WebsiteSetting extends Model
         // Section 5: Maintenance Mode
         'is_maintenance',
         'maintenance_message',
+
+        // Section 6: Branding (Login Page)
+        'login_background',
+        'login_quote',
     ];
 
     /**

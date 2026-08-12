@@ -8,12 +8,16 @@ use App\Services\WebsiteSettingService;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Url;
 use Illuminate\Support\Facades\Storage;
 
 #[Layout('layouts.admin')]
 class WebsiteSettings extends Component
 {
     use WithFileUploads;
+
+    #[Url(as: 'tab', history: true)]
+    public string $activeTab = 'info';
 
     /**
      * The service instance.
@@ -78,6 +82,16 @@ class WebsiteSettings extends Component
 
         if ($this->settings) {
             $this->loadSettings();
+        }
+    }
+
+    /**
+     * Switch current active tab.
+     */
+    public function setTab(string $tab): void
+    {
+        if (in_array($tab, ['info', 'contact', 'seo', 'system'])) {
+            $this->activeTab = $tab;
         }
     }
 

@@ -131,7 +131,7 @@
                         <h2 class="text-center font-serif text-2xl font-bold tracking-tight text-wood-text sm:text-3xl">
                             Angka &amp; Pencapaian Kami
                         </h2>
-<div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+                        <div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
                             @foreach ($stats as $stat)
                                 <div
                                     data-reveal
@@ -152,6 +152,59 @@
                         </div>
                     </section>
                 @endif
+
+                {{-- ============================================================
+                     LOKASI KAMI & GOOGLE MAPS
+                     ============================================================ --}}
+                @php
+                    $address = App\Helpers\WebsiteSettings::get('address');
+                    $mapsEmbed = App\Helpers\WebsiteSettings::googleMapsEmbedUrl();
+                @endphp
+                <section data-reveal class="mt-16 sm:mt-20">
+                    <div class="text-center">
+                        <span class="inline-flex items-center gap-2 rounded-full border border-wood-border/80 bg-wood-surface px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-wood-primary shadow-xs">
+                            <span class="text-wood-secondary">✦</span>
+                            Lokasi Showroom &amp; Workshop
+                        </span>
+                        <h2 class="mt-4 font-serif text-2xl font-bold tracking-tight text-wood-text sm:text-3xl lg:text-4xl">
+                            Lokasi Kami
+                        </h2>
+                        <div class="mx-auto mt-4 h-0.5 w-16 rounded-full bg-wood-secondary"></div>
+                        @if ($address)
+                            <p class="mx-auto mt-4 max-w-2xl text-base text-wood-muted sm:text-lg">
+                                {{ $address }}
+                            </p>
+                        @endif
+                    </div>
+
+                    <div class="mt-8">
+                        @if ($mapsEmbed)
+                            <div class="group relative overflow-hidden rounded-3xl border border-wood-border/60 bg-wood-surface shadow-xl shadow-wood-primary/10">
+                                <iframe
+                                    src="{{ $mapsEmbed }}"
+                                    width="100%"
+                                    height="450"
+                                    style="border:0;"
+                                    allowfullscreen=""
+                                    loading="lazy"
+                                    referrerpolicy="no-referrer-when-downgrade"
+                                    class="w-full h-[350px] sm:h-[450px] rounded-3xl border-0"
+                                ></iframe>
+                            </div>
+                        @else
+                            <div class="flex flex-col items-center justify-center rounded-3xl border border-dashed border-wood-border bg-wood-surface p-10 text-center shadow-xs">
+                                <div class="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-wood-primary/10 text-wood-primary">
+                                    <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19.5 10.5c0 6.5-7.5 12-7.5 12s-7.5-5.5-7.5-12a7.5 7.5 0 1115 0z"/>
+                                    </svg>
+                                </div>
+                                <h3 class="text-base font-semibold text-wood-text">Lokasi belum tersedia</h3>
+                                <p class="mt-1 text-sm text-wood-muted">Peta lokasi Google Maps belum dikonfigurasi oleh administrator.</p>
+                            </div>
+                        @endif
+                    </div>
+                </section>
 
                 {{-- CTA --}}
                 <div class="mt-16 text-center">

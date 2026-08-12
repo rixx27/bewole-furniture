@@ -168,7 +168,7 @@ class OrderService
         return OrderStatusHistory::create([
             'order_id' => $order->id,
             'status' => $status->value,
-            'notes' => $description,
+            'description' => $description,
             'changed_by' => Auth::id(),
         ]);
     }

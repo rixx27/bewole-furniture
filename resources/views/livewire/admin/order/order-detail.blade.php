@@ -197,8 +197,8 @@
                                         <p class="text-sm font-medium text-text-primary dark:text-white">{{ $history->status_label }}</p>
                                         <span class="text-xs text-text-muted">{{ $history->created_at->diffForHumans() }}</span>
                                     </div>
-                                    @if ($history->notes)
-                                        <p class="mt-0.5 text-xs text-text-muted">{{ $history->notes }}</p>
+                                    @if ($history->description)
+                                        <p class="mt-0.5 text-xs text-text-muted">{{ $history->description }}</p>
                                     @endif
                                     @if ($history->changedBy)
                                         <p class="mt-0.5 text-xs text-text-muted">oleh {{ $history->changedBy->name }}</p>
