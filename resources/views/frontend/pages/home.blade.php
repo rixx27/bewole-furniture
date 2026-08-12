@@ -43,9 +43,7 @@
          ============================================================ --}}
     <x-home.faq />
 
-    {{-- Anchor targets pada elemen kosong: scroll-margin-top agar
-         tidak tertutup navbar fixed setelah smooth scroll. --}}
+    {{-- Anchor targets — scroll-margin-top agar tidak tertutup navbar fixed. --}}
     <div id="why-us" class="scroll-mt-24"></div>
     <div id="reviews" class="scroll-mt-24"></div>
-    <div id="contact" class="scroll-mt-24"></div>
 @endsection

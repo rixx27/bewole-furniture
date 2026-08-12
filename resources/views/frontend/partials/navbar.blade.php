@@ -37,7 +37,7 @@
                 ['label' => 'Tentang Kami', 'route' => 'frontend.about'],
                 ['label' => 'Produk', 'hash' => '#products'],
                 ['label' => 'FAQ', 'hash' => '#faq'],
-                ['label' => 'Kontak', 'hash' => '#contact'],
+                ['label' => 'Kontak', 'hash' => '#custom-furniture'],
             ] as $item)
                 <a
                     href="{{ isset($item['route']) ? route($item['route']) : url($item['hash']) }}"
@@ -101,7 +101,7 @@
                 ['label' => 'Tentang Kami', 'route' => 'frontend.about'],
                 ['label' => 'Produk', 'hash' => '#products'],
                 ['label' => 'FAQ', 'hash' => '#faq'],
-                ['label' => 'Kontak', 'hash' => '#contact'],
+                ['label' => 'Kontak', 'hash' => '#custom-furniture'],
             ] as $item)
                 <a
                     href="{{ isset($item['route']) ? route($item['route']) : url($item['hash']) }}"
