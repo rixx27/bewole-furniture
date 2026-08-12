@@ -77,7 +77,7 @@ class Category extends Model
      */
     protected static function generateNextCode(): string
     {
-        $last = static::withTrashed()->max('id') ?? 0;
+        $last = static::max('id') ?? 0;
 
         return 'CAT' . str_pad((string) ((int) $last + 1), 3, '0', STR_PAD_LEFT);
     }

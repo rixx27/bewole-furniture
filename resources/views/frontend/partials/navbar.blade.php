@@ -32,7 +32,7 @@
 
         {{-- Desktop Menu --}}
         <div class="hidden items-center gap-1 lg:flex">
-@foreach ([
+            @foreach ([
                 ['label' => 'Home', 'route' => 'home', 'hash' => '#home'],
                 ['label' => 'Tentang Kami', 'route' => 'frontend.about'],
                 ['label' => 'Produk', 'hash' => '#products'],
@@ -55,14 +55,49 @@
             @endforeach
         </div>
 
-        {{-- Login + Hamburger --}}
+        {{-- Auth Status / Login + Hamburger --}}
         <div class="flex items-center gap-2">
-            <a
-                href="{{ route('login') }}"
-                class="hidden items-center gap-2 rounded-full bg-wood-primary px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-wood-primary/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-wood-primary-dark sm:inline-flex"
-            >
-                Login
-            </a>
+            @guest
+                <a
+                    href="{{ route('login') }}"
+                    class="hidden items-center gap-2 rounded-full bg-wood-primary px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-wood-primary/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-wood-primary-dark sm:inline-flex"
+                >
+                    Login
+                </a>
+            @endguest
+
+            @auth
+                @if (auth()->user()->hasRole('admin'))
+                    <a
+                        href="{{ route('admin.dashboard') }}"
+                        class="hidden items-center gap-2 rounded-full bg-wood-primary px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-wood-primary/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-wood-primary-dark sm:inline-flex"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5z" />
+                        </svg>
+                        Dashboard Admin
+                    </a>
+                @else
+                    <a
+                        href="{{ route('orders.index') }}"
+                        class="hidden items-center gap-2 rounded-full bg-wood-primary px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-wood-primary/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-wood-primary-dark sm:inline-flex"
+                    >
+                        Pesanan Saya
+                    </a>
+                @endif
+
+                <form method="POST" action="{{ route('logout') }}" class="hidden sm:inline-flex">
+                    @csrf
+                    <button
+                        type="submit"
+                        class="inline-flex items-center gap-1 rounded-full border px-4 py-2 text-xs font-semibold transition-all duration-300"
+                        :class="scrolled ? 'border-wood-primary/30 text-wood-primary hover:bg-wood-primary hover:text-white' : 'border-white/40 text-white hover:bg-white hover:text-wood-primary'"
+                    >
+                        Keluar
+                    </button>
+                </form>
+            @endauth
 
             <button
                 type="button"
@@ -96,7 +131,7 @@
         style="backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%);"
     >
         <div class="flex flex-col p-3">
-@foreach ([
+            @foreach ([
                 ['label' => 'Home', 'route' => 'home', 'hash' => '#home'],
                 ['label' => 'Tentang Kami', 'route' => 'frontend.about'],
                 ['label' => 'Produk', 'hash' => '#products'],
@@ -113,13 +148,45 @@
                 </a>
             @endforeach
 
-            <a
-                href="{{ route('login') }}"
-                @click="mobileOpen = false"
-                class="mt-2 inline-flex items-center justify-center rounded-full bg-wood-primary px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-wood-primary/20 transition-all duration-300 hover:bg-wood-primary-dark"
-            >
-                Login
-            </a>
+            @guest
+                <a
+                    href="{{ route('login') }}"
+                    @click="mobileOpen = false"
+                    class="mt-2 inline-flex items-center justify-center rounded-full bg-wood-primary px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-wood-primary/20 transition-all duration-300 hover:bg-wood-primary-dark"
+                >
+                    Login
+                </a>
+            @endguest
+
+            @auth
+                @if (auth()->user()->hasRole('admin'))
+                    <a
+                        href="{{ route('admin.dashboard') }}"
+                        @click="mobileOpen = false"
+                        class="mt-2 inline-flex items-center justify-center rounded-full bg-wood-primary px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-wood-primary/20 transition-all duration-300 hover:bg-wood-primary-dark"
+                    >
+                        Dashboard Admin
+                    </a>
+                @else
+                    <a
+                        href="{{ route('orders.index') }}"
+                        @click="mobileOpen = false"
+                        class="mt-2 inline-flex items-center justify-center rounded-full bg-wood-primary px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-wood-primary/20 transition-all duration-300 hover:bg-wood-primary-dark"
+                    >
+                        Pesanan Saya
+                    </a>
+                @endif
+
+                <form method="POST" action="{{ route('logout') }}" class="mt-2 w-full">
+                    @csrf
+                    <button
+                        type="submit"
+                        class="w-full inline-flex items-center justify-center rounded-full border border-wood-primary/30 px-5 py-2.5 text-sm font-semibold text-wood-primary hover:bg-wood-primary hover:text-white transition-colors"
+                    >
+                        Keluar
+                    </button>
+                </form>
+            @endauth
         </div>
     </div>
 </header>

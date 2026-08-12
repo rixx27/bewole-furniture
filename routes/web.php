@@ -33,8 +33,13 @@ Route::view('/tentang-kami', 'frontend.about')->name('about');
 */
 
 Route::middleware(['auth', 'verified', 'maintenance'])->group(function () {
-    // Admin Dashboard (replaces Breeze default dashboard)
-    Route::view('/dashboard', 'admin.dashboard.index')->name('dashboard');
+    Route::get('/dashboard', function () {
+        if (auth()->user()->hasRole('admin')) {
+            return view('admin.dashboard.index');
+        }
+
+        return redirect()->route('home');
+    })->name('dashboard');
 
     // User order management (users can only see their own orders)
     Route::get('/orders', [App\Http\Controllers\Frontend\OrderController::class, 'index'])->name('orders.index');
