@@ -134,6 +134,15 @@ class Order extends Model
     }
 
     /**
+     * Get the status emoji attribute.
+     */
+    public function getStatusEmojiAttribute(): string
+    {
+        $status = OrderStatus::tryFrom($this->status);
+        return $status ? $status->emoji() : '⚙️';
+    }
+
+    /**
      * Get the payment status label attribute.
      */
     public function getPaymentStatusLabelAttribute(): string

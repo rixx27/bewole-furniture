@@ -15,6 +15,13 @@ class OrderPayment extends Component
     public ?string $payment_status = null;
     public ?string $notes = null;
 
+    public function mount(?int $orderId = null): void
+    {
+        if ($orderId) {
+            $this->loadOrder($orderId);
+        }
+    }
+
     protected $rules = [
         'payment_status' => 'required|in:unpaid,paid,failed,refunded',
         'notes' => 'nullable|string|max:1000',

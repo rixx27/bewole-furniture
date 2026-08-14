@@ -16,6 +16,13 @@ class OrderStatusManager extends Component
     public ?string $notes = null;
     public array $availableStatuses = [];
 
+    public function mount(?int $orderId = null): void
+    {
+        if ($orderId) {
+            $this->loadOrder($orderId);
+        }
+    }
+
     protected $rules = [
         'newStatus' => 'required',
         'notes' => 'nullable|string|max:1000',
@@ -34,12 +41,15 @@ class OrderStatusManager extends Component
         $this->notes = null;
 
         if ($this->order) {
-            $currentStatus = OrderStatus::tryFrom($this->order->status);
-            if ($currentStatus) {
-                foreach (OrderStatus::cases() as $status) {
-                    if ($currentStatus->canTransitionTo($status)) {
-                        $this->availableStatuses[] = $status;
-                    }
+            foreach (OrderStatus::cases() as $status) {
+                if ($status->value !== $this->order->status) {
+                    $this->availableStatuses[] = [
+                        'value' => $status->value,
+                        'label' => $status->label(),
+                        'emoji' => $status->emoji(),
+                        'description' => $status->description(),
+                        'color' => $status->color(),
+                    ];
                 }
             }
         }

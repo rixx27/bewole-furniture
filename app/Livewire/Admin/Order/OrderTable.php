@@ -63,24 +63,28 @@ class OrderTable extends Component
     {
         $this->selectedOrderId = $orderId;
         $this->showDetailModal = true;
+        $this->dispatch('openDetail', orderId: $orderId);
     }
 
     public function openStatus(int $orderId): void
     {
         $this->selectedOrderId = $orderId;
         $this->showStatusModal = true;
+        $this->dispatch('openStatus', orderId: $orderId);
     }
 
     public function openShipping(int $orderId): void
     {
         $this->selectedOrderId = $orderId;
         $this->showShippingModal = true;
+        $this->dispatch('openShipping', orderId: $orderId);
     }
 
     public function openPayment(int $orderId): void
     {
         $this->selectedOrderId = $orderId;
         $this->showPaymentModal = true;
+        $this->dispatch('openPayment', orderId: $orderId);
     }
 
     public function confirmDelete(int $orderId): void

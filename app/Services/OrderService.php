@@ -43,19 +43,6 @@ class OrderService
      */
     public function updateStatus(Order $order, OrderStatus $newStatus, ?string $notes = null): Order
     {
-        $currentStatus = OrderStatus::tryFrom($order->status);
-
-        if (!$currentStatus) {
-            throw new \InvalidArgumentException("Invalid current status: {$order->status}");
-        }
-
-        // Validate transition
-        if (!$currentStatus->canTransitionTo($newStatus)) {
-            throw new \InvalidArgumentException(
-                "Status tidak dapat diubah dari '{$currentStatus->label()}' ke '{$newStatus->label()}'."
-            );
-        }
-
         return DB::transaction(function () use ($order, $newStatus, $notes) {
             $oldStatus = $order->status;
             $order->update(['status' => $newStatus->value]);
@@ -184,7 +171,8 @@ class OrderService
             ->sum('total_price');
         $pendingOrders = Order::where('status', OrderStatus::Pending->value)->count();
         $processingOrders = Order::whereIn('status', [
-            OrderStatus::Processing->value,
+            OrderStatus::InProduction->value,
+            OrderStatus::QualityControl->value,
             OrderStatus::ReadyToShip->value,
         ])->count();
         $shippedOrders = Order::where('status', OrderStatus::Shipped->value)->count();

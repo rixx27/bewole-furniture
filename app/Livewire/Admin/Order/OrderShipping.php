@@ -22,6 +22,13 @@ class OrderShipping extends Component
     public ?string $shipping_date = null;
     public ?string $pickup_date = null;
 
+    public function mount(?int $orderId = null): void
+    {
+        if ($orderId) {
+            $this->loadOrder($orderId);
+        }
+    }
+
     protected function rules(): array
     {
         $rules = [

@@ -11,6 +11,13 @@ class OrderDetail extends Component
     public ?Order $order = null;
     public bool $show = false;
 
+    public function mount(?int $orderId = null): void
+    {
+        if ($orderId) {
+            $this->loadOrder($orderId);
+        }
+    }
+
     #[On('openDetail')]
     public function loadOrder(int $orderId): void
     {

@@ -55,6 +55,10 @@ class WebsiteSettings extends Component
     public bool $is_maintenance = false;
     public string $maintenance_message = '';
 
+    // Section 6: Branding (Login Page)
+    public string $login_background = '';
+    public string $login_quote = '';
+
     /**
      * Loading state.
      */
@@ -119,6 +123,9 @@ class WebsiteSettings extends Component
 
         $this->is_maintenance = $this->settings->is_maintenance ?? false;
         $this->maintenance_message = $this->settings->maintenance_message ?? '';
+
+        $this->login_background = $this->settings->login_background ?? '';
+        $this->login_quote = $this->settings->login_quote ?? '';
     }
 
     /**
@@ -220,6 +227,7 @@ class WebsiteSettings extends Component
                 'facebook', 'instagram', 'tiktok',
                 'working_days', 'working_hours',
                 'is_maintenance', 'maintenance_message',
+                'login_background', 'login_quote',
             ]);
         }
 
@@ -250,6 +258,8 @@ class WebsiteSettings extends Component
             'working_hours' => $this->working_hours,
             'is_maintenance' => $this->is_maintenance,
             'maintenance_message' => $this->maintenance_message,
+            'login_background' => $this->login_background,
+            'login_quote' => $this->login_quote,
         ];
     }
 
