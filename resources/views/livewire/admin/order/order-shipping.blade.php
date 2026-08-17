@@ -5,14 +5,18 @@
              x-transition:enter="transition ease-out duration-200"
              x-transition:enter-start="opacity-0"
              x-transition:enter-end="opacity-100">
-            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" wire:click="$dispatch('closeModal')"></div>
-            <div class="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl border border-gray-200 text-gray-900"
+
+            {{-- Backdrop --}}
+            <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" wire:click="$dispatch('closeModal')"></div>
+
+            {{-- Modal Box --}}
+            <div class="relative flex flex-col w-full max-w-lg max-h-[90vh] rounded-2xl bg-white shadow-2xl border border-gray-200 text-gray-900 overflow-hidden z-10"
                  x-transition:enter="transition ease-out duration-300"
                  x-transition:enter-start="opacity-0 scale-95 translate-y-4"
                  x-transition:enter-end="opacity-100 scale-100 translate-y-0">
                 
-                {{-- Header --}}
-                <div class="mb-5 flex items-start justify-between border-b border-gray-200 pb-4">
+                {{-- Header (Sticky) --}}
+                <div class="flex items-start justify-between border-b border-gray-200 p-5 shrink-0 bg-white">
                     <div>
                         <h3 class="text-xl font-bold text-gray-900">Atur Pengiriman</h3>
                         <p class="mt-1 text-sm font-semibold text-gray-600">#{{ $order->order_code }} — <span class="text-amber-800">{{ $order->customer_name }}</span></p>
@@ -24,7 +28,10 @@
                     </button>
                 </div>
 
-                <form wire:submit="saveShipping">
+                {{-- Scrollable Body --}}
+                <div class="flex-1 overflow-y-auto p-5">
+
+                <form id="shipping-form-{{ $order->id }}" wire:submit="saveShipping">
                     {{-- Shipping Method --}}
                     <div class="mb-5">
                         <label class="mb-2 block text-sm font-bold text-gray-900">Metode Pengiriman</label>
@@ -111,20 +118,22 @@
                         </div>
                     @endif
 
-                    {{-- Actions --}}
-                    <div class="mt-6 flex items-center justify-end gap-3 border-t border-gray-200 pt-4">
-                        <button type="button" wire:click="$dispatch('closeModal')"
-                                class="rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-100 transition-colors shadow-xs">
-                            Batal
-                        </button>
-                        @if ($shipping_method)
-                            <button type="submit"
-                                    class="rounded-xl bg-amber-700 hover:bg-amber-800 px-5 py-2.5 text-sm font-bold text-white shadow-md transition-colors">
-                                Simpan Pengiriman
-                            </button>
-                        @endif
-                    </div>
                 </form>
+                </div>
+
+                {{-- Footer (Sticky) --}}
+                <div class="flex items-center justify-end gap-3 border-t border-gray-200 p-4 shrink-0 bg-white">
+                    <button type="button" wire:click="$dispatch('closeModal')"
+                            class="rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-100 transition-colors shadow-xs">
+                        Batal
+                    </button>
+                    @if ($shipping_method)
+                        <button type="submit" form="shipping-form-{{ $order->id }}"
+                                class="rounded-xl bg-amber-700 hover:bg-amber-800 px-5 py-2.5 text-sm font-bold text-white shadow-md transition-colors">
+                            Simpan Pengiriman
+                        </button>
+                    @endif
+                </div>
             </div>
         </div>
     @endif
