@@ -36,7 +36,9 @@ return new class extends Migration
         });
 
         // Update the status enum to include 'ready_to_ship' and change 'shipping' to 'shipped'
-        DB::statement("ALTER TABLE orders MODIFY COLUMN status ENUM('pending', 'confirmed', 'processing', 'ready_to_ship', 'shipped', 'completed', 'cancelled') NOT NULL DEFAULT 'pending'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE orders MODIFY COLUMN status ENUM('pending', 'confirmed', 'processing', 'ready_to_ship', 'shipped', 'completed', 'cancelled') NOT NULL DEFAULT 'pending'");
+        }
     }
 
     /**
@@ -57,7 +59,9 @@ return new class extends Migration
         });
 
         // Revert status enum back to original
-        DB::statement("ALTER TABLE orders MODIFY COLUMN status ENUM('pending', 'confirmed', 'processing', 'shipping', 'completed', 'cancelled') NOT NULL DEFAULT 'pending'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE orders MODIFY COLUMN status ENUM('pending', 'confirmed', 'processing', 'shipping', 'completed', 'cancelled') NOT NULL DEFAULT 'pending'");
+        }
     }
 };
 

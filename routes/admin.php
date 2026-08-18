@@ -30,8 +30,8 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
 
     // Reports
     Route::prefix('reports')->name('reports.')->group(function () {
-        Route::get('/orders', [App\Http\Controllers\Admin\ReportController::class, 'orders'])->name('orders');
-        Route::get('/orders/pdf', [App\Http\Controllers\Admin\ReportController::class, 'ordersPdf'])->name('orders.pdf');
+        Route::get('/', App\Livewire\Admin\Report\OrderReport::class)->name('index');
+        Route::get('/orders', App\Livewire\Admin\Report\OrderReport::class)->name('orders');
     });
 
     // Website
