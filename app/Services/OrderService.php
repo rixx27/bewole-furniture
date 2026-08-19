@@ -43,6 +43,11 @@ class OrderService
      */
     public function updateStatus(Order $order, OrderStatus $newStatus, ?string $notes = null): Order
     {
+        $currentStatus = OrderStatus::tryFrom($order->status);
+        if ($currentStatus && !$currentStatus->canTransitionTo($newStatus)) {
+            throw new \InvalidArgumentException('Status pesanan hanya dapat dilanjutkan ke tahap berikutnya atau dibatalkan.');
+        }
+
         return DB::transaction(function () use ($order, $newStatus, $notes) {
             $oldStatus = $order->status;
             $order->update(['status' => $newStatus->value]);

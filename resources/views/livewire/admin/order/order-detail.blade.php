@@ -153,8 +153,8 @@
                                 <div class="space-y-3 text-sm">
                                     <div class="flex justify-between items-center">
                                         <span class="text-gray-600 font-medium">Status Pesanan</span>
-                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-900 border border-amber-300">
-                                            <span>{{ $order->status_emoji }}</span>
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-950 border border-amber-300">
+                                            <x-order-status-icon :status="$order->status" class="h-3.5 w-3.5 text-amber-900 shrink-0" />
                                             <span>{{ $order->status_label }}</span>
                                         </span>
                                     </div>

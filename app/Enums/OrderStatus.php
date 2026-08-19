@@ -92,7 +92,32 @@ enum OrderStatus: string
     }
 
     /**
+     * Get the next sequential status in the order workflow.
+     */
+    public function getNextStatus(): ?self
+    {
+        return match ($this) {
+            self::Pending => self::Confirmed,
+            self::Confirmed => self::AwaitingPayment,
+            self::AwaitingPayment => self::PaymentReceived,
+            self::PaymentReceived => self::InProduction,
+            self::InProduction => self::QualityControl,
+            self::QualityControl => self::ReadyToShip,
+            self::ReadyToShip => self::Shipped,
+            self::Shipped => self::Completed,
+            self::Completed => null,
+            self::Cancelled => null,
+        };
+    }
+
+    /**
      * Check if status can transition to target status.
+     * Rules:
+     * - Order status can only advance to the immediate next step in sequence.
+     * - Status cannot go backwards.
+     * - Status cannot skip steps forward.
+     * - Status can jump to Cancelled from any non-final status.
+     * - Completed and Cancelled are final statuses and cannot transition to any other status.
      */
     public function canTransitionTo(self $target): bool
     {
@@ -100,18 +125,15 @@ enum OrderStatus: string
             return false;
         }
 
-        return match ($this) {
-            self::Pending => in_array($target, [self::Confirmed, self::AwaitingPayment, self::Cancelled]),
-            self::Confirmed => in_array($target, [self::AwaitingPayment, self::PaymentReceived, self::InProduction, self::Cancelled]),
-            self::AwaitingPayment => in_array($target, [self::PaymentReceived, self::Cancelled]),
-            self::PaymentReceived => in_array($target, [self::InProduction, self::Cancelled]),
-            self::InProduction => in_array($target, [self::QualityControl, self::Cancelled]),
-            self::QualityControl => in_array($target, [self::ReadyToShip, self::InProduction, self::Cancelled]),
-            self::ReadyToShip => in_array($target, [self::Shipped, self::Cancelled]),
-            self::Shipped => in_array($target, [self::Completed]),
-            self::Completed => false,
-            self::Cancelled => false,
-        };
+        if ($this === self::Completed || $this === self::Cancelled) {
+            return false;
+        }
+
+        if ($target === self::Cancelled) {
+            return true;
+        }
+
+        return $target === $this->getNextStatus();
     }
 
     /**

@@ -22,6 +22,20 @@ class UpdateOrderStatusRequest extends FormRequest
         ];
     }
 
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            $order = $this->route('order');
+            $newStatus = OrderStatus::tryFrom($this->input('status'));
+            if ($order && $newStatus) {
+                $currentStatus = OrderStatus::tryFrom($order->status);
+                if ($currentStatus && !$currentStatus->canTransitionTo($newStatus)) {
+                    $validator->errors()->add('status', 'Status pesanan hanya dapat dilanjutkan ke tahap berikutnya atau dibatalkan.');
+                }
+            }
+        });
+    }
+
     public function messages(): array
     {
         return [
