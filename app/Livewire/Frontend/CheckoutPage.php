@@ -19,15 +19,20 @@ class CheckoutPage extends Component
     public string $customer_name = '';
     public string $customer_phone = '';
     public string $customer_email = '';
+    public string $province = '';
     public string $shipping_address = '';
     public string $city = '';
     public string $postal_code = '';
     public string $notes = '';
 
+    public array $provinces = [];
+    public array $cities = [];
+
     protected array $rules = [
         'customer_name' => 'required|string|max:255',
         'customer_phone' => 'required|string|max:30',
         'customer_email' => 'nullable|email|max:255',
+        'province' => 'required|string',
         'shipping_address' => 'required|string',
         'city' => 'required|string|max:255',
         'postal_code' => 'nullable|string|max:20',
@@ -44,6 +49,8 @@ class CheckoutPage extends Component
         $cartService = app(CartService::class);
         $this->cart = $cartService->getCart();
         $this->subtotal = $cartService->getSubtotal();
+        
+        $this->loadProvinces();
 
         if (empty($this->cart)) {
             redirect()->route('products.index');
@@ -54,6 +61,31 @@ class CheckoutPage extends Component
         $this->customer_name = $user->name ?? '';
         $this->customer_phone = $user->phone ?? '';
         $this->customer_email = $user->email ?? '';
+    }
+
+    public function loadProvinces()
+    {
+        $path = storage_path('app/indonesia_regions.json');
+        if (file_exists($path)) {
+            $data = json_decode(file_get_contents($path), true);
+            $this->provinces = array_keys($data);
+        }
+    }
+
+    public function updatedProvince($value)
+    {
+        $this->city = '';
+        $this->cities = [];
+        
+        if (!empty($value)) {
+            $path = storage_path('app/indonesia_regions.json');
+            if (file_exists($path)) {
+                $data = json_decode(file_get_contents($path), true);
+                if (isset($data[$value])) {
+                    $this->cities = $data[$value];
+                }
+            }
+        }
     }
 
     public function placeOrder()
@@ -114,7 +146,7 @@ class CheckoutPage extends Component
             'customer_name' => $this->customer_name,
             'customer_phone' => $this->customer_phone,
             'customer_email' => $this->customer_email,
-            'shipping_address' => $this->shipping_address,
+            'shipping_address' => $this->shipping_address . ' (Provinsi: ' . $this->province . ')',
             'city' => $this->city,
             'postal_code' => $this->postal_code,
             'quantity' => $totalQuantity,
@@ -141,7 +173,7 @@ class CheckoutPage extends Component
             . "*No. WhatsApp:* {$this->customer_phone}\n\n"
             . "*Detail Pesanan:*\n" . $itemsText . "\n\n"
             . "*Total Pembayaran:* Rp " . number_format($serverTotal, 0, ',', '.') . "\n\n"
-            . "*Alamat Pengiriman:*\n{$this->shipping_address}, {$this->city} {$this->postal_code}\n";
+            . "*Alamat Pengiriman:*\n{$this->shipping_address}, {$this->city}, Provinsi {$this->province}\n";
 
         if (!empty($this->notes)) {
             $waMessage .= "\n*Catatan:* {$this->notes}\n";

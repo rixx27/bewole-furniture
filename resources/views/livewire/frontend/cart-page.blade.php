@@ -1,18 +1,6 @@
-<div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-    {{-- Breadcrumb --}}
-    <nav class="mb-6 flex items-center gap-2 text-xs text-wood-muted">
-        <a href="{{ route('home') }}" class="hover:text-wood-primary">Home</a>
-        <span>/</span>
-        <a href="{{ route('products.index') }}" class="hover:text-wood-primary">Produk</a>
-        <span>/</span>
-        <span class="font-semibold text-wood-text">Keranjang</span>
-    </nav>
-
-    <h1 class="text-3xl font-bold tracking-tight text-wood-text font-serif">Keranjang Belanja</h1>
-    <p class="mt-1 text-sm text-wood-muted">Tinjau produk furniture pilihan Anda sebelum melanjutkan ke pembayaran.</p>
-
+<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     @if (count($cart) > 0)
-        <div class="mt-8 grid gap-8 lg:grid-cols-12">
+        <div class="grid gap-8 lg:grid-cols-12">
             {{-- Cart Items List (8 cols) --}}
             <div class="lg:col-span-8">
                 <div class="overflow-hidden rounded-3xl border border-wood-border/60 bg-white shadow-sm">
@@ -120,7 +108,9 @@
                             <span>Total Pembayaran</span>
                             <span class="text-lg text-wood-primary">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
                         </div>
-                        <p class="mt-1 text-[11px] text-wood-muted">Total belum termasuk biaya kustom khusus (jika ada).</p>
+                        <p class="mt-1.5 text-[11px] leading-tight text-wood-muted">
+                            * Total belum termasuk <span class="font-semibold text-rose-500">ongkos kirim dan biaya packing</span> (serta biaya kustom khusus jika ada). Biaya ini akan diinformasikan saat konfirmasi pesanan.
+                        </p>
                     </div>
 
                     <button

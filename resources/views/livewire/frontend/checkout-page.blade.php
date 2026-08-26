@@ -1,19 +1,5 @@
-<div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-    {{-- Breadcrumb --}}
-    <nav class="mb-6 flex items-center gap-2 text-xs text-wood-muted">
-        <a href="{{ route('home') }}" class="hover:text-wood-primary">Home</a>
-        <span>/</span>
-        <a href="{{ route('products.index') }}" class="hover:text-wood-primary">Produk</a>
-        <span>/</span>
-        <a href="{{ route('cart.index') }}" class="hover:text-wood-primary">Keranjang</a>
-        <span>/</span>
-        <span class="font-semibold text-wood-text">Checkout</span>
-    </nav>
-
-    <h1 class="text-3xl font-bold tracking-tight text-wood-text font-serif">Formulir Pembelian</h1>
-    <p class="mt-1 text-sm text-wood-muted">Lengkapi data diri dan alamat pengiriman Anda untuk menyelesaikan pesanan.</p>
-
-    <form wire:submit.prevent="placeOrder" class="mt-8 grid gap-8 lg:grid-cols-12">
+<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <form wire:submit.prevent="placeOrder" class="grid gap-8 lg:grid-cols-12">
         {{-- Form Pembelian (7 cols) --}}
         <div class="lg:col-span-7 space-y-6">
             <div class="rounded-3xl border border-wood-border/60 bg-white p-6 shadow-sm">
@@ -59,9 +45,42 @@
             </div>
 
             <div class="rounded-3xl border border-wood-border/60 bg-white p-6 shadow-sm">
-                <h2 class="text-lg font-bold text-wood-text border-b border-wood-border/40 pb-3">2. Alamat Pengiriman</h2>
+                <h2 class="text-lg font-bold text-wood-text border-b border-wood-border/40 pb-3">2. Data Pengiriman</h2>
 
                 <div class="mt-5 space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {{-- Provinsi --}}
+                        <div>
+                            <label class="block text-xs font-semibold text-wood-text">Provinsi <span class="text-rose-500">*</span></label>
+                            <select
+                                wire:model.live="province"
+                                class="mt-1 w-full rounded-2xl border border-wood-border/60 bg-white/80 py-2.5 px-4 text-xs font-medium text-wood-text focus:border-wood-primary focus:outline-none focus:ring-2 focus:ring-wood-primary/20"
+                            >
+                                <option value="">Pilih Provinsi</option>
+                                @foreach($provinces as $prov)
+                                    <option value="{{ $prov }}">{{ $prov }}</option>
+                                @endforeach
+                            </select>
+                            @error('province') <span class="mt-1 block text-xs text-rose-500">{{ $message }}</span> @enderror
+                        </div>
+
+                        {{-- Kota/Kabupaten --}}
+                        <div>
+                            <label class="block text-xs font-semibold text-wood-text">Kota / Kabupaten <span class="text-rose-500">*</span></label>
+                            <select
+                                wire:model="city"
+                                @if(empty($province)) disabled @endif
+                                class="mt-1 w-full rounded-2xl border border-wood-border/60 bg-white/80 py-2.5 px-4 text-xs font-medium text-wood-text focus:border-wood-primary focus:outline-none focus:ring-2 focus:ring-wood-primary/20 disabled:opacity-50 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                            >
+                                <option value="">Pilih Kota / Kabupaten</option>
+                                @foreach($cities as $cty)
+                                    <option value="{{ $cty }}">{{ $cty }}</option>
+                                @endforeach
+                            </select>
+                            @error('city') <span class="mt-1 block text-xs text-rose-500">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+
                     {{-- Alamat --}}
                     <div>
                         <label class="block text-xs font-semibold text-wood-text">Alamat Lengkap <span class="text-rose-500">*</span></label>
@@ -72,32 +91,6 @@
                             class="mt-1 w-full rounded-2xl border border-wood-border/60 bg-white/80 p-3 text-xs font-medium text-wood-text focus:border-wood-primary focus:outline-none focus:ring-2 focus:ring-wood-primary/20"
                         ></textarea>
                         @error('shipping_address') <span class="mt-1 block text-xs text-rose-500">{{ $message }}</span> @enderror
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {{-- Kota/Kabupaten --}}
-                        <div>
-                            <label class="block text-xs font-semibold text-wood-text">Kota / Kabupaten <span class="text-rose-500">*</span></label>
-                            <input
-                                type="text"
-                                wire:model="city"
-                                placeholder="Contoh: Jepara / Semarang"
-                                class="mt-1 w-full rounded-2xl border border-wood-border/60 bg-white/80 py-2.5 px-4 text-xs font-medium text-wood-text focus:border-wood-primary focus:outline-none focus:ring-2 focus:ring-wood-primary/20"
-                            />
-                            @error('city') <span class="mt-1 block text-xs text-rose-500">{{ $message }}</span> @enderror
-                        </div>
-
-                        {{-- Kode Pos --}}
-                        <div>
-                            <label class="block text-xs font-semibold text-wood-text">Kode Pos (Opsional)</label>
-                            <input
-                                type="text"
-                                wire:model="postal_code"
-                                placeholder="59411"
-                                class="mt-1 w-full rounded-2xl border border-wood-border/60 bg-white/80 py-2.5 px-4 text-xs font-medium text-wood-text focus:border-wood-primary focus:outline-none focus:ring-2 focus:ring-wood-primary/20"
-                            />
-                            @error('postal_code') <span class="mt-1 block text-xs text-rose-500">{{ $message }}</span> @enderror
-                        </div>
                     </div>
 
                     {{-- Catatan --}}
@@ -165,6 +158,9 @@
                         <span>Total Pembayaran</span>
                         <span class="text-lg text-wood-primary">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
                     </div>
+                    <p class="mt-1.5 text-[11px] leading-tight text-wood-muted">
+                        * Total pembayaran di atas <span class="font-semibold text-rose-500">belum termasuk ongkos kirim dan biaya packing</span>. Biaya tersebut akan dikonfirmasi lebih lanjut via WhatsApp.
+                    </p>
                 </div>
 
                 <button

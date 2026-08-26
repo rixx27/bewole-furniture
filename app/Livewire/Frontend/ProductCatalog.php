@@ -12,17 +12,17 @@ class ProductCatalog extends Component
 {
     use WithPagination;
 
-    public string $search = '';
+    public string $q = '';
     public string $selectedCategory = '';
     public string $sort = 'latest';
 
     protected $queryString = [
-        'search' => ['except' => ''],
+        'q' => ['except' => ''],
         'selectedCategory' => ['except' => ''],
         'sort' => ['except' => 'latest'],
     ];
 
-    public function updatingSearch(): void
+    public function updatingQ(): void
     {
         $this->resetPage();
     }
@@ -58,11 +58,24 @@ class ProductCatalog extends Component
             ->active()
             ->with(['category']);
 
-        if (!empty($this->search)) {
-            $query->where(function ($q) {
-                $q->where('name', 'like', '%' . $this->search . '%')
-                  ->orWhere('description', 'like', '%' . $this->search . '%')
-                  ->orWhere('short_description', 'like', '%' . $this->search . '%');
+        if (!empty($this->q)) {
+            $terms = explode(' ', $this->q);
+            $terms = array_filter($terms, fn($val) => !empty(trim($val)));
+            
+            $query->where(function ($qBuilder) use ($terms) {
+                foreach ($terms as $term) {
+                    $searchStr = '%' . $term . '%';
+                    $qBuilder->where(function ($subQ) use ($searchStr) {
+                        $subQ->where('name', 'like', $searchStr)
+                             ->orWhere('description', 'like', $searchStr)
+                             ->orWhere('short_description', 'like', $searchStr)
+                             ->orWhere('material', 'like', $searchStr)
+                             ->orWhere('sku', 'like', $searchStr)
+                             ->orWhereHas('category', function ($catQ) use ($searchStr) {
+                                 $catQ->where('name', 'like', $searchStr);
+                             });
+                    });
+                }
             });
         }
 

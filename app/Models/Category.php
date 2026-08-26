@@ -88,7 +88,7 @@ class Category extends Model
     public function getCoverImageUrlAttribute(): ?string
     {
         return $this->cover_image
-            ? Storage::disk('public')->url($this->cover_image)
+            ? asset('storage/' . $this->cover_image)
             : null;
     }
 

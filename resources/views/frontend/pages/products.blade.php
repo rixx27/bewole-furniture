@@ -15,19 +15,30 @@
                 <a href="{{ route('home') }}" class="transition-colors hover:text-wood-secondary-light">Home</a>
                 <span>/</span>
                 <span class="font-semibold text-white">Produk</span>
+                @if(request()->has('q'))
+                    <span>/</span>
+                    <span class="font-semibold text-white">Pencarian</span>
+                @endif
             </nav>
 
             <div class="max-w-3xl">
                 <span class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/90 backdrop-blur-sm">
                     <span class="text-wood-secondary-light">✦</span>
-                    Our Products
+                    {{ request()->has('q') ? 'Hasil Pencarian' : 'Our Products' }}
                 </span>
-                <h1 class="mt-5 font-serif text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
-                    Koleksi Furniture<br>Kayu Jepara
-                </h1>
-                <p class="mt-4 max-w-xl text-base leading-relaxed text-white/85 sm:text-lg">
-                    Temukan furniture berkualitas tinggi yang menghadirkan kehangatan, karakter, dan fungsi ke dalam ruangan Anda.
-                </p>
+                
+                @if(request()->has('q') && !empty(request('q')))
+                    <h1 class="mt-5 font-serif text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
+                        Menampilkan hasil<br>untuk "{{ request('q') }}"
+                    </h1>
+                @else
+                    <h1 class="mt-5 font-serif text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
+                        Koleksi Furniture<br>Kayu Jepara
+                    </h1>
+                    <p class="mt-4 max-w-xl text-base leading-relaxed text-white/85 sm:text-lg">
+                        Temukan furniture berkualitas tinggi yang menghadirkan kehangatan, karakter, dan fungsi ke dalam ruangan Anda.
+                    </p>
+                @endif
             </div>
         </div>
     </section>

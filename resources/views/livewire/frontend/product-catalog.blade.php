@@ -27,7 +27,7 @@
             <div class="relative min-w-[260px]">
                 <input
                     type="text"
-                    wire:model.live.debounce.300ms="search"
+                    wire:model.live.debounce.300ms="q"
                     placeholder="Cari produk kayu..."
                     class="w-full rounded-full border border-wood-border/60 bg-white/80 py-2.5 pl-11 pr-4 text-xs font-medium text-wood-text placeholder-wood-muted shadow-sm transition-all focus:border-wood-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-wood-primary/20"
                 />
@@ -179,7 +179,7 @@
             <p class="mt-1 max-w-sm text-sm text-wood-muted">Maaf, kami tidak dapat menemukan produk yang sesuai dengan pencarian atau filter Anda.</p>
             <button
                 type="button"
-                wire:click="$set('search', ''); $set('selectedCategory', '');"
+                wire:click="$set('q', ''); $set('selectedCategory', '');"
                 class="mt-5 rounded-full bg-wood-primary px-6 py-2.5 text-xs font-semibold text-white shadow-md shadow-wood-primary/20 transition-all hover:bg-wood-primary-dark"
             >
                 Reset Filter
