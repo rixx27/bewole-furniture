@@ -224,7 +224,7 @@
                     <tbody class="divide-y divide-border/50">
                         @forelse ($stats['recentOrders'] as $order)
                             <tr class="transition-colors hover:bg-bg-secondary/30">
-                                <td class="px-4 sm:px-6 py-3 text-xs sm:text-sm font-mono font-medium text-text-primary dark:text-white whitespace-nowrap">{{ $order->order_code }}</td>
+                                <td class="px-4 sm:px-6 py-3 text-xs sm:text-sm font-mono font-medium text-text-primary dark:text-black whitespace-nowrap">{{ $order->order_code }}</td>
                                 <td class="px-4 sm:px-6 py-3 text-xs sm:text-sm text-text-secondary whitespace-nowrap">{{ $order->customer_name }}</td>
                                 <td class="px-4 sm:px-6 py-3 text-xs sm:text-sm text-text-secondary whitespace-nowrap">{{ $order->product?->name ?? '-' }}</td>
                                 <td class="px-4 sm:px-6 py-3 whitespace-nowrap">

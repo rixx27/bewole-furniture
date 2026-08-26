@@ -27,6 +27,10 @@ Route::middleware(['maintenance'])->group(function () {
     Route::get('/produk', [App\Http\Controllers\Frontend\ProductController::class, 'index'])->name('products.index');
     Route::get('/catalog', fn () => redirect()->route('products.index'))->name('frontend.catalog');
     Route::get('/produk/{product:slug}', [App\Http\Controllers\Frontend\ProductController::class, 'show'])->name('products.show');
+    
+    // Search
+    Route::view('/search', 'frontend.pages.products')->name('search.index');
+    Route::get('/api/search/suggest', [App\Http\Controllers\Api\SearchController::class, 'suggest'])->name('api.search.suggest');
 
     // Cart — public (session-based, no login required to view/add)
     Route::view('/keranjang', 'frontend.pages.cart')->name('cart.index');

@@ -60,6 +60,9 @@
         {{-- Right side: Cart + Auth --}}
         <div class="flex items-center gap-2">
 
+            {{-- SEARCH --}}
+            <livewire:frontend.navbar-search />
+
             {{-- Cart Icon --}}
             <a
                 href="{{ route('cart.index') }}"
