@@ -34,11 +34,8 @@
                     <div class="rounded-xl border border-gray-200 bg-gray-50 p-3.5 shadow-xs">
                         <div class="flex items-center justify-between text-sm">
                             <span class="font-medium text-gray-600">Status Saat Ini:</span>
-                            @php 
-                                $currentEnum = \App\Enums\OrderStatus::tryFrom($order->status);
-                            @endphp
-                            <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-900 border border-amber-300">
-                                <span>{{ $currentEnum?->emoji() ?? '⚙️' }}</span>
+                            <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-950 border border-amber-300">
+                                <x-order-status-icon :status="$order->status" class="h-4 w-4 text-amber-900" />
                                 <span>{{ $order->status_label }}</span>
                             </span>
                         </div>
@@ -53,14 +50,49 @@
                             @else
                                 <div class="space-y-2.5">
                                     @foreach ($availableStatuses as $status)
-                                        <label class="flex cursor-pointer items-start gap-3 rounded-xl border p-3.5 transition-all duration-150 {{ $newStatus === $status['value'] ? 'border-amber-600 bg-amber-50 ring-2 ring-amber-500 shadow-sm' : 'border-gray-200 bg-white hover:border-amber-300 hover:bg-gray-50' }}">
-                                            <input type="radio" name="newStatus" wire:model.live="newStatus" value="{{ $status['value'] }}" class="mt-1 h-4 w-4 text-amber-700 border-gray-300 focus:ring-amber-600">
+                                        @php
+                                            $canSelect = $status['canSelect'];
+                                            $isCurrent = $status['isCurrent'];
+                                            $isSelected = $newStatus === $status['value'];
+
+                                            $cardClass = 'flex items-start gap-3 rounded-xl border p-3.5 transition-all duration-150 ';
+                                            if ($canSelect) {
+                                                $cardClass .= 'cursor-pointer ' . ($isSelected ? 'border-amber-600 bg-amber-50 ring-2 ring-amber-500 shadow-sm' : 'border-gray-200 bg-white hover:border-amber-300 hover:bg-gray-50');
+                                            } else {
+                                                $cardClass .= 'opacity-60 cursor-not-allowed bg-gray-100/70 border-gray-200 select-none';
+                                            }
+                                        @endphp
+
+                                        <label class="{{ $cardClass }}">
+                                            <input type="radio"
+                                                   name="newStatus"
+                                                   wire:model.live="newStatus"
+                                                   value="{{ $status['value'] }}"
+                                                   @disabled(!$canSelect)
+                                                   class="mt-1 h-4 w-4 text-amber-700 border-gray-300 focus:ring-amber-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                                            
                                             <div class="flex-1">
-                                                <div class="flex items-center gap-2 font-bold text-sm text-gray-900">
-                                                    <span class="text-base">{{ $status['emoji'] }}</span>
-                                                    <span class="text-gray-900 font-bold">{{ $status['label'] }}</span>
+                                                <div class="flex items-center justify-between gap-2">
+                                                    <div class="flex items-center gap-2 font-bold text-sm">
+                                                        <x-order-status-icon :status="$status['value']" class="h-4 w-4 shrink-0 {{ $canSelect ? ($isSelected ? 'text-amber-800' : 'text-amber-600') : ($isCurrent ? 'text-amber-700' : 'text-gray-400') }}" />
+                                                        <span class="{{ $canSelect ? 'text-gray-900 font-bold' : ($isCurrent ? 'text-gray-800 font-bold' : 'text-gray-500 font-medium') }}">
+                                                            {{ $status['label'] }}
+                                                        </span>
+                                                    </div>
+
+                                                    @if ($isCurrent)
+                                                        <span class="text-[10px] uppercase font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300 shrink-0">
+                                                            Status Saat Ini
+                                                        </span>
+                                                    @elseif (!$canSelect)
+                                                        <span class="text-[10px] uppercase font-bold text-gray-400 bg-gray-200/60 px-2 py-0.5 rounded-full shrink-0">
+                                                            Tidak Tersedia
+                                                        </span>
+                                                    @endif
                                                 </div>
-                                                <p class="mt-1 text-xs font-medium text-gray-600 leading-relaxed">{{ $status['description'] }}</p>
+                                                <p class="mt-1 text-xs font-medium {{ $canSelect ? 'text-gray-600' : 'text-gray-400' }} leading-relaxed">
+                                                    {{ $status['description'] }}
+                                                </p>
                                             </div>
                                         </label>
                                     @endforeach
@@ -71,10 +103,10 @@
 
                         {{-- Notes --}}
                         <div>
-                            <label for="notes" class="mb-1.5 block text-sm font-bold text-gray-900">Catatan (Opsional)</label>
+                            <label for="notes" class="mb-1.5 block text-sm font-bold text-gray-900">Catatan Perubahan (Opsional)</label>
                             <textarea wire:model="notes" id="notes" rows="2"
                                       class="w-full rounded-xl border border-gray-300 bg-white p-3 text-sm font-medium text-gray-900 placeholder-gray-400 focus:border-amber-600 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
-                                      placeholder="Tambahkan catatan..."></textarea>
+                                      placeholder="Tambahkan catatan perubahan..."></textarea>
                             @error('notes') <p class="mt-1 text-xs font-bold text-red-600">{{ $message }}</p> @enderror
                         </div>
                     </form>
@@ -86,7 +118,10 @@
                             class="rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-100 transition-colors shadow-xs">
                         Batal
                     </button>
-                    @if (!empty($availableStatuses))
+                    @php
+                        $hasSelectable = collect($availableStatuses)->contains('canSelect', true);
+                    @endphp
+                    @if ($hasSelectable)
                         <button type="submit" form="status-form-{{ $order->id }}"
                                 class="rounded-xl bg-amber-700 hover:bg-amber-800 px-5 py-2.5 text-sm font-bold text-white shadow-md transition-colors">
                             Simpan Perubahan

@@ -141,7 +141,7 @@
                                     };
                                 @endphp
                                 <span class="inline-flex items-center justify-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold border shadow-2xs whitespace-nowrap {{ $statusBadgeClass }}">
-                                    <span>{{ $order->status_emoji }}</span>
+                                    <x-order-status-icon :status="$order->status" class="h-3.5 w-3.5 shrink-0" />
                                     <span>{{ $order->status_label }}</span>
                                 </span>
                             </td>

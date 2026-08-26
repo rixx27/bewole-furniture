@@ -68,30 +68,13 @@
             <nav x-on:click="if ($event.target.closest('a')) mobileOpen = false" class="sidebar-scroll flex-1 space-y-1 overflow-y-auto px-4 py-6">
                 @include('partials.admin-sidebar-menu')
             </nav>
-            <div class="border-t border-white/10 px-4 py-4">
-                <a href="{{ route('profile.edit') }}" class="sidebar-link flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-text hover:bg-sidebar-hover">
-                    <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
-                    </svg>
-                    <span>Profil</span>
-                </a>
-                <form method="POST" action="{{ route('logout') }}" class="mt-1">
-                    @csrf
-                    <button type="submit" class="sidebar-link flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-300 hover:bg-white/10">
-                        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/>
-                        </svg>
-                        <span>Keluar</span>
-                    </button>
-                </form>
-            </div>
         </div>
     </div>
 
     {{-- ============================================
          MAIN CONTAINER
          ============================================ --}}
-    <div class="flex h-screen overflow-hidden">
+    <div class="flex h-screen w-full min-w-0 overflow-hidden">
 
         {{-- DESKTOP SIDEBAR --}}
         <aside class="hidden w-[280px] shrink-0 lg:flex lg:flex-col">
@@ -149,11 +132,11 @@
         </aside>
 
         {{-- MAIN CONTENT AREA --}}
-        <div class="flex flex-1 flex-col overflow-hidden">
+        <div class="flex flex-1 flex-col min-w-0 overflow-hidden">
 
             {{-- Top Navbar --}}
             <header class="flex h-16 shrink-0 items-center justify-between border-b border-border bg-card px-4 shadow-xs lg:px-6">
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-3 min-w-0">
                     <button x-on:click="window.dispatchEvent(new CustomEvent('toggle-mobile-sidebar'))"
                             class="flex items-center justify-center rounded-lg p-2 text-text-secondary hover:bg-bg-secondary lg:hidden">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -166,15 +149,15 @@
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <button class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-text-secondary hover:bg-bg-secondary transition-colors">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button class="flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm text-text-secondary hover:bg-bg-secondary transition-colors">
+                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
                         </svg>
                         <span class="hidden text-xs text-text-muted sm:inline">Cari...</span>
                     </button>
 
                     <button class="relative flex items-center justify-center rounded-lg p-2 text-text-secondary hover:bg-bg-secondary transition-colors">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
                         </svg>
                     </button>
@@ -182,10 +165,10 @@
                     <div x-data="{ profileOpen: false }" class="relative">
                         <button x-on:click="profileOpen = !profileOpen"
                                 class="flex items-center gap-2 rounded-lg p-1.5 text-text-secondary hover:bg-bg-secondary transition-colors">
-                            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-white shadow-sm">
+                            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-white shadow-sm shrink-0">
                                 {{ auth()->user()->initials() }}
                             </span>
-                            <svg class="hidden h-4 w-4 sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="hidden h-4 w-4 sm:block shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
                             </svg>
                         </button>
@@ -200,13 +183,13 @@
                              x-transition:leave-end="opacity-0 scale-95"
                              class="absolute right-0 top-full z-50 mt-2 w-56 origin-top-right rounded-xl border border-border bg-card p-1 shadow-lg">
                             <div class="border-b border-border px-3 py-2">
-                                <p class="text-sm font-medium text-text-primary">{{ auth()->user()->name }}</p>
-                                <p class="text-xs text-text-secondary">{{ auth()->user()->email }}</p>
+                                <p class="text-sm font-medium text-text-primary truncate">{{ auth()->user()->name }}</p>
+                                <p class="text-xs text-text-secondary truncate">{{ auth()->user()->email }}</p>
                             </div>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit" class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950">
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/>
                                     </svg>
                                     <span>Keluar</span>
@@ -218,15 +201,15 @@
             </header>
 
             {{-- Page Content --}}
-            <main class="flex-1 overflow-y-auto p-4 lg:p-8">
+            <main class="flex-1 overflow-y-auto min-w-0 p-4 sm:p-6 lg:p-8">
                 {{ $slot }}
             </main>
 
             {{-- Footer --}}
-            <footer class="border-t border-border bg-card px-4 py-3 lg:px-6">
-                <div class="flex items-center justify-between text-xs text-text-muted">
-                    <p>&copy; {{ date('Y') }} {{ config('app.name', 'Bewole Furniture') }}. Hak Cipta Dilindungi.</p>
-                    <p>Panel Admin v1.0</p>
+            <footer class="border-t border-border bg-card px-4 py-3 sm:px-6 shrink-0">
+                <div class="flex flex-col gap-1.5 text-center text-xs text-text-muted sm:flex-row sm:items-center sm:justify-between sm:text-left">
+                    <p class="leading-relaxed">&copy; {{ date('Y') }} {{ config('app.name', 'Bewole Furniture') }}. Hak Cipta Dilindungi.</p>
+                    <p class="shrink-0 font-medium">Panel Admin v1.0</p>
                 </div>
             </footer>
         </div>

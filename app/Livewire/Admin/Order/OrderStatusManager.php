@@ -41,15 +41,23 @@ class OrderStatusManager extends Component
         $this->notes = null;
 
         if ($this->order) {
+            $currentEnum = OrderStatus::tryFrom($this->order->status);
+
             foreach (OrderStatus::cases() as $status) {
-                if ($status->value !== $this->order->status) {
-                    $this->availableStatuses[] = [
-                        'value' => $status->value,
-                        'label' => $status->label(),
-                        'emoji' => $status->emoji(),
-                        'description' => $status->description(),
-                        'color' => $status->color(),
-                    ];
+                $canSelect = $currentEnum ? $currentEnum->canTransitionTo($status) : false;
+                $isCurrent = $this->order->status === $status->value;
+
+                $this->availableStatuses[] = [
+                    'value' => $status->value,
+                    'label' => $status->label(),
+                    'description' => $status->description(),
+                    'color' => $status->color(),
+                    'isCurrent' => $isCurrent,
+                    'canSelect' => $canSelect,
+                ];
+
+                if ($canSelect && !$this->newStatus && $status->value !== OrderStatus::Cancelled->value) {
+                    $this->newStatus = $status->value;
                 }
             }
         }
@@ -74,9 +82,16 @@ class OrderStatusManager extends Component
         }
 
         try {
+            $currentEnum = OrderStatus::tryFrom($this->order->status);
             $targetStatus = OrderStatus::tryFrom($this->newStatus);
+
             if (!$targetStatus) {
                 $this->addError('newStatus', 'Status tidak valid.');
+                return;
+            }
+
+            if (!$currentEnum || !$currentEnum->canTransitionTo($targetStatus)) {
+                $this->addError('newStatus', 'Status pesanan hanya dapat dilanjutkan ke tahap berikutnya atau dibatalkan.');
                 return;
             }
 
@@ -86,6 +101,7 @@ class OrderStatusManager extends Component
             $this->dispatch('notify', type: 'success', message: "Status pesanan berhasil diubah menjadi {$targetStatus->label()}.");
             $this->close();
         } catch (\Exception $e) {
+            $this->addError('newStatus', $e->getMessage());
             $this->dispatch('notify', type: 'error', message: $e->getMessage());
         }
     }
