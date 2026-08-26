@@ -28,8 +28,9 @@ class CartPage extends Component
         $cartService = app(CartService::class);
         $this->cart = $cartService->updateQuantity($productId, $quantity);
         $this->subtotal = $cartService->getSubtotal();
+        $count = $cartService->getItemCount();
 
-        $this->dispatch('cart-updated');
+        $this->dispatch('cart-updated', count: $count);
     }
 
     public function removeItem(int $productId): void
@@ -37,8 +38,9 @@ class CartPage extends Component
         $cartService = app(CartService::class);
         $this->cart = $cartService->remove($productId);
         $this->subtotal = $cartService->getSubtotal();
+        $count = $cartService->getItemCount();
 
-        $this->dispatch('cart-updated');
+        $this->dispatch('cart-updated', count: $count);
         $this->dispatch('notify', message: 'Item berhasil dihapus dari keranjang.');
     }
 

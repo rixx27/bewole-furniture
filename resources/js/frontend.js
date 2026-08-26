@@ -6,11 +6,12 @@
  * - Back to top (didukung juga di layout via Alpine)
  */
 
-import Alpine from 'alpinejs';
+// Register Alpine components safely with Livewire
+function initBewoleAlpine(AlpineInstance) {
+    if (!AlpineInstance || AlpineInstance._bewoleRegistered) return;
+    AlpineInstance._bewoleRegistered = true;
 
-// Daftarkan komponen navbar
-document.addEventListener('alpine:init', () => {
-    Alpine.data('navbar', () => ({
+    AlpineInstance.data('navbar', () => ({
         scrolled: false,
         mobileOpen: false,
 
@@ -24,12 +25,7 @@ document.addEventListener('alpine:init', () => {
         },
     }));
 
-    // ============================================================
-    // categoryShowcase : "Explore Our Collection"
-    // Apple-style interactive grid (desktop) + snap scroll (mobile).
-    // Tidak ada slider / carousel otomatis.
-    // ============================================================
-    Alpine.data('categoryShowcase', () => ({
+    AlpineInstance.data('categoryShowcase', () => ({
         active: null,
         isMobile: window.matchMedia('(max-width: 767px)').matches,
 
@@ -60,11 +56,6 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        /**
-         * Desktop/tablet: flex-grow wrapper.
-         * Kartu hover membesar (grow 1.4), kartu lain menyusut (grow 0.7).
-         * Saat tidak ada hover, semua kartu sama besar (grow 1).
-         */
         wrapperStyle(index) {
             if (this.active === null) {
                 return 'flex-grow: 1;';
@@ -77,10 +68,6 @@ document.addEventListener('alpine:init', () => {
             return 'flex-grow: 0.72;';
         },
 
-        /**
-         * Desktop/tablet: kelas kartu (elemen <a>) berdasarkan state aktif.
-         * Kartu non-aktif sedikit meredup & mengecil namun tetap terlihat.
-         */
         cardClasses(index) {
             const classes = [
                 'transition-all',
@@ -105,10 +92,6 @@ document.addEventListener('alpine:init', () => {
             return classes.join(' ');
         },
 
-        /**
-         * Mobile: deteksi posisi scroll & tentukan kartu aktif
-         * agar kartu tengah tampil sedikit lebih besar.
-         */
         onMobileScroll(scroller) {
             if (!scroller) return;
 
@@ -130,9 +113,6 @@ document.addEventListener('alpine:init', () => {
             });
         },
 
-        /**
-         * Mobile: scroll halus menuju kartu yang diklik (snap tetap bekerja).
-         */
         scrollToCard(scroller, el) {
             if (!scroller || !el) return;
 
@@ -142,12 +122,18 @@ document.addEventListener('alpine:init', () => {
             });
         },
     }));
+}
+
+document.addEventListener('alpine:init', () => {
+    initBewoleAlpine(window.Alpine);
 });
+
+if (window.Alpine) {
+    initBewoleAlpine(window.Alpine);
+}
 
 // ============================================================
 // Reveal on scroll (IntersectionObserver, tanpa AOS)
-// Elemen dengan atribut [data-reveal] muncul fade-up saat masuk viewport.
-// Dukungan stagger: [data-reveal][data-reveal-delay="150"] → tambah delay.
 // ============================================================
 (function initRevealOnScroll() {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -159,7 +145,6 @@ document.addEventListener('alpine:init', () => {
     }
 
     const revealElements = document.querySelectorAll('[data-reveal]');
-
     if (revealElements.length === 0) return;
 
     if (!('IntersectionObserver' in window)) {
@@ -190,57 +175,20 @@ document.addEventListener('alpine:init', () => {
 })();
 
 // ============================================================
-// Our Philosophy : Scroll reveal kiri-kanan (IntersectionObserver)
-// Teks muncul dari kiri, foto muncul dari kanan. Berjalan satu
-// kali saat section pertama kali masuk viewport.
-// ============================================================
-(function initPhilosophyReveal() {
-    const elements = document.querySelectorAll('[data-reveal-side]');
-
-    if (elements.length === 0) return;
-
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    if (prefersReducedMotion || !('IntersectionObserver' in window)) {
-        elements.forEach((el) => el.classList.add('is-revealed'));
-        return;
-    }
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-            if (!entry.isIntersecting) return;
-
-            entry.target.classList.add('is-revealed');
-            observer.unobserve(entry.target);
-        });
-    }, {
-        threshold: 0.15,
-        rootMargin: '0px 0px -60px 0px',
-    });
-
-    elements.forEach((el) => observer.observe(el));
-})();
-
-// ============================================================
 // Smooth Scroll (semua anchor menuju section dalam halaman)
 // ============================================================
 document.addEventListener('click', function (e) {
     const link = e.target.closest('a[href^="#"]');
-
     if (!link) return;
 
     const id = link.getAttribute('href');
-
     if (id.length <= 1) return;
 
     const target = document.querySelector(id);
-
     if (!target) return;
 
-e.preventDefault();
+    e.preventDefault();
 
-    // Baca scroll-margin-top CSS (jika ada) agar offset konsisten
-    // dengan navbar fixed; fallback ke 88px bila tidak tersedia.
     const computed = window.getComputedStyle(target);
     const cssOffset = parseFloat(computed.scrollMarginTop) || 0;
     const headerOffset = cssOffset > 0 ? cssOffset : 88;
@@ -252,26 +200,5 @@ e.preventDefault();
         behavior: 'smooth',
     });
 
-    // Update hash tanpa jump
     history.replaceState(null, '', id);
 });
-
-// ============================================================
-// Tutup menu mobile saat klik di luar
-// ============================================================
-document.addEventListener('click', function (e) {
-    const header = document.querySelector('header[x-data="navbar"]');
-
-    if (!header) return;
-
-if (!header.contains(e.target)) {
-        const data = header.__x?.$data;
-        if (data) {
-            data.mobileOpen = false;
-        }
-    }
-});
-
-// Jalankan Alpine
-window.Alpine = Alpine;
-Alpine.start();

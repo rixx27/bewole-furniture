@@ -2,8 +2,9 @@
 
 namespace App\Livewire\Frontend;
 
-use Livewire\Component;
+use App\Services\CartService;
 use Livewire\Attributes\On;
+use Livewire\Component;
 
 class NavbarCart extends Component
 {
@@ -15,9 +16,13 @@ class NavbarCart extends Component
     }
 
     #[On('cart-updated')]
-    public function loadCount(): void
+    public function loadCount($count = null): void
     {
-        $this->cartQty = collect(session('bewole_cart', []))->sum('quantity');
+        if (is_numeric($count)) {
+            $this->cartQty = (int) $count;
+        } else {
+            $this->cartQty = app(CartService::class)->getItemCount();
+        }
     }
 
     public function render()

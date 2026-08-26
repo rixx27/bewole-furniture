@@ -5,8 +5,8 @@
             <div class="lg:col-span-8">
                 <div class="overflow-hidden rounded-3xl border border-wood-border/60 bg-white shadow-sm">
                     <div class="divide-y divide-wood-border/40">
-                        @foreach ($cart as $item)
-                            <div class="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+                        @foreach ($cart as $key => $item)
+                            <div wire:key="cart-row-{{ $item['product_id'] ?? $key }}" class="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between transition-opacity duration-200">
                                 {{-- Image + Title --}}
                                 <div class="flex items-center gap-4">
                                     <div class="h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-wood-light/40 border border-wood-border/40">
@@ -37,16 +37,20 @@
                                     <div class="flex items-center rounded-full border border-wood-border/60 bg-wood-light/20 p-1">
                                         <button
                                             type="button"
-                                            wire:click="updateQuantity({{ $item['product_id'] }}, {{ $item['quantity'] - 1 }})"
-                                            class="flex h-7 w-7 items-center justify-center rounded-full text-wood-text hover:bg-white hover:text-wood-primary transition-all"
+                                            wire:click="updateQuantity({{ (int) $item['product_id'] }}, {{ (int) $item['quantity'] - 1 }})"
+                                            wire:loading.attr="disabled"
+                                            class="flex h-7 w-7 items-center justify-center rounded-full text-wood-text hover:bg-white hover:text-wood-primary transition-all disabled:opacity-50"
+                                            aria-label="Kurangi jumlah"
                                         >
                                             -
                                         </button>
                                         <span class="w-8 text-center text-xs font-bold text-wood-text">{{ $item['quantity'] }}</span>
                                         <button
                                             type="button"
-                                            wire:click="updateQuantity({{ $item['product_id'] }}, {{ $item['quantity'] + 1 }})"
-                                            class="flex h-7 w-7 items-center justify-center rounded-full text-wood-text hover:bg-white hover:text-wood-primary transition-all"
+                                            wire:click="updateQuantity({{ (int) $item['product_id'] }}, {{ (int) $item['quantity'] + 1 }})"
+                                            wire:loading.attr="disabled"
+                                            class="flex h-7 w-7 items-center justify-center rounded-full text-wood-text hover:bg-white hover:text-wood-primary transition-all disabled:opacity-50"
+                                            aria-label="Tambah jumlah"
                                         >
                                             +
                                         </button>
@@ -63,9 +67,11 @@
                                     {{-- Delete Button --}}
                                     <button
                                         type="button"
-                                        wire:click="removeItem({{ $item['product_id'] }})"
-                                        class="text-wood-muted hover:text-rose-600 transition-colors p-1"
+                                        wire:click="removeItem({{ (int) $item['product_id'] }})"
+                                        wire:loading.attr="disabled"
+                                        class="text-wood-muted hover:text-rose-600 transition-colors p-1 disabled:opacity-50"
                                         title="Hapus Produk"
+                                        aria-label="Hapus produk"
                                     >
                                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

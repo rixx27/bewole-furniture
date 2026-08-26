@@ -28,6 +28,7 @@
 
     @fonts
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/frontend.js'])
+    @livewireStyles
 </head>
 <body class="flex min-h-screen flex-col bg-wood-bg font-sans text-wood-text antialiased">
     @include('frontend.partials.navbar')
@@ -64,6 +65,7 @@
         </svg>
     </button>
 
+    @livewireScripts
     @stack('scripts')
 </body>
 </html>

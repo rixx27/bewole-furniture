@@ -68,15 +68,27 @@ class CartService
     {
         $cart = $this->getCart();
 
-        if (isset($cart[$productId])) {
+        $targetKey = null;
+        if (array_key_exists($productId, $cart)) {
+            $targetKey = $productId;
+        } else {
+            foreach ($cart as $k => $item) {
+                if (isset($item['product_id']) && (int) $item['product_id'] === $productId) {
+                    $targetKey = $k;
+                    break;
+                }
+            }
+        }
+
+        if ($targetKey !== null) {
             if ($quantity <= 0) {
-                unset($cart[$productId]);
+                unset($cart[$targetKey]);
             } else {
                 $product = Product::find($productId);
                 if ($product && $product->stock > 0 && $quantity > $product->stock) {
                     $quantity = $product->stock;
                 }
-                $cart[$productId]['quantity'] = $quantity;
+                $cart[$targetKey]['quantity'] = $quantity;
             }
             Session::put($this->sessionKey, $cart);
         }
@@ -91,8 +103,20 @@ class CartService
     {
         $cart = $this->getCart();
 
-        if (isset($cart[$productId])) {
-            unset($cart[$productId]);
+        $targetKey = null;
+        if (array_key_exists($productId, $cart)) {
+            $targetKey = $productId;
+        } else {
+            foreach ($cart as $k => $item) {
+                if (isset($item['product_id']) && (int) $item['product_id'] === $productId) {
+                    $targetKey = $k;
+                    break;
+                }
+            }
+        }
+
+        if ($targetKey !== null) {
+            unset($cart[$targetKey]);
             Session::put($this->sessionKey, $cart);
         }
 

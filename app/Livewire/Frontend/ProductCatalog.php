@@ -54,8 +54,9 @@ class ProductCatalog extends Component
     {
         $cartService = app(CartService::class);
         $cartService->add($productId, 1);
+        $count = $cartService->getItemCount();
 
-        $this->dispatch('cart-updated');
+        $this->dispatch('cart-updated', count: $count);
         $this->dispatch('notify', message: 'Produk berhasil ditambahkan ke keranjang!');
     }
 

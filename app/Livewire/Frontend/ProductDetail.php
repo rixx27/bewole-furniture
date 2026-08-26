@@ -42,8 +42,9 @@ class ProductDetail extends Component
     {
         $cartService = app(CartService::class);
         $cartService->add($this->product->id, $this->quantity);
+        $count = $cartService->getItemCount();
 
-        $this->dispatch('cart-updated');
+        $this->dispatch('cart-updated', count: $count);
         $this->dispatch('notify', message: "{$this->product->name} ({$this->quantity}x) berhasil ditambahkan ke keranjang!");
     }
 
@@ -51,8 +52,9 @@ class ProductDetail extends Component
     {
         $cartService = app(CartService::class);
         $cartService->add($this->product->id, $this->quantity);
+        $count = $cartService->getItemCount();
 
-        $this->dispatch('cart-updated');
+        $this->dispatch('cart-updated', count: $count);
 
         return redirect()->route('cart.index');
     }
