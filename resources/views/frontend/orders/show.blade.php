@@ -3,20 +3,54 @@
 @section('title', 'Detail Pesanan #' . $order->order_code)
 
 @section('content')
-<div class="min-h-screen bg-wood-bg pt-24 sm:pt-28">
-    <div class="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
-        {{-- Breadcrumb + Back --}}
-        <div class="mb-6 flex items-center gap-3">
-            <a href="{{ route('orders.index') }}" class="flex h-8 w-8 items-center justify-center rounded-full border border-wood-border/60 text-wood-muted transition-colors hover:text-wood-primary hover:border-wood-primary">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                </svg>
-            </a>
-            <div>
-                <h1 class="text-2xl font-bold tracking-tight text-wood-text font-serif">Detail Pesanan</h1>
-                <p class="text-xs font-mono text-wood-primary font-bold">#{{ $order->order_code }}</p>
+    {{-- ============================================================
+         PAGE HERO (Brown Wood Theme)
+         ============================================================ --}}
+    <section class="relative overflow-hidden bg-wood-primary-dark pt-36 pb-20 sm:pt-40 lg:pt-44 lg:pb-24">
+        <div aria-hidden="true" class="pointer-events-none absolute inset-0">
+            <div class="animate-blob absolute -top-24 -left-24 h-96 w-96 rounded-full bg-wood-secondary/20 blur-3xl"></div>
+            <div class="animate-blob absolute bottom-0 right-0 h-[28rem] w-[28rem] rounded-full bg-wood-primary/30 blur-3xl" style="animation-delay: 3s;"></div>
+        </div>
+
+        <div class="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+            <nav class="mb-6 flex items-center gap-2 text-xs text-white/80">
+                <a href="{{ route('home') }}" class="hover:text-white transition-colors">Home</a>
+                <span>/</span>
+                <a href="{{ route('orders.index') }}" class="hover:text-white transition-colors">Pesanan Saya</a>
+                <span>/</span>
+                <span class="font-semibold text-white font-mono">#{{ $order->order_code }}</span>
+            </nav>
+
+            <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <span class="mb-4 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-white backdrop-blur-sm">
+                        <span class="text-wood-secondary-light">✦</span>
+                        Informasi Pesanan
+                    </span>
+                    <h1 class="font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
+                        Detail Pesanan
+                    </h1>
+                    <p class="mt-2 font-mono text-sm font-semibold text-wood-secondary-light">
+                        Kode Order: #{{ $order->order_code }}
+                    </p>
+                </div>
+                <div>
+                    <a href="{{ route('orders.index') }}" class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-5 py-2.5 text-xs font-semibold text-white backdrop-blur-sm transition-all hover:bg-white hover:text-wood-primary shadow-sm">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        </svg>
+                        Kembali ke Pesanan Saya
+                    </a>
+                </div>
             </div>
         </div>
+    </section>
+
+    {{-- ============================================================
+         CONTENT
+         ============================================================ --}}
+    <section class="bg-wood-bg py-16 sm:py-20 lg:py-24">
+        <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
 
         <div class="grid gap-6 lg:grid-cols-3">
             {{-- Main Content (2/3) --}}
@@ -173,5 +207,5 @@
             </div>
         </div>
     </div>
-</div>
+</section>
 @endsection

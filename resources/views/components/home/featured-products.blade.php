@@ -55,7 +55,7 @@
                     >
                         {{-- Image wrapper --}}
                         <a
-                            href="{{ url($baseUrl) }}"
+                            href="{{ route('products.show', $product->slug) }}"
                             class="relative block aspect-[4/5] w-full overflow-hidden bg-wood-bg"
                             aria-label="{{ $product->name }}"
                         >
@@ -96,7 +96,7 @@
                         {{-- Product info --}}
                         <div class="flex flex-1 flex-col p-4 sm:p-5">
                             <h3 class="font-serif text-base font-semibold leading-snug text-wood-text sm:text-lg">
-                                <a href="{{ url($baseUrl) }}" class="transition-colors hover:text-wood-primary">
+                                <a href="{{ route('products.show', $product->slug) }}" class="transition-colors hover:text-wood-primary">
                                     {{ $product->name }}
                                 </a>
                             </h3>
@@ -117,7 +117,7 @@
                             </div>
 
                             <a
-                                href="{{ url($baseUrl) }}"
+                                href="{{ route('products.show', $product->slug) }}"
                                 class="mt-3 inline-flex items-center justify-center gap-2 rounded-full border border-wood-primary/20 bg-wood-primary/5 px-4 py-2 text-xs font-semibold text-wood-primary transition-all duration-300 ease-out hover:bg-wood-primary hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-wood-secondary focus-visible:ring-offset-2 sm:mt-4 sm:text-sm"
                             >
                                 View Details

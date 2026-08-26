@@ -1,19 +1,4 @@
-<div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-    {{-- Breadcrumb --}}
-    <nav class="mb-8 flex flex-wrap items-center gap-2 text-xs text-wood-muted">
-        <a href="{{ route('home') }}" class="hover:text-wood-primary">Home</a>
-        <span>/</span>
-        <a href="{{ route('products.index') }}" class="hover:text-wood-primary">Produk</a>
-        <span>/</span>
-        @if ($product->category)
-            <a href="{{ route('products.index', ['selectedCategory' => $product->category->slug]) }}" class="hover:text-wood-primary">
-                {{ $product->category->name }}
-            </a>
-            <span>/</span>
-        @endif
-        <span class="font-semibold text-wood-text truncate max-w-xs">{{ $product->name }}</span>
-    </nav>
-
+<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     {{-- Notification Toast --}}
     <div
         x-data="{ show: false, message: '' }"

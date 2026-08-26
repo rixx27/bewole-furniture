@@ -43,7 +43,7 @@ class CategoryShowcase extends Component
         string $title = 'Explore Our Collection',
         string $badge = 'Kategori Pilihan',
         string $subtitle = 'Temukan furniture premium untuk setiap ruangan di hunian Anda.',
-        string $baseUrl = 'products',
+        string $baseUrl = 'produk',
     ) {
         $this->categories = Category::query()
             ->active()

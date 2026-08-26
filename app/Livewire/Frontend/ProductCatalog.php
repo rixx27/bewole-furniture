@@ -22,6 +22,13 @@ class ProductCatalog extends Component
         'sort' => ['except' => 'latest'],
     ];
 
+    public function mount(): void
+    {
+        if (empty($this->selectedCategory)) {
+            $this->selectedCategory = (string) (request()->query('selectedCategory') ?: request()->query('category', ''));
+        }
+    }
+
     public function updatingQ(): void
     {
         $this->resetPage();

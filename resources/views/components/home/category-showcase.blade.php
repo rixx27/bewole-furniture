@@ -1,5 +1,5 @@
 @php
-    $linkBase = '/' . trim($baseUrl, '/') . '?category=';
+    $linkBase = route('products.index') . '?selectedCategory=';
 @endphp
 
 @if ($categories->isNotEmpty())
