@@ -78,14 +78,14 @@
     <div
         x-show="open"
         x-cloak
-        @click.away="closeSearch()"
+        @click.outside="closeSearch()"
         x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0 scale-95 translate-y-1"
         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
         x-transition:leave="transition ease-in duration-150"
         x-transition:leave-start="opacity-100 scale-100"
         x-transition:leave-end="opacity-0 scale-95"
-        class="absolute right-0 top-full mt-3 w-[calc(100vw-2rem)] max-w-md origin-top-right rounded-3xl border border-wood-border/60 bg-white shadow-2xl shadow-wood-primary/10 sm:w-96"
+        class="fixed left-1/2 top-[4.5rem] z-[60] w-[calc(100vw-1.5rem)] max-w-md -translate-x-1/2 overflow-hidden rounded-3xl border border-wood-border/60 bg-white shadow-2xl shadow-wood-primary/10 sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-3 sm:w-96 sm:translate-x-0"
     >
         <div class="p-3">
             <form @submit.prevent="submitSearch()" class="relative">
@@ -95,7 +95,7 @@
                     x-model="searchQuery"
                     @input="fetchSuggestions()"
                     placeholder="Cari kursi, lemari, meja jati..."
-                    class="w-full rounded-2xl border border-wood-border/50 bg-wood-light/10 py-3 pl-11 pr-10 text-sm font-medium text-wood-text placeholder-wood-muted shadow-inner focus:border-wood-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-wood-primary/20"
+                    class="w-full rounded-2xl border border-wood-border/50 bg-wood-light/10 py-3 pl-11 pr-10 text-base font-medium text-wood-text placeholder-wood-muted shadow-inner focus:border-wood-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-wood-primary/20 sm:text-sm"
                 >
                 <svg class="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-wood-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -117,14 +117,18 @@
             </form>
 
             {{-- Results Area --}}
-            <div class="mt-3">
+            <div class="mt-3 max-h-[min(65vh,24rem)] overflow-y-auto overscroll-contain">
 
                 {{-- Has Results --}}
                 <template x-if="searchQuery.trim().length >= 2 && results.length > 0">
                     <div>
                         <div class="space-y-1 max-h-80 overflow-y-auto pr-1">
                             <template x-for="item in results" :key="item.slug">
-                                <a :href="item.url" class="group flex items-center gap-4 rounded-2xl p-2 transition-colors hover:bg-wood-light/20">
+                                <a
+                                    :href="item.url"
+                                    @click="open = false"
+                                    class="group flex items-center gap-4 rounded-2xl p-2 transition-colors hover:bg-wood-light/20 cursor-pointer"
+                                >
                                     <div class="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-wood-light/40 border border-wood-border/40">
                                         <template x-if="item.thumbnail">
                                             <img :src="'/storage/' + item.thumbnail" :alt="item.name" class="h-full w-full object-cover">

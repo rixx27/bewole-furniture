@@ -1,6 +1,7 @@
 @php
     $siteName = App\Helpers\WebsiteSettings::siteName();
     $siteLogo = App\Helpers\WebsiteSettings::logoUrl();
+    $routeName = request()->route()?->getName();
     $cartCount = count(session('bewole_cart', []));
     $cartQty = collect(session('bewole_cart', []))->sum('quantity');
 
@@ -84,23 +85,13 @@
             {{-- SEARCH --}}
             <livewire:frontend.navbar-search />
 
-            {{-- Cart Icon --}}
-            <a
-                href="{{ route('cart.index') }}"
-                class="relative flex h-9 w-9 items-center justify-center rounded-full transition-all duration-300"
-                :class="scrolled ? 'text-wood-text hover:bg-wood-primary/10 hover:text-wood-primary' : 'text-white hover:bg-white/15'"
-                title="Keranjang Belanja"
-                aria-label="Keranjang Belanja"
+            {{-- Cart Icon (Livewire: auto-refresh on cart-updated) --}}
+            <span
+                :class="scrolled ? 'text-wood-text' : 'text-white'"
+                class="contents"
             >
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                </svg>
-                @if ($cartQty > 0)
-                    <span class="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[9px] font-bold leading-none text-white shadow-sm">
-                        {{ $cartQty > 99 ? '99+' : $cartQty }}
-                    </span>
-                @endif
-            </a>
+                <livewire:frontend.navbar-cart />
+            </span>
 
             {{-- Auth: Guest / User --}}
             @guest
@@ -228,19 +219,8 @@
                 </a>
             @endforeach
 
-            {{-- Cart --}}
-            <a
-                href="{{ route('cart.index') }}"
-                @click="mobileOpen = false"
-                class="mt-1 flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium text-wood-text hover:bg-wood-primary/5 transition-colors"
-            >
-                <span>Keranjang</span>
-                @if ($cartQty > 0)
-                    <span class="flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 text-[10px] font-bold text-white">
-                        {{ $cartQty }}
-                    </span>
-                @endif
-            </a>
+            {{-- Cart (Mobile) --}}
+            <livewire:frontend.navbar-cart />
 
             @guest
                 <a
