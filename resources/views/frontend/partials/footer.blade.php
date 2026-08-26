@@ -33,7 +33,7 @@
     $exploreLinks = [
         ['label' => 'Produk', 'route' => 'products.index'],
         ['label' => 'Tentang Kami', 'route' => 'frontend.about'],
-        ['label' => 'FAQ', 'hash' => '#faq'],
+        ['label' => 'Tracking', 'route' => 'frontend.tracking'],
     ];
 @endphp
 

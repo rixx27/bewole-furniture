@@ -1,9 +1,36 @@
 @php
     $siteName = App\Helpers\WebsiteSettings::siteName();
     $siteLogo = App\Helpers\WebsiteSettings::logoUrl();
-    $routeName = request()->route()?->getName();
     $cartCount = count(session('bewole_cart', []));
     $cartQty = collect(session('bewole_cart', []))->sum('quantity');
+
+    $navItems = [
+        [
+            'label' => 'Home',
+            'href' => route('home'),
+            'active' => request()->routeIs('home'),
+        ],
+        [
+            'label' => 'Produk',
+            'href' => route('products.index'),
+            'active' => request()->routeIs('products.*'),
+        ],
+        [
+            'label' => 'Tentang Kami',
+            'href' => Route::has('frontend.about') ? route('frontend.about') : url('/tentang-kami'),
+            'active' => request()->routeIs('frontend.about*') || request()->is('tentang-kami*'),
+        ],
+        [
+            'label' => 'Tracking',
+            'href' => Route::has('frontend.tracking') ? route('frontend.tracking') : (Route::has('tracking.index') ? route('tracking.index') : url('/tracking')),
+            'active' => request()->is('tracking*') || request()->routeIs('frontend.tracking*') || request()->routeIs('tracking*'),
+        ],
+        [
+            'label' => 'Kontak',
+            'href' => url('#contact'),
+            'active' => false,
+        ],
+    ];
 @endphp
 
 <header
@@ -34,23 +61,17 @@
 
         {{-- Desktop Menu --}}
         <div class="hidden items-center gap-1 lg:flex">
-            @foreach ([
-                ['label' => 'Home', 'route' => 'home'],
-                ['label' => 'Produk', 'route' => 'products.index'],
-                ['label' => 'Tentang Kami', 'route' => 'frontend.about'],
-                ['label' => 'FAQ', 'hash' => '#faq'],
-                ['label' => 'Kontak', 'hash' => '#contact'],
-            ] as $item)
+            @foreach ($navItems as $item)
                 <a
-                    href="{{ isset($item['route']) ? route($item['route']) : (isset($item['hash']) ? url($item['hash']) : '#') }}"
+                    href="{{ $item['href'] }}"
                     class="group relative rounded-full px-4 py-2 text-sm font-medium transition-colors duration-300"
                     :class="scrolled
-                        ? ({{ $routeName === ($item['route'] ?? null) ? "'text-wood-primary'" : "'text-wood-muted hover:text-wood-primary'" }})
-                        : ({{ $routeName === ($item['route'] ?? null) ? "'text-white'" : "'text-white/85 hover:text-white'" }})"
+                        ? ({{ $item['active'] ? 'true' : 'false' }} ? 'text-wood-primary font-semibold' : 'text-wood-muted hover:text-wood-primary')
+                        : ({{ $item['active'] ? 'true' : 'false' }} ? 'text-white font-semibold' : 'text-white/85 hover:text-white')"
                 >
                     {{ $item['label'] }}
                     <span
-                        class="absolute inset-x-4 -bottom-0.5 h-0.5 origin-left scale-x-0 rounded-full transition-transform duration-300 group-hover:scale-x-100"
+                        class="absolute inset-x-4 -bottom-0.5 h-0.5 origin-left {{ $item['active'] ? 'scale-x-100' : 'scale-x-0' }} rounded-full transition-transform duration-300 group-hover:scale-x-100"
                         :class="scrolled ? 'bg-wood-secondary' : 'bg-white'"
                     ></span>
                 </a>
@@ -196,18 +217,12 @@
         style="backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%);"
     >
         <div class="flex flex-col p-3">
-            @foreach ([
-                ['label' => 'Home', 'route' => 'home'],
-                ['label' => 'Produk', 'route' => 'products.index'],
-                ['label' => 'Tentang Kami', 'route' => 'frontend.about'],
-                ['label' => 'FAQ', 'hash' => '#faq'],
-                ['label' => 'Kontak', 'hash' => '#contact'],
-            ] as $item)
+            @foreach ($navItems as $item)
                 <a
-                    href="{{ isset($item['route']) ? route($item['route']) : (isset($item['hash']) ? url($item['hash']) : '#') }}"
+                    href="{{ $item['href'] }}"
                     @click="mobileOpen = false"
                     class="rounded-2xl px-4 py-3 text-sm font-medium transition-colors duration-200"
-                    :class="{{ $routeName === ($item['route'] ?? null) ? 'bg-wood-primary/10 text-wood-primary' : 'text-wood-text hover:bg-wood-primary/5' }}"
+                    :class="{{ $item['active'] ? 'true' : 'false' }} ? 'bg-wood-primary/10 text-wood-primary font-semibold' : 'text-wood-text hover:bg-wood-primary/5'"
                 >
                     {{ $item['label'] }}
                 </a>

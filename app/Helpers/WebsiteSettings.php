@@ -82,6 +82,30 @@ class WebsiteSettings
     }
 
     /**
+     * Get the WhatsApp number.
+     */
+    public static function whatsapp(): ?string
+    {
+        return static::get('whatsapp') ?: static::get('phone');
+    }
+
+    /**
+     * Get the WhatsApp number (alias).
+     */
+    public static function whatsappNumber(): ?string
+    {
+        return static::whatsapp();
+    }
+
+    /**
+     * Get the phone number.
+     */
+    public static function phone(): ?string
+    {
+        return static::get('phone');
+    }
+
+    /**
      * Get clean Google Maps Embed URL for iframe src attribute.
      */
     public static function googleMapsEmbedUrl(): ?string

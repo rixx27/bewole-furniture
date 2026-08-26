@@ -20,7 +20,9 @@ Route::middleware(['maintenance'])->group(function () {
         Route::view('/testimonials', 'frontend.testimonials')->name('testimonials');
         Route::view('/faq', 'frontend.faq')->name('faq');
         Route::view('/contact', 'frontend.contact')->name('contact');
-        Route::view('/tracking', 'frontend.tracking')->name('tracking');
+        Route::get('/tracking/{order_code?}', function ($order_code = null) {
+            return view('frontend.tracking', ['order_code' => $order_code]);
+        })->name('tracking');
     });
 
     // Product catalog — public
