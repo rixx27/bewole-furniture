@@ -460,7 +460,7 @@
                                 </div>
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                                     <span class="text-xs text-text-muted">Meta Deskripsi:</span>
-                                    <span class="font-medium text-text-primary truncate max-w-md">{{ $address ?: 'Toko & Workshop Luxury Furniture' }}</span>
+                                    <span class="font-medium text-text-primary truncate max-w-md">{{ $address ?: 'Toko Furniture Jepara Furniture ' }}</span>
                                 </div>
                             </div>
                         </div>

@@ -79,10 +79,10 @@ class HeroBanner extends Model
     public function getTextAlignmentClassAttribute(): string
     {
         return match ($this->text_position) {
-            'left' => 'text-left items-start',
-            'center' => 'text-center items-center',
-            'right' => 'text-right items-end',
-            default => 'text-center items-center',
+            'left' => 'justify-start text-left items-start',
+            'right' => 'justify-end text-right items-end',
+            'center' => 'justify-center text-center items-center',
+            default => 'justify-center text-center items-center',
         };
     }
 
