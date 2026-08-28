@@ -282,6 +282,32 @@
                         </div>
                     </div>
 
+                    {{-- Customization & Packing Card --}}
+                    @if ($order->meubel_type || $order->packing_type)
+                        <div class="rounded-3xl border border-wood-border/60 bg-white p-6 shadow-sm space-y-2 text-xs">
+                            <h3 class="text-sm font-bold text-wood-text border-b border-wood-border/40 pb-3 mb-2">Pilihan Meubel & Packing</h3>
+                            <div class="flex justify-between">
+                                <span class="text-wood-muted">Jenis Meubel:</span>
+                                <span class="font-semibold text-wood-text">{{ $order->meubel_type_label }}</span>
+                            </div>
+                            @if ($order->meubel_type === 'matang' && !empty($order->customization_details))
+                                @foreach ($order->customization_details as $pId => $selection)
+                                    @php
+                                        $pModel = \App\Models\Product::find($pId);
+                                    @endphp
+                                    <div class="flex justify-between">
+                                        <span class="text-wood-muted">Bahan Dudukan {{ $pModel ? "({$pModel->name})" : '' }}:</span>
+                                        <span class="font-semibold text-wood-text">{{ $selection }}</span>
+                                    </div>
+                                @endforeach
+                            @endif
+                            <div class="flex justify-between">
+                                <span class="text-wood-muted">Bahan Packing:</span>
+                                <span class="font-semibold text-wood-text">{{ $order->packing_type_label }}</span>
+                            </div>
+                        </div>
+                    @endif
+
                     {{-- Shipping Details Card --}}
                     <div class="rounded-3xl border border-wood-border/60 bg-white p-6 shadow-sm space-y-3 text-xs">
                         <h3 class="text-sm font-bold text-wood-text border-b border-wood-border/40 pb-3 mb-2">Informasi Pengiriman</h3>

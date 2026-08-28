@@ -275,5 +275,29 @@ class Product extends Model
     {
         return $query->orderBy('sort_order')->orderBy('name');
     }
+
+    /**
+     * Get customization options definition for this product.
+     */
+    public function getCustomizationOptions(): ?array
+    {
+        $name = strtolower($this->name);
+        $categoryName = strtolower($this->category?->name ?? '');
+
+        if (str_contains($name, 'kursi') || str_contains($categoryName, 'kursi') || str_contains($name, 'chair')) {
+            return [
+                'type' => 'dudukan',
+                'label' => 'Bahan Dudukan',
+                'required' => true,
+                'options' => [
+                    ['value' => 'Kulit', 'label' => 'Kulit'],
+                    ['value' => 'Benang', 'label' => 'Benang'],
+                    ['value' => 'Anyaman', 'label' => 'Anyaman'],
+                ]
+            ];
+        }
+
+        return null;
+    }
 }
 

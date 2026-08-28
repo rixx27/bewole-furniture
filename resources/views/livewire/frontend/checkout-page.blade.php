@@ -2,6 +2,7 @@
     <form wire:submit.prevent="placeOrder" class="grid gap-8 lg:grid-cols-12">
         {{-- Form Pembelian (7 cols) --}}
         <div class="lg:col-span-7 space-y-6">
+            {{-- 1. Data Pemesan --}}
             <div class="rounded-3xl border border-wood-border/60 bg-white p-6 shadow-sm">
                 <h2 class="text-lg font-bold text-wood-text border-b border-wood-border/40 pb-3">1. Data Pemesan</h2>
 
@@ -44,6 +45,7 @@
                 </div>
             </div>
 
+            {{-- 2. Data Pengiriman --}}
             <div class="rounded-3xl border border-wood-border/60 bg-white p-6 shadow-sm">
                 <h2 class="text-lg font-bold text-wood-text border-b border-wood-border/40 pb-3">2. Data Pengiriman</h2>
 
@@ -106,6 +108,131 @@
                     </div>
                 </div>
             </div>
+
+            {{-- 3. Pilihan Meubel & Packing --}}
+            <div class="rounded-3xl border border-wood-border/60 bg-white p-6 shadow-sm space-y-6">
+                <h2 class="text-lg font-bold text-wood-text border-b border-wood-border/40 pb-3">3. Pilihan Meubel & Packing</h2>
+
+                {{-- Jenis Meubel --}}
+                <div>
+                    <h3 class="text-sm font-bold text-wood-text mb-1">Jenis Meubel</h3>
+                    <label class="block text-xs font-semibold text-wood-muted mb-3">Jenis Meubel <span class="text-rose-500">*</span></label>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {{-- Meubel Mentah --}}
+                        <label class="relative flex flex-col cursor-pointer rounded-2xl border p-4 transition-all focus-within:ring-2 focus-within:ring-wood-primary/20 {{ $meubel_type === 'mentah' ? 'border-wood-primary bg-wood-primary/5 shadow-sm' : 'border-wood-border/60 bg-white hover:border-wood-primary/40' }}">
+                            <div class="flex items-center gap-3">
+                                <input
+                                    type="radio"
+                                    name="meubel_type"
+                                    value="mentah"
+                                    wire:model.live="meubel_type"
+                                    class="h-4 w-4 text-wood-primary focus:ring-wood-primary border-wood-border"
+                                >
+                                <span class="text-xs font-bold text-wood-text">Meubel Mentah</span>
+                            </div>
+                            <span class="mt-2 text-[11px] text-wood-muted pl-7">Kondisi kayu mentah</span>
+                        </label>
+
+                        {{-- Meubel Matang --}}
+                        <label class="relative flex flex-col cursor-pointer rounded-2xl border p-4 transition-all focus-within:ring-2 focus-within:ring-wood-primary/20 {{ $meubel_type === 'matang' ? 'border-wood-primary bg-wood-primary/5 shadow-sm' : 'border-wood-border/60 bg-white hover:border-wood-primary/40' }}">
+                            <div class="flex items-center gap-3">
+                                <input
+                                    type="radio"
+                                    name="meubel_type"
+                                    value="matang"
+                                    wire:model.live="meubel_type"
+                                    class="h-4 w-4 text-wood-primary focus:ring-wood-primary border-wood-border"
+                                >
+                                <span class="text-xs font-bold text-wood-text">Meubel Matang</span>
+                            </div>
+                            <span class="mt-2 text-[11px] text-wood-muted pl-7">Siap finishing/custom</span>
+                        </label>
+                    </div>
+                    @error('meubel_type') <span class="mt-1.5 block text-xs text-rose-500">{{ $message }}</span> @enderror
+                </div>
+
+                {{-- Detail Meubel Matang (Conditional Customization Form per Product) --}}
+                @if ($meubel_type === 'matang')
+                    <div class="border-t border-wood-border/30 pt-5 space-y-5 transition-all duration-300">
+                        @foreach ($cart as $productId => $item)
+                            @php
+                                $productModel = \App\Models\Product::active()->find($productId);
+                                $customization = $productModel?->getCustomizationOptions();
+                            @endphp
+
+                            @if ($customization)
+                                <div class="rounded-2xl border border-wood-border/40 bg-wood-light/10 p-4 space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <h3 class="text-xs font-bold text-wood-text uppercase tracking-wider">
+                                            Pilihan {{ $customization['label'] }} ({{ $item['name'] }})
+                                        </h3>
+                                        <span class="text-[10px] font-medium text-wood-muted">Qty: {{ $item['quantity'] }}</span>
+                                    </div>
+
+                                    <label class="block text-xs font-semibold text-wood-muted">
+                                        {{ $customization['label'] }} <span class="text-rose-500">*</span>
+                                    </label>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                        @foreach ($customization['options'] as $opt)
+                                            @php
+                                                $isSelected = isset($customization_selections[$productId]) && $customization_selections[$productId] === $opt['value'];
+                                            @endphp
+                                            <label class="relative flex items-center cursor-pointer rounded-xl border p-3 transition-all focus-within:ring-2 focus-within:ring-wood-primary/20 {{ $isSelected ? 'border-wood-primary bg-wood-primary/10 font-semibold' : 'border-wood-border/60 bg-white hover:border-wood-primary/40' }}">
+                                                <input
+                                                    type="radio"
+                                                    name="customization_{{ $productId }}"
+                                                    value="{{ $opt['value'] }}"
+                                                    wire:model.live="customization_selections.{{ $productId }}"
+                                                    class="h-3.5 w-3.5 text-wood-primary focus:ring-wood-primary border-wood-border"
+                                                >
+                                                <span class="ml-2.5 text-xs text-wood-text">{{ $opt['label'] }}</span>
+                                            </label>
+                                        @endforeach
+                                    </div>
+                                    @error("customization_selections.{$productId}")
+                                        <span class="mt-1 block text-xs text-rose-500">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
+                @endif
+
+                {{-- Bahan Packing --}}
+                <div class="border-t border-wood-border/30 pt-5">
+                    <h3 class="text-sm font-bold text-wood-text mb-1">Bahan Packing</h3>
+                    <label class="block text-xs font-semibold text-wood-muted mb-3">Bahan Packing <span class="text-rose-500">*</span></label>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {{-- Kardus --}}
+                        <label class="relative flex items-center cursor-pointer rounded-2xl border p-4 transition-all focus-within:ring-2 focus-within:ring-wood-primary/20 {{ $packing_type === 'kardus' ? 'border-wood-primary bg-wood-primary/5 shadow-sm' : 'border-wood-border/60 bg-white hover:border-wood-primary/40' }}">
+                            <input
+                                type="radio"
+                                name="packing_type"
+                                value="kardus"
+                                wire:model.live="packing_type"
+                                class="h-4 w-4 text-wood-primary focus:ring-wood-primary border-wood-border"
+                            >
+                            <span class="ml-3 text-xs font-bold text-wood-text">Kardus</span>
+                        </label>
+
+                        {{-- Plastik --}}
+                        <label class="relative flex items-center cursor-pointer rounded-2xl border p-4 transition-all focus-within:ring-2 focus-within:ring-wood-primary/20 {{ $packing_type === 'plastik' ? 'border-wood-primary bg-wood-primary/5 shadow-sm' : 'border-wood-border/60 bg-white hover:border-wood-primary/40' }}">
+                            <input
+                                type="radio"
+                                name="packing_type"
+                                value="plastik"
+                                wire:model.live="packing_type"
+                                class="h-4 w-4 text-wood-primary focus:ring-wood-primary border-wood-border"
+                            >
+                            <span class="ml-3 text-xs font-bold text-wood-text">Plastik</span>
+                        </label>
+                    </div>
+                    @error('packing_type') <span class="mt-1.5 block text-xs text-rose-500">{{ $message }}</span> @enderror
+                </div>
+            </div>
         </div>
 
         {{-- Order Summary (5 cols) --}}
@@ -141,11 +268,72 @@
                     @endforeach
                 </div>
 
+                {{-- Detail Customisasi Summary --}}
+                <div class="mt-4 rounded-2xl bg-wood-light/20 p-3.5 border border-wood-border/40 space-y-1.5 text-xs">
+                    <h4 class="font-bold text-wood-text text-[11px] uppercase tracking-wider border-b border-wood-border/30 pb-1 mb-2">Detail Customisasi</h4>
+                    
+                    <div class="flex justify-between text-wood-muted">
+                        <span>Meubel:</span>
+                        <span class="font-bold text-wood-text">
+                            @if($meubel_type === 'mentah')
+                                Meubel Mentah
+                            @elseif($meubel_type === 'matang')
+                                Meubel Matang
+                            @else
+                                <span class="font-normal italic text-wood-muted/70">Belum dipilih</span>
+                            @endif
+                        </span>
+                    </div>
+
+                    @if ($meubel_type === 'matang')
+                        @foreach ($cart as $productId => $item)
+                            @php
+                                $productModel = \App\Models\Product::active()->find($productId);
+                                $customization = $productModel?->getCustomizationOptions();
+                            @endphp
+
+                            @if ($customization)
+                                <div class="flex justify-between text-wood-muted pl-2">
+                                    <span>Dudukan:</span>
+                                    <span class="font-bold text-wood-text">
+                                        {{ $customization_selections[$productId] ?? '-' }}
+                                    </span>
+                                </div>
+                            @endif
+                        @endforeach
+                    @endif
+
+                    <div class="flex justify-between text-wood-muted">
+                        <span>Packing:</span>
+                        <span class="font-bold text-wood-text">
+                            @if($packing_type === 'kardus')
+                                Kardus
+                            @elseif($packing_type === 'plastik')
+                                Plastik
+                            @else
+                                <span class="font-normal italic text-wood-muted/70">Belum dipilih</span>
+                            @endif
+                        </span>
+                    </div>
+                </div>
+
                 {{-- Calculation --}}
                 <div class="mt-6 border-t border-wood-border/40 pt-4 space-y-2 text-xs">
                     <div class="flex justify-between text-wood-muted">
                         <span>Subtotal Produk</span>
                         <span class="font-bold text-wood-text">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between text-wood-muted">
+                        <span>Biaya Customisasi</span>
+                        <span class="font-bold text-wood-text">
+                            {{ $customization_fee > 0 ? 'Rp ' . number_format($customization_fee, 0, ',', '.') : 'Rp 0' }}
+                        </span>
+                    </div>
+                    <div class="flex justify-between text-wood-muted">
+                        <span>Biaya Packing</span>
+                        <span class="font-bold text-wood-text">
+                            {{ $packing_fee > 0 ? 'Rp ' . number_format($packing_fee, 0, ',', '.') : 'Rp 0' }}
+                        </span>
                     </div>
                     <div class="flex justify-between text-wood-muted">
                         <span>Biaya Pengiriman</span>
@@ -156,10 +344,12 @@
                 <div class="mt-6 border-t border-wood-border/40 pt-4">
                     <div class="flex justify-between text-base font-bold text-wood-text">
                         <span>Total Pembayaran</span>
-                        <span class="text-lg text-wood-primary">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+                        <span class="text-lg text-wood-primary">
+                            Rp {{ number_format($subtotal + $customization_fee + $packing_fee, 0, ',', '.') }}
+                        </span>
                     </div>
                     <p class="mt-1.5 text-[11px] leading-tight text-wood-muted">
-                        * Total pembayaran di atas <span class="font-semibold text-rose-500">belum termasuk ongkos kirim dan biaya packing</span>. Biaya tersebut akan dikonfirmasi lebih lanjut via WhatsApp.
+                        * Total pembayaran di atas <span class="font-semibold text-rose-500">belum termasuk ongkos kirim</span>. Biaya tersebut akan dikonfirmasi lebih lanjut via WhatsApp.
                     </p>
                 </div>
 

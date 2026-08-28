@@ -29,10 +29,13 @@ class OrderCodeGenerator
             $prefix = "BWL-{$dd}-{$mm}-{$yy}-";
 
             // Lock the latest order for this month/year to prevent race conditions
-            $lastOrder = Order::where('order_code', 'like', "{$prefix}%")
-                ->orderByRaw('CAST(SUBSTRING_INDEX(order_code, \'-\', -1) AS UNSIGNED) DESC')
-                ->lockForUpdate()
-                ->first();
+            $query = Order::where('order_code', 'like', "{$prefix}%");
+            if (DB::getDriverName() === 'mysql') {
+                $query->orderByRaw('CAST(SUBSTRING_INDEX(order_code, \'-\', -1) AS UNSIGNED) DESC');
+            } else {
+                $query->orderBy('id', 'desc');
+            }
+            $lastOrder = $query->lockForUpdate()->first();
 
             $newNumber = $lastOrder
                 ? ((int) substr($lastOrder->order_code, strrpos($lastOrder->order_code, '-') + 1)) + 1

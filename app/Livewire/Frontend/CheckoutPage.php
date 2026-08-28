@@ -6,7 +6,6 @@ use App\Helpers\WebsiteSettings;
 use App\Models\Order;
 use App\Models\Product;
 use App\Services\CartService;
-use App\Services\OrderCodeGenerator;
 use App\Services\OrderService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -25,6 +24,13 @@ class CheckoutPage extends Component
     public string $postal_code = '';
     public string $notes = '';
 
+    // Meubel & Packing selections
+    public string $meubel_type = ''; // 'mentah' or 'matang'
+    public string $packing_type = ''; // 'kardus' or 'plastik'
+    public array $customization_selections = []; // [product_id => selection]
+    public int $customization_fee = 0;
+    public int $packing_fee = 0;
+
     public array $provinces = [];
     public array $cities = [];
 
@@ -37,6 +43,20 @@ class CheckoutPage extends Component
         'city' => 'required|string|max:255',
         'postal_code' => 'nullable|string|max:20',
         'notes' => 'nullable|string|max:1000',
+        'meubel_type' => 'required|in:mentah,matang',
+        'packing_type' => 'required|in:kardus,plastik',
+    ];
+
+    protected array $messages = [
+        'customer_name.required' => 'Nama Lengkap wajib diisi.',
+        'customer_phone.required' => 'Nomor WhatsApp wajib diisi.',
+        'province.required' => 'Provinsi wajib dipilih.',
+        'city.required' => 'Kota / Kabupaten wajib dipilih.',
+        'shipping_address.required' => 'Alamat Lengkap wajib diisi.',
+        'meubel_type.required' => 'Jenis Meubel wajib dipilih.',
+        'meubel_type.in' => 'Pilihan Jenis Meubel tidak valid.',
+        'packing_type.required' => 'Bahan Packing wajib dipilih.',
+        'packing_type.in' => 'Pilihan Bahan Packing tidak valid.',
     ];
 
     public function mount(): void
@@ -49,7 +69,7 @@ class CheckoutPage extends Component
         $cartService = app(CartService::class);
         $this->cart = $cartService->getCart();
         $this->subtotal = $cartService->getSubtotal();
-        
+
         $this->loadProvinces();
 
         if (empty($this->cart)) {
@@ -63,7 +83,15 @@ class CheckoutPage extends Component
         $this->customer_email = $user->email ?? '';
     }
 
-    public function loadProvinces()
+    public function updatedMeubelType($value): void
+    {
+        if ($value === 'mentah') {
+            $this->customization_selections = [];
+            $this->resetErrorBag('customization_selections');
+        }
+    }
+
+    public function loadProvinces(): void
     {
         $path = storage_path('app/indonesia_regions.json');
         if (file_exists($path)) {
@@ -72,11 +100,11 @@ class CheckoutPage extends Component
         }
     }
 
-    public function updatedProvince($value)
+    public function updatedProvince($value): void
     {
         $this->city = '';
         $this->cities = [];
-        
+
         if (!empty($value)) {
             $path = storage_path('app/indonesia_regions.json');
             if (file_exists($path)) {
@@ -92,6 +120,32 @@ class CheckoutPage extends Component
     {
         $this->validate();
 
+        // Custom validation for Meubel Matang customization per product
+        if ($this->meubel_type === 'mentah') {
+            $this->customization_selections = [];
+        } elseif ($this->meubel_type === 'matang') {
+            $hasError = false;
+            foreach ($this->cart as $productId => $item) {
+                $product = Product::active()->find($productId);
+                if (!$product) {
+                    continue;
+                }
+
+                $options = $product->getCustomizationOptions();
+                if ($options && !empty($options['required'])) {
+                    $selection = $this->customization_selections[$productId] ?? null;
+                    if (empty($selection)) {
+                        $this->addError("customization_selections.{$productId}", "Pilihan {$options['label']} untuk {$product->name} wajib dipilih.");
+                        $hasError = true;
+                    }
+                }
+            }
+
+            if ($hasError) {
+                return;
+            }
+        }
+
         $cartService = app(CartService::class);
         $currentCart = $cartService->getCart();
 
@@ -101,10 +155,11 @@ class CheckoutPage extends Component
         }
 
         // Calculate total server-side & validate products
-        $serverTotal = 0;
+        $serverSubtotal = 0;
         $totalQuantity = 0;
         $itemSummaries = [];
         $firstProductId = null;
+        $customizationTexts = [];
 
         foreach ($currentCart as $productId => $item) {
             $product = Product::active()->find($productId);
@@ -120,20 +175,39 @@ class CheckoutPage extends Component
             $price = (int) ($product->discount_price ?? $product->price);
             $itemTotal = $price * $qty;
 
-            $serverTotal += $itemTotal;
+            $serverSubtotal += $itemTotal;
             $totalQuantity += $qty;
 
             $itemSummaries[] = "{$product->name} × {$qty} (Rp " . number_format($itemTotal, 0, ',', '.') . ")";
+
+            if ($this->meubel_type === 'matang' && isset($this->customization_selections[$productId])) {
+                $custVal = $this->customization_selections[$productId];
+                $customizationTexts[] = "Bahan Dudukan ({$product->name}): {$custVal}";
+            }
         }
 
-        if ($serverTotal <= 0 || !$firstProductId) {
+        if ($serverSubtotal <= 0 || !$firstProductId) {
             $this->dispatch('notify', message: 'Produk dalam keranjang Anda tidak valid atau tidak tersedia.');
             return redirect()->route('products.index');
         }
 
-        // Format notes with item breakdown if multiple items exist
+        $serverCustomFee = 0; // Default 0 if not configured
+        $serverPackingFee = 0; // Default 0 if not configured
+        $serverTotal = $serverSubtotal + $serverCustomFee + $serverPackingFee;
+
+        $meubelText = $this->meubel_type === 'matang' ? 'Meubel Matang' : 'Meubel Mentah';
+        $packingText = $this->packing_type === 'kardus' ? 'Kardus' : 'Plastik';
+
+        // Format full notes for internal log
         $itemsText = implode("\n", $itemSummaries);
-        $fullNotes = "Item Pesanan:\n" . $itemsText;
+        $fullNotes = "Detail Customisasi & Packing:\n"
+            . "Jenis Meubel: {$meubelText}\n";
+        if ($this->meubel_type === 'matang' && !empty($customizationTexts)) {
+            $fullNotes .= implode("\n", $customizationTexts) . "\n";
+        }
+        $fullNotes .= "Bahan Packing: {$packingText}\n\n"
+            . "Item Pesanan:\n" . $itemsText;
+
         if (!empty($this->notes)) {
             $fullNotes .= "\n\nCatatan Tambahan:\n" . $this->notes;
         }
@@ -149,37 +223,61 @@ class CheckoutPage extends Component
             'shipping_address' => $this->shipping_address . ' (Provinsi: ' . $this->province . ')',
             'city' => $this->city,
             'postal_code' => $this->postal_code,
+            'meubel_type' => $this->meubel_type,
+            'packing_type' => $this->packing_type,
+            'customization_details' => $this->meubel_type === 'matang' ? $this->customization_selections : null,
+            'customization_fee' => $serverCustomFee,
+            'packing_fee' => $serverPackingFee,
             'quantity' => $totalQuantity,
             'total_price' => $serverTotal,
             'notes' => $fullNotes,
             'whatsapp_number' => $this->customer_phone,
         ];
 
-        $order = $orderService->createOrder($orderData);
+        $order = $orderService->createOrder($orderData, $currentCart);
 
         // Clear cart
         $cartService->clear();
 
-        // Build WhatsApp Redirect Message
+        // Build WhatsApp Redirect Message according to prompt requirements
         $adminWhatsapp = WebsiteSettings::get('whatsapp') ?: WebsiteSettings::get('phone') ?: '6281234567890';
         $adminWhatsapp = preg_replace('/[^0-9]/', '', $adminWhatsapp);
         if (str_starts_with($adminWhatsapp, '0')) {
             $adminWhatsapp = '62' . substr($adminWhatsapp, 1);
         }
 
-        $waMessage = "Halo Bewole Furniture, saya ingin konfirmasi pesanan baru.\n\n"
-            . "*Kode Pesanan:* {$order->order_code}\n"
-            . "*Nama:* {$this->customer_name}\n"
-            . "*No. WhatsApp:* {$this->customer_phone}\n\n"
-            . "*Detail Pesanan:*\n" . $itemsText . "\n\n"
-            . "*Total Pembayaran:* Rp " . number_format($serverTotal, 0, ',', '.') . "\n\n"
-            . "*Alamat Pengiriman:*\n{$this->shipping_address}, {$this->city}, Provinsi {$this->province}\n";
+        $waMessage = "Halo Bewole Jepara Furniture,\n\n"
+            . "Saya ingin melakukan pemesanan.\n\n"
+            . "Kode Pesanan:\n{$order->order_code}\n\n"
+            . "Produk:\n";
 
-        if (!empty($this->notes)) {
-            $waMessage .= "\n*Catatan:* {$this->notes}\n";
+        foreach ($currentCart as $productId => $item) {
+            $product = Product::find($productId);
+            $pName = $product ? $product->name : ($item['name'] ?? 'Produk');
+            $pQty = $item['quantity'] ?? 1;
+            $waMessage .= "{$pName}\nQty: {$pQty}\n";
         }
 
-        $waMessage .= "\nMohon diproses lebih lanjut. Terima kasih!";
+        $waMessage .= "\nJenis Meubel:\n{$meubelText}\n\n";
+
+        if ($this->meubel_type === 'matang' && !empty($customizationTexts)) {
+            foreach ($customizationTexts as $cText) {
+                $waMessage .= "{$cText}\n";
+            }
+            $waMessage .= "\n";
+        }
+
+        $waMessage .= "Bahan Packing:\n{$packingText}\n\n";
+        $waMessage .= "Alamat Pengiriman:\n{$this->shipping_address}, {$this->city}, Provinsi {$this->province}\n\n";
+
+        if (!empty($this->notes)) {
+            $waMessage .= "Catatan:\n{$this->notes}\n\n";
+        }
+
+        $waMessage .= "Subtotal:\nRp " . number_format($serverSubtotal, 0, ',', '.') . "\n\n";
+        $waMessage .= "Biaya Customisasi:\nRp " . number_format($serverCustomFee, 0, ',', '.') . "\n\n";
+        $waMessage .= "Biaya Packing:\nRp " . number_format($serverPackingFee, 0, ',', '.') . "\n\n";
+        $waMessage .= "Total:\nRp " . number_format($serverTotal, 0, ',', '.');
 
         $waUrl = "https://wa.me/{$adminWhatsapp}?text=" . rawurlencode($waMessage);
 

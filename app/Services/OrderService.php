@@ -20,16 +20,46 @@ class OrderService
     }
 
     /**
-     * Create a new order from checkout data.
+     * Create a new order from checkout data and cart items.
      */
-    public function createOrder(array $data): Order
+    public function createOrder(array $data, array $cartItems = []): Order
     {
-        return DB::transaction(function () use ($data) {
+        return DB::transaction(function () use ($data, $cartItems) {
             $data['order_code'] = $this->orderCodeGenerator->generate();
             $data['status'] = OrderStatus::Pending->value;
             $data['payment_status'] = PaymentStatus::Unpaid->value;
 
             $order = Order::create($data);
+
+            if (!empty($cartItems)) {
+                foreach ($cartItems as $productId => $item) {
+                    $product = \App\Models\Product::find($productId);
+                    if (!$product) {
+                        continue;
+                    }
+
+                    $qty = (int) ($item['quantity'] ?? 1);
+                    $unitPrice = (int) ($product->discount_price ?? $product->price);
+                    $meubelType = $data['meubel_type'] ?? null;
+                    $custDetails = $data['customization_details'] ?? [];
+                    $custOpt = ($meubelType === 'matang' && isset($custDetails[$productId]))
+                        ? $custDetails[$productId]
+                        : null;
+
+                    \App\Models\OrderItem::create([
+                        'order_id' => $order->id,
+                        'product_id' => $product->id,
+                        'quantity' => $qty,
+                        'unit_price' => $unitPrice,
+                        'meubel_type' => $meubelType,
+                        'customization_option' => $custOpt,
+                        'packing_type' => $data['packing_type'] ?? null,
+                        'customization_price' => 0,
+                        'packing_price' => 0,
+                        'total_price' => $unitPrice * $qty,
+                    ]);
+                }
+            }
 
             // Create initial status history
             $this->createStatusHistory($order, OrderStatus::Pending, 'Pesanan baru dibuat');

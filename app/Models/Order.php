@@ -27,6 +27,11 @@ class Order extends Model
         'shipping_address',
         'city',
         'postal_code',
+        'meubel_type',
+        'packing_type',
+        'customization_details',
+        'customization_fee',
+        'packing_fee',
         'quantity',
         'total_price',
         'notes',
@@ -53,9 +58,20 @@ class Order extends Model
         return [
             'quantity' => 'integer',
             'total_price' => 'decimal:2',
+            'customization_details' => 'array',
+            'customization_fee' => 'decimal:2',
+            'packing_fee' => 'decimal:2',
             'shipping_date' => 'date',
             'pickup_date' => 'date',
         ];
+    }
+
+    /**
+     * Get the items for the order.
+     */
+    public function items(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
     }
 
     /**
@@ -104,6 +120,30 @@ class Order extends Model
     public function getFormattedTotalPriceAttribute(): string
     {
         return 'Rp ' . number_format($this->total_price, 0, ',', '.');
+    }
+
+    /**
+     * Get the meubel type label attribute.
+     */
+    public function getMeubelTypeLabelAttribute(): string
+    {
+        return match ($this->meubel_type) {
+            'mentah', 'raw' => 'Meubel Mentah',
+            'matang', 'finished' => 'Meubel Matang',
+            default => $this->meubel_type ?: '-',
+        };
+    }
+
+    /**
+     * Get the packing type label attribute.
+     */
+    public function getPackingTypeLabelAttribute(): string
+    {
+        return match ($this->packing_type) {
+            'kardus', 'cardboard' => 'Kardus',
+            'plastik', 'plastic' => 'Plastik',
+            default => $this->packing_type ?: '-',
+        };
     }
 
     /**
