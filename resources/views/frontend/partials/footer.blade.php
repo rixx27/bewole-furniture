@@ -34,6 +34,7 @@
         ['label' => 'Produk', 'route' => 'products.index'],
         ['label' => 'Tentang Kami', 'route' => 'frontend.about'],
         ['label' => 'Tracking', 'route' => 'frontend.tracking'],
+        ['label' => 'Kontak', 'route' => 'frontend.contact'],
     ];
 @endphp
 

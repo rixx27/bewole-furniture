@@ -9,7 +9,7 @@
         if (str_starts_with($cleanNumber, '0')) {
             $cleanNumber = '62' . substr($cleanNumber, 1);
         }
-        $message = urlencode('Halo ' . $siteName . ', saya ingin berkonsultasi mengenai furniture.');
+        $message = urlencode('Halo ' . $siteName . ', saya ingin berkonsultasi mengenai produk kebutuhan saya.');
         $whatsappUrl = 'https://wa.me/' . $cleanNumber . '?text=' . $message;
     }
 @endphp
@@ -44,8 +44,8 @@
             data-reveal-delay="100"
             class="font-serif text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl xl:text-6xl"
         >
-            Let's Create Something<br class="hidden sm:block">
-            Beautiful Together.
+            Wujudkan Furniture Impian<br class="hidden sm:block">
+            Bersama Kami.
         </h2>
 
         {{-- Description --}}
@@ -71,7 +71,7 @@
                     id="contact-cta-button"
                     class="group inline-flex items-center gap-3 rounded-full bg-white px-8 py-4 text-base font-semibold text-wood-primary shadow-xl shadow-black/20 transition-all duration-300 ease-out hover:-translate-y-1 hover:bg-wood-bg hover:shadow-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-wood-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-wood-primary-dark sm:px-10 sm:py-4 sm:text-base"
                 >
-                    Start a Conversation
+                    Mulai Konsultasi
                     <svg class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
                     </svg>

@@ -16,9 +16,6 @@ Route::get('/', [App\Http\Controllers\Frontend\HomeController::class, 'index'])
 Route::middleware(['maintenance'])->group(function () {
     Route::prefix('/')->name('frontend.')->group(function () {
         Route::view('/tentang-kami', 'frontend.about')->name('about');
-        Route::view('/portfolio', 'frontend.portfolio')->name('portfolio');
-        Route::view('/testimonials', 'frontend.testimonials')->name('testimonials');
-        Route::view('/faq', 'frontend.faq')->name('faq');
         Route::view('/contact', 'frontend.contact')->name('contact');
         Route::get('/tracking/{order_code?}', function ($order_code = null) {
             return view('frontend.tracking', ['order_code' => $order_code]);
@@ -64,7 +61,7 @@ Route::middleware(['auth', 'verified', 'maintenance'])->group(function () {
     Route::view('/checkout', 'frontend.pages.checkout')->name('checkout.index');
 
     // User profile
-    Route::view('/profile', 'frontend.profile')->name('profile');
+    Route::get('/profile', fn () => redirect()->route('profile.edit'))->name('profile');
 });
 
 /*

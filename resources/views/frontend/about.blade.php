@@ -33,7 +33,7 @@
     {{-- ============================================================
          PAGE HERO (breadcrumb-style)
          ============================================================ --}}
-    <section class="relative overflow-hidden bg-wood-primary-dark pt-36 pb-20 sm:pt-40 lg:pt-44 lg:pb-24">
+    <section class="relative overflow-hidden bg-wood-primary-dark pt-44 pb-20 sm:pt-48 lg:pt-52 lg:pb-24">
         <div aria-hidden="true" class="pointer-events-none absolute inset-0">
             <div class="animate-blob absolute -top-24 -left-24 h-96 w-96 rounded-full bg-wood-secondary/20 blur-3xl"></div>
             <div class="animate-blob absolute bottom-0 right-0 h-[28rem] w-[28rem] rounded-full bg-wood-primary/30 blur-3xl" style="animation-delay: 3s;"></div>

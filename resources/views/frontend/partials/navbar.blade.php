@@ -28,8 +28,8 @@
         ],
         [
             'label' => 'Kontak',
-            'href' => url('#contact'),
-            'active' => false,
+            'href' => Route::has('frontend.contact') ? route('frontend.contact') : url('/contact'),
+            'active' => request()->routeIs('frontend.contact*') || request()->is('contact*'),
         ],
     ];
 @endphp

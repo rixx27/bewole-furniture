@@ -15,8 +15,6 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
     // Content
     Route::resource('hero-banners', App\Http\Controllers\Admin\HeroBannerController::class)->names('hero-banners');
     Route::patch('hero-banners/{heroBanner}/toggle-status', [App\Http\Controllers\Admin\HeroBannerController::class, 'toggleStatus'])->name('hero-banners.toggle-status');
-    Route::resource('portfolios', App\Http\Controllers\Admin\PortfolioController::class)->names('portfolios');
-    Route::resource('testimonials', App\Http\Controllers\Admin\TestimonialController::class)->names('testimonials');
     Route::resource('faqs', App\Http\Controllers\Admin\FaqController::class)->names('faqs');
 
     // Transactions
