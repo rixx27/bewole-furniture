@@ -94,6 +94,78 @@
                     </div>
                 </div>
 
+                {{-- Product Review Section for Completed Orders --}}
+                @if ($order->review)
+                    <div class="rounded-3xl border border-wood-border/60 bg-white p-6 shadow-sm">
+                        <div class="flex items-center justify-between border-b border-wood-border/40 pb-3 mb-4">
+                            <h2 class="text-base font-bold text-wood-text flex items-center gap-2">
+                                <span class="text-amber-500">★</span> Ulasan Anda
+                            </h2>
+                            @if ($order->review->is_visible)
+                                <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-200">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Ditampilkan
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-700 border border-amber-200">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span> Menunggu Moderasi
+                                </span>
+                            @endif
+                        </div>
+
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-0.5">
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <svg class="h-4 w-4 {{ $i <= $order->review->rating ? 'text-amber-400 fill-amber-400' : 'text-gray-200 fill-gray-200' }}" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                        </svg>
+                                    @endfor
+                                </div>
+                                <span class="text-xs font-bold text-wood-text">{{ $order->review->rating_label }}</span>
+                            </div>
+
+                            @if ($order->review->comment)
+                                <p class="text-xs sm:text-sm text-wood-text/90 leading-relaxed bg-wood-light/20 p-3.5 rounded-2xl border border-wood-border/40">
+                                    {{ $order->review->comment }}
+                                </p>
+                            @endif
+
+                            @if ($order->review->images->isNotEmpty())
+                                <div class="flex flex-wrap gap-2 pt-1">
+                                    @foreach ($order->review->images as $img)
+                                        <a href="{{ asset('storage/' . $img->image) }}" target="_blank" class="h-16 w-16 overflow-hidden rounded-xl border border-wood-border/60">
+                                            <img src="{{ asset('storage/' . $img->image) }}" alt="Foto Ulasan" class="h-full w-full object-cover">
+                                        </a>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                @elseif ($order->status === 'completed' && $order->product)
+                    <div class="rounded-3xl border-2 border-dashed border-wood-primary/40 bg-white p-6 shadow-sm">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div class="flex items-start gap-3">
+                                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-wood-primary/10 text-wood-primary">
+                                    <span class="text-lg">★</span>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-bold text-wood-text">Beri Ulasan Produk</h3>
+                                    <p class="text-xs text-wood-muted mt-0.5">Pesanan Anda telah selesai! Bagikan pengalaman Anda untuk membantu pembeli lain.</p>
+                                </div>
+                            </div>
+                            <a
+                                href="{{ route('products.show', $order->product->slug) }}#ulasan"
+                                class="shrink-0 inline-flex items-center justify-center gap-2 rounded-2xl bg-wood-primary px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-wood-primary/20 hover:bg-wood-primary-dark transition-all"
+                            >
+                                <span>Tulis Ulasan</span>
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                @endif
+
                 {{-- Catatan Pesanan --}}
                 @if ($order->notes)
                     <div class="rounded-3xl border border-wood-border/60 bg-white p-6 shadow-sm">

@@ -25,11 +25,29 @@ class OrderService
     public function createOrder(array $data, array $cartItems = []): Order
     {
         return DB::transaction(function () use ($data, $cartItems) {
-            $data['order_code'] = $this->orderCodeGenerator->generate();
-            $data['status'] = OrderStatus::Pending->value;
-            $data['payment_status'] = PaymentStatus::Unpaid->value;
-
-            $order = Order::create($data);
+            $order = new Order();
+            $order->user_id = $data['user_id'] ?? Auth::id();
+            $order->product_id = $data['product_id'] ?? null;
+            $order->order_code = $this->orderCodeGenerator->generate();
+            $order->customer_name = $data['customer_name'] ?? '';
+            $order->customer_phone = $data['customer_phone'] ?? '';
+            $order->customer_email = $data['customer_email'] ?? null;
+            $order->shipping_address = $data['shipping_address'] ?? '';
+            $order->city = $data['city'] ?? '';
+            $order->postal_code = $data['postal_code'] ?? null;
+            $order->meubel_type = $data['meubel_type'] ?? null;
+            $order->packing_type = $data['packing_type'] ?? null;
+            $order->customization_details = $data['customization_details'] ?? null;
+            $order->customization_fee = $data['customization_fee'] ?? 0;
+            $order->packing_fee = $data['packing_fee'] ?? 0;
+            $order->quantity = (int) ($data['quantity'] ?? 1);
+            $order->total_price = $data['total_price'] ?? 0;
+            $order->notes = $data['notes'] ?? null;
+            $order->status = OrderStatus::Pending->value;
+            $order->payment_status = PaymentStatus::Unpaid->value;
+            $order->payment_method = $data['payment_method'] ?? 'manual_transfer';
+            $order->whatsapp_number = $data['whatsapp_number'] ?? ($data['customer_phone'] ?? null);
+            $order->save();
 
             if (!empty($cartItems)) {
                 foreach ($cartItems as $productId => $item) {
@@ -80,7 +98,8 @@ class OrderService
 
         return DB::transaction(function () use ($order, $newStatus, $notes) {
             $oldStatus = $order->status;
-            $order->update(['status' => $newStatus->value]);
+            $order->status = $newStatus->value;
+            $order->save();
 
             // Create status history
             $this->createStatusHistory($order, $newStatus, $notes, $oldStatus);
@@ -95,7 +114,8 @@ class OrderService
     public function updatePayment(Order $order, PaymentStatus $paymentStatus, ?string $notes = null): Order
     {
         return DB::transaction(function () use ($order, $paymentStatus, $notes) {
-            $order->update(['payment_status' => $paymentStatus->value]);
+            $order->payment_status = $paymentStatus->value;
+            $order->save();
 
             // Create status history for payment change
             $this->createStatusHistory(
@@ -214,7 +234,11 @@ class OrderService
         $completedOrders = Order::where('status', OrderStatus::Completed->value)->count();
         $totalProductsSold = Order::where('status', OrderStatus::Completed->value)->sum('quantity');
 
-        $monthlySales = Order::selectRaw('MONTH(created_at) as month, SUM(total_price) as total, COUNT(*) as count')
+        $monthExpr = DB::getDriverName() === 'sqlite'
+            ? "CAST(strftime('%m', created_at) AS INTEGER)"
+            : 'MONTH(created_at)';
+
+        $monthlySales = Order::selectRaw("{$monthExpr} as month, SUM(total_price) as total, COUNT(*) as count")
             ->whereYear('created_at', now()->year)
             ->where('status', OrderStatus::Completed->value)
             ->groupBy('month')

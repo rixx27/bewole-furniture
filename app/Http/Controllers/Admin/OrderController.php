@@ -63,9 +63,19 @@ class OrderController extends Controller
 
         $data = $request->validated();
         $data['user_id'] = $request->user()->id;
-        $data['total_price'] = $request->input('total_price');
 
-        $order = $this->orderService->createOrder($data);
+        $product = \App\Models\Product::findOrFail($data['product_id']);
+        $unitPrice = (int) ($product->discount_price ?? $product->price);
+        $quantity = (int) ($data['quantity'] ?? 1);
+        $data['total_price'] = $unitPrice * $quantity;
+        $data['customization_fee'] = 0;
+        $data['packing_fee'] = 0;
+
+        $order = $this->orderService->createOrder($data, [
+            $product->id => [
+                'quantity' => $quantity,
+            ],
+        ]);
 
         return redirect()
             ->route('admin.orders.show', $order)

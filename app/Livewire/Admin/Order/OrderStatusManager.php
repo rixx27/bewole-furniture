@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Order;
 use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Services\OrderService;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 use Livewire\Attributes\On;
 
@@ -80,6 +81,8 @@ class OrderStatusManager extends Component
         if (!$this->order || !$this->newStatus) {
             return;
         }
+
+        Gate::authorize('updateStatus', $this->order);
 
         try {
             $currentEnum = OrderStatus::tryFrom($this->order->status);

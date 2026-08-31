@@ -48,8 +48,18 @@ class ReviewTable extends Component
         $this->resetPage();
     }
 
+    protected array $allowedSortFields = [
+        'created_at',
+        'rating',
+        'is_visible',
+    ];
+
     public function sortBy(string $field): void
     {
+        if (!in_array($field, $this->allowedSortFields)) {
+            $field = 'created_at';
+        }
+
         if ($this->sortField === $field) {
             $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
         } else {
@@ -139,8 +149,10 @@ class ReviewTable extends Component
             $query->hidden();
         }
 
-        // Sort
-        $query->orderBy($this->sortField, $this->sortDirection);
+        // Sort with validation whitelist
+        $sortField = in_array($this->sortField, $this->allowedSortFields) ? $this->sortField : 'created_at';
+        $sortDirection = in_array($this->sortDirection, ['asc', 'desc']) ? $this->sortDirection : 'desc';
+        $query->orderBy($sortField, $sortDirection);
 
         $reviews = $query->paginate(10);
 

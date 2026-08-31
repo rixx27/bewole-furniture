@@ -6,6 +6,7 @@ use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\ShippingMethod;
 use App\Models\Order;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
@@ -42,6 +43,15 @@ class OrderTable extends Component
 
     protected $queryString = ['search', 'statusFilter', 'paymentFilter', 'shippingFilter', 'sortField', 'sortDirection'];
 
+    protected array $allowedSortFields = [
+        'created_at',
+        'order_code',
+        'customer_name',
+        'total_price',
+        'status',
+        'payment_status',
+    ];
+
     public function updatingSearch()
     {
         $this->resetPage();
@@ -49,6 +59,10 @@ class OrderTable extends Component
 
     public function sortBy(string $field): void
     {
+        if (!in_array($field, $this->allowedSortFields)) {
+            $field = 'created_at';
+        }
+
         if ($this->sortField === $field) {
             $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
         } else {
@@ -115,6 +129,8 @@ class OrderTable extends Component
         if ($this->selectedOrderId) {
             $order = Order::find($this->selectedOrderId);
             if ($order) {
+                Gate::authorize('delete', $order);
+                $order->statusHistories()->delete();
                 $order->delete();
                 $this->dispatch('orderUpdated');
                 $this->dispatch('notify', type: 'success', message: 'Pesanan berhasil dihapus.');
@@ -157,8 +173,10 @@ class OrderTable extends Component
             $query->where('shipping_method', $this->shippingFilter);
         }
 
-        // Sort
-        $query->orderBy($this->sortField, $this->sortDirection);
+        // Sort with validation whitelist
+        $sortField = in_array($this->sortField, $this->allowedSortFields) ? $this->sortField : 'created_at';
+        $sortDirection = in_array($this->sortDirection, ['asc', 'desc']) ? $this->sortDirection : 'desc';
+        $query->orderBy($sortField, $sortDirection);
 
         $orders = $query->paginate(10);
 

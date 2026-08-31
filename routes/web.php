@@ -50,7 +50,7 @@ Route::middleware(['auth', 'verified', 'maintenance'])->group(function () {
             return view('admin.dashboard.index');
         }
 
-        return redirect()->route('home');
+        return redirect()->route('orders.index');
     })->name('dashboard');
 
     // User order management (users can only see their own orders)

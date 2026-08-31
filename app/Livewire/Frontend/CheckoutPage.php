@@ -73,6 +73,7 @@ class CheckoutPage extends Component
         $this->loadProvinces();
 
         if (empty($this->cart)) {
+            session()->flash('info', 'Keranjang belanja Anda masih kosong. Silakan pilih produk terlebih dahulu.');
             redirect()->route('products.index');
             return;
         }

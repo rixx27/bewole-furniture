@@ -23,7 +23,7 @@ class UpdateWebsiteSettingRequest extends FormRequest
     {
         return [
             // Section 1: Identitas Website
-            'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,svg,webp', 'max:2048'],
+            'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'site_name' => ['nullable', 'string', 'max:255'],
             'site_tagline' => ['nullable', 'string', 'max:255'],
 
@@ -64,7 +64,7 @@ class UpdateWebsiteSettingRequest extends FormRequest
             'site_name.max' => 'Nama website maksimal 255 karakter.',
             'site_tagline.max' => 'Tagline maksimal 255 karakter.',
             'logo.image' => 'Logo harus berupa gambar.',
-            'logo.mimes' => 'Logo harus berformat: jpg, jpeg, png, svg, atau webp.',
+            'logo.mimes' => 'Logo harus berformat: jpg, jpeg, png, atau webp.',
             'logo.max' => 'Logo maksimal 2 MB.',
             'email.email' => 'Format email tidak valid.',
             'email.max' => 'Email maksimal 255 karakter.',
