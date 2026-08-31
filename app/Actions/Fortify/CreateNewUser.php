@@ -31,6 +31,7 @@ class CreateNewUser implements CreatesNewUsers
         ]);
 
         // Automatically assign the default 'user' role to every newly registered user
+        \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'user', 'guard_name' => 'web']);
         $user->assignRole('user');
 
         return $user;

@@ -7,8 +7,14 @@
             <p class="mt-1.5 text-sm text-[#2D2D2D]/55">{{ __('Masukkan alamat email Anda untuk menerima tautan reset kata sandi.') }}</p>
         </div>
 
-        {{-- Session Status --}}
+        {{-- Session Status & Error --}}
         <x-auth-session-status class="text-center" :status="session('status')" />
+
+        @if (session('error'))
+            <div class="rounded-xl border border-red-200 bg-red-50/90 px-4 py-3 text-center text-sm font-medium text-red-600 animate-fade-in">
+                {{ session('error') }}
+            </div>
+        @endif
 
         <form method="POST" action="{{ route('password.email') }}" class="flex flex-col gap-5">
             @csrf

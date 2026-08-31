@@ -7,9 +7,19 @@ test('guests are redirected to the login page', function () {
     $response->assertRedirect(route('login'));
 });
 
-test('authenticated users can visit the dashboard', function () {
+test('authenticated regular users are redirected from dashboard to home', function () {
     $user = User::factory()->create();
     $this->actingAs($user);
+
+    $response = $this->get(route('dashboard'));
+    $response->assertRedirect(route('home'));
+});
+
+test('authenticated admin users can visit the dashboard', function () {
+    \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+    $admin = User::factory()->create();
+    $admin->assignRole('admin');
+    $this->actingAs($admin);
 
     $response = $this->get(route('dashboard'));
     $response->assertOk();

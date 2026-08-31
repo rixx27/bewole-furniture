@@ -137,14 +137,14 @@ if (window.Alpine) {
 // ============================================================
 (function initRevealOnScroll() {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const revealSelector = '[data-reveal], [data-reveal-side], [data-reveal-blur]';
 
     if (prefersReducedMotion) {
-        document.querySelectorAll('[data-reveal]').forEach((el) => el.classList.add('is-revealed'));
-        document.querySelectorAll('[data-reveal-side]').forEach((el) => el.classList.add('is-revealed'));
+        document.querySelectorAll(revealSelector).forEach((el) => el.classList.add('is-revealed'));
         return;
     }
 
-    const revealElements = document.querySelectorAll('[data-reveal]');
+    const revealElements = document.querySelectorAll(revealSelector);
     if (revealElements.length === 0) return;
 
     if (!('IntersectionObserver' in window)) {

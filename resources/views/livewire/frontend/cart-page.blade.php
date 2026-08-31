@@ -101,7 +101,7 @@
                     <div class="mt-4 space-y-3 text-sm">
                         <div class="flex justify-between text-wood-muted">
                             <span>Total Item</span>
-                            <span class="font-medium text-wood-text">{{ count($cart) }} macam</span>
+                            <span class="font-medium text-wood-text">{{ count($cart) }} item</span>
                         </div>
                         <div class="flex justify-between text-wood-muted">
                             <span>Estimasi Subtotal</span>

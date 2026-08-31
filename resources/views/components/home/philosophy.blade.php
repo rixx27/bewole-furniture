@@ -25,6 +25,7 @@
         <div class="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
             {{-- LEFT : Text --}}
             <div
+                data-reveal
                 data-reveal-side="left"
                 class="order-1"
             >
@@ -71,6 +72,7 @@
 
             {{-- RIGHT : Company Photo --}}
             <div
+                data-reveal
                 data-reveal-side="right"
                 class="order-2"
             >

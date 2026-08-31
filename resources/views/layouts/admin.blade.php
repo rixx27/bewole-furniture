@@ -208,7 +208,7 @@
             {{-- Footer --}}
             <footer class="border-t border-border bg-card px-4 py-3 sm:px-6 shrink-0">
                 <div class="flex flex-col gap-1.5 text-center text-xs text-text-muted sm:flex-row sm:items-center sm:justify-between sm:text-left">
-                    <p class="leading-relaxed">&copy; {{ date('Y') }} {{ config('app.name', 'Bewole Furniture') }}. Hak Cipta Dilindungi.</p>
+                    <p class="leading-relaxed">&copy; {{ date('Y') }} {{ config('app.name', 'Bewole Jepara Furniture') }}. Hak Cipta Dilindungi.</p>
                     <p class="shrink-0 font-medium">Panel Admin v1.0</p>
                 </div>
             </footer>

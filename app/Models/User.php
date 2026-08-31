@@ -26,6 +26,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property bool $is_admin
  * @property string|null $phone
  * @property string|null $avatar
+ * @property string|null $google_id
  * @property string|null $two_factor_secret
  * @property string|null $two_factor_recovery_codes
  * @property Carbon|null $two_factor_confirmed_at
@@ -33,7 +34,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password', 'is_admin', 'phone', 'avatar'])]
+#[Fillable(['name', 'email', 'password', 'is_admin', 'phone', 'avatar', 'google_id'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements PasskeyUser
 {
@@ -87,7 +88,7 @@ class User extends Authenticatable implements PasskeyUser
      */
     public function isAdmin(): bool
     {
-        return $this->is_admin;
+        return $this->hasRole('admin');
     }
 }
 
