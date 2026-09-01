@@ -82,6 +82,20 @@ class ProductController extends Controller
         // Create product (final price auto-calculated in model boot)
         $product = Product::create($data);
 
+        // Handle materials options
+        if (isset($data['materials']) && is_array($data['materials'])) {
+            foreach ($data['materials'] as $mat) {
+                if (empty($mat['name'])) continue;
+                $cleanedPrice = str_replace(['.', ','], ['', '.'], $mat['price_per_meter'] ?? 0);
+                $product->materials()->create([
+                    'type' => $mat['type'],
+                    'name' => trim($mat['name']),
+                    'price_per_meter' => (float) $cleanedPrice,
+                    'is_active' => isset($mat['is_active']) ? (bool)$mat['is_active'] : true,
+                ]);
+            }
+        }
+
         // Upload gallery images (optional)
         if ($request->hasFile('gallery')) {
             foreach ($request->file('gallery') as $index => $image) {
@@ -104,7 +118,7 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        $product->load(['category', 'images']);
+        $product->load(['category', 'images', 'materials']);
         return view('admin.products.show', compact('product'));
     }
 
@@ -114,7 +128,7 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $categories = Category::orderBy('name')->get();
-        $product->load('images');
+        $product->load(['images', 'materials']);
         return view('admin.products.edit', compact('product', 'categories'));
     }
 
@@ -174,6 +188,38 @@ class ProductController extends Controller
 
         // Update product (final price auto-calculated in model boot)
         $product->update($data);
+
+        // Handle product material options
+        if (isset($data['materials']) && is_array($data['materials'])) {
+            $keptIds = [];
+            foreach ($data['materials'] as $mat) {
+                if (empty($mat['name'])) continue;
+                $cleanedPrice = str_replace(['.', ','], ['', '.'], $mat['price_per_meter'] ?? 0);
+                
+                if (!empty($mat['id'])) {
+                    $matModel = $product->materials()->find($mat['id']);
+                    if ($matModel) {
+                        $matModel->update([
+                            'type' => $mat['type'],
+                            'name' => trim($mat['name']),
+                            'price_per_meter' => (float) $cleanedPrice,
+                            'is_active' => isset($mat['is_active']) ? (bool)$mat['is_active'] : true,
+                        ]);
+                        $keptIds[] = $matModel->id;
+                        continue;
+                    }
+                }
+
+                $newMat = $product->materials()->create([
+                    'type' => $mat['type'],
+                    'name' => trim($mat['name']),
+                    'price_per_meter' => (float) $cleanedPrice,
+                    'is_active' => isset($mat['is_active']) ? (bool)$mat['is_active'] : true,
+                ]);
+                $keptIds[] = $newMat->id;
+            }
+            $product->materials()->whereNotIn('id', $keptIds)->delete();
+        }
 
         return redirect()
             ->route('admin.products.index')

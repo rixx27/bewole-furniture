@@ -12,27 +12,39 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->string('meubel_type', 50)->nullable()->after('postal_code');
-            $table->string('packing_type', 50)->nullable()->after('meubel_type');
-            $table->json('customization_details')->nullable()->after('packing_type');
-            $table->decimal('customization_fee', 12, 2)->default(0)->after('customization_details');
-            $table->decimal('packing_fee', 12, 2)->default(0)->after('customization_fee');
+            if (!Schema::hasColumn('orders', 'meubel_type')) {
+                $table->string('meubel_type', 50)->nullable()->after('postal_code');
+            }
+            if (!Schema::hasColumn('orders', 'packing_type')) {
+                $table->string('packing_type', 50)->nullable()->after('meubel_type');
+            }
+            if (!Schema::hasColumn('orders', 'customization_details')) {
+                $table->json('customization_details')->nullable()->after('packing_type');
+            }
+            if (!Schema::hasColumn('orders', 'customization_fee')) {
+                $table->decimal('customization_fee', 12, 2)->default(0)->after('customization_details');
+            }
+            if (!Schema::hasColumn('orders', 'packing_fee')) {
+                $table->decimal('packing_fee', 12, 2)->default(0)->after('customization_fee');
+            }
         });
 
-        Schema::create('order_items', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('order_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('product_id')->constrained()->cascadeOnDelete();
-            $table->unsignedInteger('quantity')->default(1);
-            $table->decimal('unit_price', 12, 2);
-            $table->string('meubel_type', 50)->nullable();
-            $table->string('customization_option', 255)->nullable();
-            $table->string('packing_type', 50)->nullable();
-            $table->decimal('customization_price', 12, 2)->default(0);
-            $table->decimal('packing_price', 12, 2)->default(0);
-            $table->decimal('total_price', 12, 2);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('order_items')) {
+            Schema::create('order_items', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('order_id')->constrained()->cascadeOnDelete();
+                $table->foreignId('product_id')->constrained()->cascadeOnDelete();
+                $table->unsignedInteger('quantity')->default(1);
+                $table->decimal('unit_price', 12, 2);
+                $table->string('meubel_type', 50)->nullable();
+                $table->string('customization_option', 255)->nullable();
+                $table->string('packing_type', 50)->nullable();
+                $table->decimal('customization_price', 12, 2)->default(0);
+                $table->decimal('packing_price', 12, 2)->default(0);
+                $table->decimal('total_price', 12, 2);
+                $table->timestamps();
+            });
+        }
     }
 
     /**
@@ -43,13 +55,19 @@ return new class extends Migration
         Schema::dropIfExists('order_items');
 
         Schema::table('orders', function (Blueprint $table) {
-            $table->dropColumn([
+            $columnsToDrop = array_filter([
                 'meubel_type',
                 'packing_type',
                 'customization_details',
                 'customization_fee',
                 'packing_fee',
-            ]);
+            ], function ($column) {
+                return Schema::hasColumn('orders', $column);
+            });
+
+            if (!empty($columnsToDrop)) {
+                $table->dropColumn(array_values($columnsToDrop));
+            }
         });
     }
 };

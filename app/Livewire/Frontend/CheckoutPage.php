@@ -117,6 +117,102 @@ class CheckoutPage extends Component
         }
     }
 
+    public function updatedPackingType($value): void
+    {
+        // Re-trigger calculation on packing type change
+    }
+
+    public function updatedCustomizationSelections(): void
+    {
+        // Re-trigger calculation on seat material selection change
+    }
+
+    /**
+     * Calculate material costs dynamically based on database prices & usage
+     */
+    public function calculateMaterialCosts(): array
+    {
+        $totalCustomFee = 0;
+        $totalPackingFee = 0;
+        $itemBreakdowns = [];
+
+        foreach ($this->cart as $productId => $item) {
+            $product = Product::active()->find($productId);
+            if (!$product) {
+                continue;
+            }
+
+            $qty = (int) ($item['quantity'] ?? 1);
+
+            // 1. Seat Material Cost
+            $seatName = null;
+            $seatPricePerMeter = 0;
+            $seatUsageTotal = 0;
+            $seatCost = 0;
+
+            if ($this->meubel_type === 'matang') {
+                $selectedSeat = $this->customization_selections[$productId] ?? null;
+                if (!empty($selectedSeat)) {
+                    $seatMaterials = $product->getAvailableSeatMaterials();
+                    $matchedSeat = $seatMaterials->firstWhere('name', $selectedSeat);
+                    if ($matchedSeat) {
+                        $seatName = $matchedSeat->name;
+                        $seatPricePerMeter = (float) $matchedSeat->price_per_meter;
+                        $seatUsagePerUnit = (float) ($product->seat_material_usage ?? 0.8);
+                        $seatUsageTotal = $seatUsagePerUnit * $qty;
+                        $seatCost = (int) round($seatUsageTotal * $seatPricePerMeter);
+                    }
+                }
+            }
+
+            // 2. Packing Material Cost
+            $packingName = null;
+            $packingPricePerMeter = 0;
+            $packingUsageTotal = 0;
+            $packingCost = 0;
+
+            if (!empty($this->packing_type)) {
+                $packingMaterials = $product->getAvailablePackingMaterials();
+                $matchedPacking = $packingMaterials->first(function ($pMat) {
+                    return strtolower($pMat->name) === strtolower($this->packing_type);
+                });
+
+                if (!$matchedPacking && $packingMaterials->isNotEmpty()) {
+                    $matchedPacking = $packingMaterials->first();
+                }
+
+                if ($matchedPacking) {
+                    $packingName = $matchedPacking->name;
+                    $packingPricePerMeter = (float) $matchedPacking->price_per_meter;
+                    $packingUsagePerUnit = (float) ($product->packing_material_usage ?? 1.2);
+                    $packingUsageTotal = $packingUsagePerUnit * $qty;
+                    $packingCost = (int) round($packingUsageTotal * $packingPricePerMeter);
+                }
+            }
+
+            $totalCustomFee += $seatCost;
+            $totalPackingFee += $packingCost;
+
+            $itemBreakdowns[$productId] = [
+                'product_name' => $product->name,
+                'seat_material_name' => $seatName,
+                'seat_price_per_meter' => $seatPricePerMeter,
+                'seat_usage_meter' => $seatUsageTotal,
+                'seat_material_cost' => $seatCost,
+                'packing_material_name' => $packingName,
+                'packing_price_per_meter' => $packingPricePerMeter,
+                'packing_usage_meter' => $packingUsageTotal,
+                'packing_material_cost' => $packingCost,
+            ];
+        }
+
+        return [
+            'customization_fee' => $totalCustomFee,
+            'packing_fee' => $totalPackingFee,
+            'item_breakdowns' => $itemBreakdowns,
+        ];
+    }
+
     public function placeOrder()
     {
         $this->validate();
@@ -192,8 +288,10 @@ class CheckoutPage extends Component
             return redirect()->route('products.index');
         }
 
-        $serverCustomFee = 0; // Default 0 if not configured
-        $serverPackingFee = 0; // Default 0 if not configured
+        $calc = $this->calculateMaterialCosts();
+        $serverCustomFee = $calc['customization_fee'];
+        $serverPackingFee = $calc['packing_fee'];
+        $itemBreakdowns = $calc['item_breakdowns'];
         $serverTotal = $serverSubtotal + $serverCustomFee + $serverPackingFee;
 
         $meubelText = $this->meubel_type === 'matang' ? 'Meubel Matang' : 'Meubel Mentah';
@@ -229,6 +327,7 @@ class CheckoutPage extends Component
             'customization_details' => $this->meubel_type === 'matang' ? $this->customization_selections : null,
             'customization_fee' => $serverCustomFee,
             'packing_fee' => $serverPackingFee,
+            'item_breakdowns' => $itemBreakdowns,
             'quantity' => $totalQuantity,
             'total_price' => $serverTotal,
             'notes' => $fullNotes,
@@ -287,6 +386,13 @@ class CheckoutPage extends Component
 
     public function render()
     {
-        return view('livewire.frontend.checkout-page');
+        $calc = $this->calculateMaterialCosts();
+        $this->customization_fee = $calc['customization_fee'];
+        $this->packing_fee = $calc['packing_fee'];
+
+        return view('livewire.frontend.checkout-page', [
+            'itemBreakdowns' => $calc['item_breakdowns'],
+            'totalPayable' => $this->subtotal + $this->customization_fee + $this->packing_fee,
+        ]);
     }
 }

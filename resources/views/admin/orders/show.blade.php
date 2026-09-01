@@ -74,6 +74,61 @@
                 </div>
             </div>
 
+            {{-- Rincian Item Pesanan & Customisasi Bahan --}}
+            <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+                <h3 class="mb-4 text-base font-semibold text-text-primary dark:text-white">Rincian Item & Snapshot Bahan</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-bg-secondary text-text-muted uppercase font-bold border-b border-border">
+                            <tr>
+                                <th class="px-4 py-3">Produk</th>
+                                <th class="px-4 py-3">Bahan Dudukan</th>
+                                <th class="px-4 py-3">Bahan Packing</th>
+                                <th class="px-4 py-3 text-right">Subtotal Item</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-border">
+                            @foreach ($order->items as $item)
+                                <tr>
+                                    <td class="px-4 py-3">
+                                        <p class="font-bold text-text-primary dark:text-white">{{ $item->product?->name ?? 'Produk' }}</p>
+                                        <p class="text-text-muted">Qty: {{ $item->quantity }} × Rp {{ number_format($item->unit_price, 0, ',', '.') }}</p>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        @if ($item->seat_material_name)
+                                            <p class="font-semibold text-amber-700 dark:text-amber-400">{{ $item->seat_material_name }}</p>
+                                            <p class="text-[11px] text-text-muted">{{ $item->seat_usage_meter }}m @ Rp {{ number_format($item->seat_price_per_meter, 0, ',', '.') }}/m</p>
+                                            <p class="font-bold text-text-primary dark:text-white">Biaya: Rp {{ number_format($item->seat_material_cost, 0, ',', '.') }}</p>
+                                        @else
+                                            <span class="text-text-muted italic">Tidak ada (Meubel Mentah)</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        @if ($item->packing_material_name)
+                                            <p class="font-semibold text-emerald-700 dark:text-emerald-400">{{ $item->packing_material_name }}</p>
+                                            <p class="text-[11px] text-text-muted">{{ $item->packing_usage_meter }}m @ Rp {{ number_format($item->packing_price_per_meter, 0, ',', '.') }}/m</p>
+                                            <p class="font-bold text-text-primary dark:text-white">Biaya: Rp {{ number_format($item->packing_material_cost, 0, ',', '.') }}</p>
+                                        @else
+                                            <span class="text-text-muted italic">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 text-right font-bold text-text-primary dark:text-white">
+                                        Rp {{ number_format($item->total_price, 0, ',', '.') }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                {{-- Summary Breakdown --}}
+                <div class="mt-4 pt-4 border-t border-border space-y-1.5 text-xs text-right">
+                    <p class="text-text-muted">Total Biaya Custom Dudukan: <span class="font-bold text-text-primary dark:text-white">Rp {{ number_format($order->customization_fee, 0, ',', '.') }}</span></p>
+                    <p class="text-text-muted">Total Biaya Packing: <span class="font-bold text-text-primary dark:text-white">Rp {{ number_format($order->packing_fee, 0, ',', '.') }}</span></p>
+                    <p class="text-sm font-bold text-text-primary dark:text-white pt-1">Grand Total: {{ $order->formatted_total_price }}</p>
+                </div>
+            </div>
+
             {{-- Timeline Status --}}
             <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
                 <h3 class="mb-4 text-base font-semibold text-text-primary dark:text-white">Riwayat Status</h3>

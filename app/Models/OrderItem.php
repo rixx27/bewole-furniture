@@ -18,6 +18,14 @@ class OrderItem extends Model
         'customization_price',
         'packing_price',
         'total_price',
+        'seat_material_name',
+        'seat_price_per_meter',
+        'seat_usage_meter',
+        'seat_material_cost',
+        'packing_material_name',
+        'packing_price_per_meter',
+        'packing_usage_meter',
+        'packing_material_cost',
     ];
 
     protected function casts(): array
@@ -28,6 +36,12 @@ class OrderItem extends Model
             'customization_price' => 'decimal:2',
             'packing_price' => 'decimal:2',
             'total_price' => 'decimal:2',
+            'seat_price_per_meter' => 'decimal:2',
+            'seat_usage_meter' => 'float',
+            'seat_material_cost' => 'decimal:2',
+            'packing_price_per_meter' => 'decimal:2',
+            'packing_usage_meter' => 'float',
+            'packing_material_cost' => 'decimal:2',
         ];
     }
 

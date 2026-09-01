@@ -64,17 +64,29 @@ class OrderService
                         ? $custDetails[$productId]
                         : null;
 
+                    $itemBreakdown = $data['item_breakdowns'][$productId] ?? [];
+                    $seatCost = $itemBreakdown['seat_material_cost'] ?? 0;
+                    $packingCost = $itemBreakdown['packing_material_cost'] ?? 0;
+
                     \App\Models\OrderItem::create([
                         'order_id' => $order->id,
                         'product_id' => $product->id,
                         'quantity' => $qty,
                         'unit_price' => $unitPrice,
                         'meubel_type' => $meubelType,
-                        'customization_option' => $custOpt,
+                        'customization_option' => $itemBreakdown['seat_material_name'] ?? $custOpt,
                         'packing_type' => $data['packing_type'] ?? null,
-                        'customization_price' => 0,
-                        'packing_price' => 0,
-                        'total_price' => $unitPrice * $qty,
+                        'seat_material_name' => $itemBreakdown['seat_material_name'] ?? null,
+                        'seat_price_per_meter' => $itemBreakdown['seat_price_per_meter'] ?? 0,
+                        'seat_usage_meter' => $itemBreakdown['seat_usage_meter'] ?? 0,
+                        'seat_material_cost' => $seatCost,
+                        'packing_material_name' => $itemBreakdown['packing_material_name'] ?? null,
+                        'packing_price_per_meter' => $itemBreakdown['packing_price_per_meter'] ?? 0,
+                        'packing_usage_meter' => $itemBreakdown['packing_usage_meter'] ?? 0,
+                        'packing_material_cost' => $packingCost,
+                        'customization_price' => $seatCost,
+                        'packing_price' => $packingCost,
+                        'total_price' => ($unitPrice * $qty) + $seatCost + $packingCost,
                     ]);
                 }
             }

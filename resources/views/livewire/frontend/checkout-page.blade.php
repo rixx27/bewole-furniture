@@ -269,8 +269,8 @@
                 </div>
 
                 {{-- Detail Customisasi Summary --}}
-                <div class="mt-4 rounded-2xl bg-wood-light/20 p-3.5 border border-wood-border/40 space-y-1.5 text-xs">
-                    <h4 class="font-bold text-wood-text text-[11px] uppercase tracking-wider border-b border-wood-border/30 pb-1 mb-2">Detail Customisasi</h4>
+                <div class="mt-4 rounded-2xl bg-wood-light/20 p-3.5 border border-wood-border/40 space-y-2 text-xs">
+                    <h4 class="font-bold text-wood-text text-[11px] uppercase tracking-wider border-b border-wood-border/30 pb-1 mb-2">Detail Customisasi & Packing</h4>
                     
                     <div class="flex justify-between text-wood-muted">
                         <span>Meubel:</span>
@@ -288,22 +288,25 @@
                     @if ($meubel_type === 'matang')
                         @foreach ($cart as $productId => $item)
                             @php
-                                $productModel = \App\Models\Product::active()->find($productId);
-                                $customization = $productModel?->getCustomizationOptions();
+                                $breakdown = $itemBreakdowns[$productId] ?? null;
                             @endphp
 
-                            @if ($customization)
-                                <div class="flex justify-between text-wood-muted pl-2">
-                                    <span>Dudukan:</span>
-                                    <span class="font-bold text-wood-text">
-                                        {{ $customization_selections[$productId] ?? '-' }}
-                                    </span>
+                            @if ($breakdown && !empty($breakdown['seat_material_name']))
+                                <div class="space-y-0.5 border-l-2 border-amber-600/40 pl-2.5 my-1">
+                                    <div class="flex justify-between font-semibold text-wood-text">
+                                        <span>Bahan Dudukan ({{ $item['name'] }}):</span>
+                                        <span>{{ $breakdown['seat_material_name'] }}</span>
+                                    </div>
+                                    <div class="flex justify-between text-[11px] text-wood-muted">
+                                        <span>Penggunaan: {{ $breakdown['seat_usage_meter'] }}m @ Rp {{ number_format($breakdown['seat_price_per_meter'], 0, ',', '.') }}/m</span>
+                                        <span class="font-bold text-wood-text">+ Rp {{ number_format($breakdown['seat_material_cost'], 0, ',', '.') }}</span>
+                                    </div>
                                 </div>
                             @endif
                         @endforeach
                     @endif
 
-                    <div class="flex justify-between text-wood-muted">
+                    <div class="flex justify-between text-wood-muted pt-1 border-t border-wood-border/20">
                         <span>Packing:</span>
                         <span class="font-bold text-wood-text">
                             @if($packing_type === 'kardus')
@@ -315,6 +318,23 @@
                             @endif
                         </span>
                     </div>
+
+                    @if (!empty($packing_type))
+                        @foreach ($cart as $productId => $item)
+                            @php
+                                $breakdown = $itemBreakdowns[$productId] ?? null;
+                            @endphp
+
+                            @if ($breakdown && !empty($breakdown['packing_material_name']))
+                                <div class="space-y-0.5 border-l-2 border-emerald-600/40 pl-2.5 my-1">
+                                    <div class="flex justify-between text-[11px] text-wood-muted">
+                                        <span>{{ $breakdown['product_name'] ?? $item['name'] }} ({{ $breakdown['packing_usage_meter'] }}m @ Rp {{ number_format($breakdown['packing_price_per_meter'], 0, ',', '.') }}/m):</span>
+                                        <span class="font-bold text-wood-text">+ Rp {{ number_format($breakdown['packing_material_cost'], 0, ',', '.') }}</span>
+                                    </div>
+                                </div>
+                            @endif
+                        @endforeach
+                    @endif
                 </div>
 
                 {{-- Calculation --}}

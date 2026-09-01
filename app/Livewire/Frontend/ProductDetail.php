@@ -74,7 +74,12 @@ class ProductDetail extends Component
 
         $this->dispatch('cart-updated', count: $count);
 
-        return redirect()->route('cart.index');
+        if (!Auth::check()) {
+            session(['url.intended' => route('checkout.index')]);
+            return redirect()->route('login');
+        }
+
+        return redirect()->route('checkout.index');
     }
 
     public function removePhoto(int $index): void

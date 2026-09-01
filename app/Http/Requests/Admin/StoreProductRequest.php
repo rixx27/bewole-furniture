@@ -16,6 +16,18 @@ class StoreProductRequest extends FormRequest
     }
 
     /**
+     * Prepare data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('price')) {
+            $cleanedPrice = str_replace('.', '', $this->input('price'));
+            $cleanedPrice = str_replace(',', '.', $cleanedPrice);
+            $this->merge(['price' => $cleanedPrice]);
+        }
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
@@ -33,6 +45,8 @@ class StoreProductRequest extends FormRequest
             'stock' => ['required', 'integer', 'min:0'],
             'sku' => ['nullable', 'string', 'max:255', 'unique:products,sku'],
             'material' => ['required', 'string', 'max:255'],
+            'seat_material_usage' => ['nullable', 'numeric', 'min:0'],
+            'packing_material_usage' => ['nullable', 'numeric', 'min:0'],
             'dimensions' => ['nullable', 'string', 'max:255'],
             'weight' => ['nullable', 'string', 'max:255'],
             'status' => ['required', Rule::in(['active', 'pre_order', 'sold_out'])],
@@ -40,6 +54,11 @@ class StoreProductRequest extends FormRequest
             'thumbnail' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'gallery' => ['nullable', 'array'],
             'gallery.*' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'materials' => ['nullable', 'array'],
+            'materials.*.type' => ['required', 'in:seat_material,packing_material'],
+            'materials.*.name' => ['required', 'string', 'max:255'],
+            'materials.*.price_per_meter' => ['required', 'numeric', 'min:0'],
+            'materials.*.is_active' => ['nullable', 'boolean'],
         ];
     }
 

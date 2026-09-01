@@ -26,6 +26,8 @@ class Product extends Model
         'discount_price',
         'sku',
         'material',
+        'seat_material_usage',
+        'packing_material_usage',
         'dimensions',
         'weight',
         'thumbnail',
@@ -48,6 +50,8 @@ class Product extends Model
             'discount_percentage' => 'integer',
             'is_featured' => 'boolean',
             'stock' => 'integer',
+            'seat_material_usage' => 'float',
+            'packing_material_usage' => 'float',
         ];
     }
 
@@ -277,27 +281,113 @@ class Product extends Model
     }
 
     /**
+     * Get all custom material options for this product.
+     */
+    public function materials(): HasMany
+    {
+        return $this->hasMany(ProductMaterial::class);
+    }
+
+    /**
+     * Get seat materials for this product.
+     */
+    public function seatMaterials(): HasMany
+    {
+        return $this->hasMany(ProductMaterial::class)->where('type', 'seat_material');
+    }
+
+    /**
+     * Get packing materials for this product.
+     */
+    public function packingMaterials(): HasMany
+    {
+        return $this->hasMany(ProductMaterial::class)->where('type', 'packing_material');
+    }
+
+    /**
+     * Get active seat materials (product-specific or global defaults).
+     */
+    public function getAvailableSeatMaterials()
+    {
+        $specific = $this->seatMaterials()->where('is_active', true)->get();
+        if ($specific->isNotEmpty()) {
+            return $specific;
+        }
+
+        $global = ProductMaterial::whereNull('product_id')->seatMaterial()->active()->get();
+        if ($global->isNotEmpty()) {
+            return $global;
+        }
+
+        return collect([
+            new ProductMaterial(['name' => 'Kulit', 'price_per_meter' => 25000, 'is_active' => true]),
+            new ProductMaterial(['name' => 'Benang', 'price_per_meter' => 5000, 'is_active' => true]),
+            new ProductMaterial(['name' => 'Anyaman', 'price_per_meter' => 15000, 'is_active' => true]),
+        ]);
+    }
+
+    /**
+     * Get active packing materials (product-specific or global defaults).
+     */
+    public function getAvailablePackingMaterials()
+    {
+        $specific = $this->packingMaterials()->where('is_active', true)->get();
+        if ($specific->isNotEmpty()) {
+            return $specific;
+        }
+
+        $global = ProductMaterial::whereNull('product_id')->packingMaterial()->active()->get();
+        if ($global->isNotEmpty()) {
+            return $global;
+        }
+
+        return collect([
+            new ProductMaterial(['name' => 'Kardus', 'price_per_meter' => 10000, 'is_active' => true]),
+            new ProductMaterial(['name' => 'Plastik', 'price_per_meter' => 5000, 'is_active' => true]),
+        ]);
+    }
+
+    /**
      * Get customization options definition for this product.
      */
     public function getCustomizationOptions(): ?array
     {
-        $name = strtolower($this->name);
         $categoryName = strtolower($this->category?->name ?? '');
+        $categorySlug = strtolower($this->category?->slug ?? '');
+        $productName = strtolower($this->name ?? '');
 
-        if (str_contains($name, 'kursi') || str_contains($categoryName, 'kursi') || str_contains($name, 'chair')) {
-            return [
-                'type' => 'dudukan',
-                'label' => 'Bahan Dudukan',
-                'required' => true,
-                'options' => [
-                    ['value' => 'Kulit', 'label' => 'Kulit'],
-                    ['value' => 'Benang', 'label' => 'Benang'],
-                    ['value' => 'Anyaman', 'label' => 'Anyaman'],
-                ]
-            ];
+        $isSeatingProduct = str_contains($categoryName, 'kursi')
+            || str_contains($categoryName, 'sofa')
+            || str_contains($categoryName, 'stool')
+            || str_contains($categoryName, 'bench')
+            || str_contains($categoryName, 'dudukan')
+            || str_contains($categorySlug, 'kursi')
+            || str_contains($categorySlug, 'sofa')
+            || str_contains($productName, 'kursi')
+            || str_contains($productName, 'sofa')
+            || str_contains($productName, 'stool')
+            || str_contains($productName, 'bench')
+            || $this->seatMaterials()->where('is_active', true)->exists();
+
+        if (!$isSeatingProduct) {
+            return null;
         }
 
-        return null;
+        $seatMaterials = $this->getAvailableSeatMaterials();
+        if ($seatMaterials->isEmpty()) {
+            return null;
+        }
+
+        return [
+            'type' => 'dudukan',
+            'label' => 'Bahan Dudukan',
+            'required' => true,
+            'options' => $seatMaterials->map(fn($m) => [
+                'value' => $m->name,
+                'label' => $m->name,
+                'price_per_meter' => (float) $m->price_per_meter,
+            ])->values()->toArray()
+        ];
     }
 }
 
