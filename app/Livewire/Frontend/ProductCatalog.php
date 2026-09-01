@@ -52,12 +52,35 @@ class ProductCatalog extends Component
 
     public function addToCart(int $productId): void
     {
+        $product = Product::active()->with('category')->find($productId);
+        if (!$product) {
+            $this->dispatch('notify', message: 'Produk tidak ditemukan atau tidak tersedia.', type: 'error');
+            return;
+        }
+
         $cartService = app(CartService::class);
         $cartService->add($productId, 1);
         $count = $cartService->getItemCount();
+        $formattedPrice = $product->formatted_discount_price ?: $product->formatted_price;
 
-        $this->dispatch('cart-updated', count: $count);
-        $this->dispatch('notify', message: 'Produk berhasil ditambahkan ke keranjang!');
+        $this->dispatch('cart-updated', count: $count, product: [
+            'id' => $product->id,
+            'name' => $product->name,
+            'price' => (int) ($product->discount_price ?? $product->price),
+            'formatted_price' => $formattedPrice,
+            'thumbnail' => $product->thumbnail ? asset('storage/' . $product->thumbnail) : null,
+            'quantity' => 1,
+        ]);
+
+        $this->dispatch('notify', 
+            message: "{$product->name} berhasil ditambahkan ke keranjang!",
+            type: 'success',
+            product_name: $product->name,
+            product_thumbnail: $product->thumbnail ? asset('storage/' . $product->thumbnail) : null,
+            product_price: $formattedPrice,
+            product_quantity: 1,
+            cart_count: $count
+        );
     }
 
     public function render()

@@ -61,9 +61,26 @@ class ProductDetail extends Component
         $cartService = app(CartService::class);
         $cartService->add($this->product->id, $this->quantity);
         $count = $cartService->getItemCount();
+        $formattedPrice = $this->product->formatted_discount_price ?: $this->product->formatted_price;
 
-        $this->dispatch('cart-updated', count: $count);
-        $this->dispatch('notify', message: "{$this->product->name} ({$this->quantity}x) berhasil ditambahkan ke keranjang!");
+        $this->dispatch('cart-updated', count: $count, product: [
+            'id' => $this->product->id,
+            'name' => $this->product->name,
+            'price' => (int) ($this->product->discount_price ?? $this->product->price),
+            'formatted_price' => $formattedPrice,
+            'thumbnail' => $this->product->thumbnail ? asset('storage/' . $this->product->thumbnail) : null,
+            'quantity' => $this->quantity,
+        ]);
+
+        $this->dispatch('notify', 
+            message: "{$this->product->name} ({$this->quantity}x) berhasil ditambahkan ke keranjang!",
+            type: 'success',
+            product_name: $this->product->name,
+            product_thumbnail: $this->product->thumbnail ? asset('storage/' . $this->product->thumbnail) : null,
+            product_price: $formattedPrice,
+            product_quantity: $this->quantity,
+            cart_count: $count
+        );
     }
 
     public function buyNow()
@@ -71,8 +88,16 @@ class ProductDetail extends Component
         $cartService = app(CartService::class);
         $cartService->add($this->product->id, $this->quantity);
         $count = $cartService->getItemCount();
+        $formattedPrice = $this->product->formatted_discount_price ?: $this->product->formatted_price;
 
-        $this->dispatch('cart-updated', count: $count);
+        $this->dispatch('cart-updated', count: $count, product: [
+            'id' => $this->product->id,
+            'name' => $this->product->name,
+            'price' => (int) ($this->product->discount_price ?? $this->product->price),
+            'formatted_price' => $formattedPrice,
+            'thumbnail' => $this->product->thumbnail ? asset('storage/' . $this->product->thumbnail) : null,
+            'quantity' => $this->quantity,
+        ]);
 
         if (!Auth::check()) {
             session(['url.intended' => route('checkout.index')]);

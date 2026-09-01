@@ -1,23 +1,4 @@
 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    {{-- Notification Toast --}}
-    <div
-        x-data="{ show: false, message: '' }"
-        x-on:notify.window="show = true; message = $event.detail.message; setTimeout(() => show = false, 3500)"
-        x-show="show"
-        x-cloak
-        x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="opacity-0 -translate-y-2"
-        x-transition:enter-end="opacity-100 translate-y-0"
-        x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-start="opacity-100 translate-y-0"
-        x-transition:leave-end="opacity-0 -translate-y-2"
-        class="fixed bottom-6 right-6 z-50 rounded-2xl bg-wood-primary px-5 py-3.5 text-xs font-semibold text-white shadow-2xl shadow-wood-primary/40 flex items-center gap-3"
-    >
-        <svg class="h-5 w-5 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-        </svg>
-        <span x-text="message"></span>
-    </div>
 
     <div class="grid gap-12 lg:grid-cols-12">
         {{-- Gallery (6 cols) --}}
@@ -175,20 +156,32 @@
                     <button
                         type="button"
                         wire:click="addToCart"
-                        class="rounded-2xl border-2 border-wood-primary bg-white py-3.5 text-center text-xs font-bold uppercase tracking-wider text-wood-primary transition-all hover:bg-wood-primary/5 hover:shadow-md flex items-center justify-center gap-2"
+                        wire:loading.attr="disabled"
+                        wire:target="addToCart"
+                        class="rounded-2xl border-2 border-wood-primary bg-white py-3.5 text-center text-xs font-bold uppercase tracking-wider text-wood-primary transition-all hover:bg-wood-primary/5 hover:shadow-md flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                     >
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg wire:loading.remove wire:target="addToCart" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                         </svg>
-                        Tambah ke Keranjang
+                        <svg wire:loading wire:target="addToCart" class="h-4 w-4 animate-spin text-wood-primary" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                        </svg>
+                        <span>Tambah ke Keranjang</span>
                     </button>
 
                     <button
                         type="button"
                         wire:click="buyNow"
-                        class="rounded-2xl bg-wood-primary py-3.5 text-center text-xs font-bold uppercase tracking-wider text-white shadow-lg shadow-wood-primary/25 transition-all hover:bg-wood-primary-dark hover:-translate-y-0.5"
+                        wire:loading.attr="disabled"
+                        wire:target="buyNow"
+                        class="rounded-2xl bg-wood-primary py-3.5 text-center text-xs font-bold uppercase tracking-wider text-white shadow-lg shadow-wood-primary/25 transition-all hover:bg-wood-primary-dark hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
-                        Beli Sekarang
+                        <svg wire:loading wire:target="buyNow" class="h-4 w-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                        </svg>
+                        <span>Beli Sekarang</span>
                     </button>
                 </div>
             </div>

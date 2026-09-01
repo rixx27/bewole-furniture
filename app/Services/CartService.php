@@ -57,6 +57,7 @@ class CartService
         }
 
         Session::put($this->sessionKey, $cart);
+        Session::save();
 
         return $cart;
     }
@@ -91,6 +92,7 @@ class CartService
                 $cart[$targetKey]['quantity'] = $quantity;
             }
             Session::put($this->sessionKey, $cart);
+            Session::save();
         }
 
         return $cart;
@@ -118,6 +120,7 @@ class CartService
         if ($targetKey !== null) {
             unset($cart[$targetKey]);
             Session::put($this->sessionKey, $cart);
+            Session::save();
         }
 
         return $cart;
@@ -129,6 +132,7 @@ class CartService
     public function clear(): void
     {
         Session::forget($this->sessionKey);
+        Session::save();
     }
 
     /**

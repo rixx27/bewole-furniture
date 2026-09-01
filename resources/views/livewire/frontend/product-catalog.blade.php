@@ -51,25 +51,7 @@
         </div>
     </div>
 
-    {{-- Notification Banner (alpine/livewire event) --}}
-    <div
-        x-data="{ show: false, message: '' }"
-        x-on:notify.window="show = true; message = $event.detail.message; setTimeout(() => show = false, 3000)"
-        x-show="show"
-        x-cloak
-        x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="opacity-0 -translate-y-2"
-        x-transition:enter-end="opacity-100 translate-y-0"
-        x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-start="opacity-100 translate-y-0"
-        x-transition:leave-end="opacity-0 -translate-y-2"
-        class="fixed bottom-6 right-6 z-50 rounded-2xl bg-wood-primary px-5 py-3.5 text-xs font-semibold text-white shadow-2xl shadow-wood-primary/40 flex items-center gap-3"
-    >
-        <svg class="h-5 w-5 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-        </svg>
-        <span x-text="message"></span>
-    </div>
+
 
     {{-- Product Grid --}}
     @if ($products->count() > 0)
@@ -77,7 +59,7 @@
             @foreach ($products as $product)
                 <div class="group relative flex flex-col overflow-hidden rounded-3xl border border-wood-border/50 bg-white shadow-md shadow-wood-primary/5 transition-all duration-500 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-wood-primary/15">
                     {{-- Image Container --}}
-                    <a href="{{ route('products.show', $product) }}" class="relative block aspect-[4/3] overflow-hidden bg-wood-light/40">
+                    <a href="{{ route('products.show', $product->slug) }}" class="relative block aspect-[4/3] overflow-hidden bg-wood-light/40">
                         @if ($product->thumbnail)
                             <img
                                 src="{{ asset('storage/' . $product->thumbnail) }}"
@@ -112,7 +94,7 @@
 
                     {{-- Content --}}
                     <div class="flex flex-1 flex-col p-5">
-                        <a href="{{ route('products.show', $product) }}" class="group-hover:text-wood-primary transition-colors">
+                        <a href="{{ route('products.show', $product->slug) }}" class="group-hover:text-wood-primary transition-colors">
                             <h3 class="text-base font-semibold text-wood-text line-clamp-1">{{ $product->name }}</h3>
                         </a>
 
@@ -140,15 +122,23 @@
                                 <button
                                     type="button"
                                     wire:click="addToCart({{ $product->id }})"
+                                    wire:loading.attr="disabled"
+                                    wire:target="addToCart({{ $product->id }})"
                                     title="Tambah ke Keranjang"
-                                    class="flex h-9 w-9 items-center justify-center rounded-full bg-wood-primary/10 text-wood-primary transition-all duration-300 hover:bg-wood-primary hover:text-white"
+                                    class="group/btn relative flex h-9 w-9 items-center justify-center rounded-full bg-wood-primary/10 text-wood-primary transition-all duration-300 hover:bg-wood-primary hover:text-white disabled:opacity-60 disabled:cursor-not-allowed"
                                 >
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    {{-- Normal Cart Icon --}}
+                                    <svg wire:loading.remove wire:target="addToCart({{ $product->id }})" class="h-4 w-4 transition-transform group-hover/btn:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                    </svg>
+                                    {{-- Loading Spinner --}}
+                                    <svg wire:loading wire:target="addToCart({{ $product->id }})" class="h-4 w-4 animate-spin text-wood-primary group-hover/btn:text-white" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                                     </svg>
                                 </button>
                                 <a
-                                    href="{{ route('products.show', $product) }}"
+                                    href="{{ route('products.show', $product->slug) }}"
                                     class="flex h-9 w-9 items-center justify-center rounded-full border border-wood-border/60 text-wood-muted transition-all duration-300 hover:border-wood-primary hover:text-wood-primary"
                                     title="Lihat Detail"
                                 >

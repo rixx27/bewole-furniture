@@ -20,7 +20,7 @@
          Produk unggulan dari database (status aktif / featured).
          Section ber-id "products" agar anchor Hero & menu berfungsi.
          ============================================================ --}}
-    <x-home.featured-products />
+    <livewire:frontend.featured-products />
 
     {{-- ============================================================
          PHASE 4 : OUR PHILOSOPHY

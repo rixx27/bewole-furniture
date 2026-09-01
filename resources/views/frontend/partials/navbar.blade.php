@@ -226,20 +226,30 @@
                 @click="mobileOpen = false"
                 class="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium text-wood-text hover:bg-wood-primary/5 transition-colors duration-200"
                 x-data="{ 
-                    count: {{ (int) app(\App\Services\CartService::class)->getItemCount() }}
+                    count: {{ (int) app(\App\Services\CartService::class)->getItemCount() }},
+                    bump: false,
+                    updateCount(val) {
+                        this.count = Number(val);
+                        this.bump = true;
+                        setTimeout(() => this.bump = false, 600);
+                    }
                 }"
                 x-on:cart-updated.window="
+                    let newCount = null;
                     if ($event.detail && typeof $event.detail.count !== 'undefined') {
-                        count = Number($event.detail.count);
+                        newCount = $event.detail.count;
                     } else if ($event.detail && Array.isArray($event.detail) && $event.detail[0]?.count !== undefined) {
-                        count = Number($event.detail[0].count);
+                        newCount = $event.detail[0].count;
                     } else if (typeof $event.detail === 'number') {
-                        count = Number($event.detail);
+                        newCount = $event.detail;
+                    }
+                    if (newCount !== null) {
+                        updateCount(newCount);
                     }
                 "
             >
                 <div class="flex items-center gap-2.5">
-                    <svg class="h-4 w-4 text-wood-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="h-4 w-4 transition-colors" :class="{ 'text-amber-500': bump, 'text-wood-muted': !bump }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
                     <span>Keranjang Belanja</span>
@@ -248,7 +258,8 @@
                     x-show="count > 0"
                     x-cloak
                     x-text="count > 99 ? '99+' : count"
-                    class="flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 text-[10px] font-bold leading-none text-white shadow-sm"
+                    :class="{ 'scale-125 bg-amber-400 ring-4 ring-amber-400/30': bump }"
+                    class="flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 text-[10px] font-bold leading-none text-white shadow-sm transition-all duration-300"
                 >
                     {{ app(\App\Services\CartService::class)->getItemCount() > 0 ? app(\App\Services\CartService::class)->getItemCount() : '' }}
                 </span>

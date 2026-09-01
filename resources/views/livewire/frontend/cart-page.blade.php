@@ -39,6 +39,7 @@
                                             type="button"
                                             wire:click="updateQuantity({{ (int) $item['product_id'] }}, {{ (int) $item['quantity'] - 1 }})"
                                             wire:loading.attr="disabled"
+                                            wire:target="updateQuantity({{ (int) $item['product_id'] }}, {{ (int) $item['quantity'] - 1 }})"
                                             class="flex h-7 w-7 items-center justify-center rounded-full text-wood-text hover:bg-white hover:text-wood-primary transition-all disabled:opacity-50"
                                             aria-label="Kurangi jumlah"
                                         >
@@ -49,6 +50,7 @@
                                             type="button"
                                             wire:click="updateQuantity({{ (int) $item['product_id'] }}, {{ (int) $item['quantity'] + 1 }})"
                                             wire:loading.attr="disabled"
+                                            wire:target="updateQuantity({{ (int) $item['product_id'] }}, {{ (int) $item['quantity'] + 1 }})"
                                             class="flex h-7 w-7 items-center justify-center rounded-full text-wood-text hover:bg-white hover:text-wood-primary transition-all disabled:opacity-50"
                                             aria-label="Tambah jumlah"
                                         >
@@ -69,6 +71,7 @@
                                         type="button"
                                         wire:click="removeItem({{ (int) $item['product_id'] }})"
                                         wire:loading.attr="disabled"
+                                        wire:target="removeItem({{ (int) $item['product_id'] }})"
                                         class="text-wood-muted hover:text-rose-600 transition-colors p-1 disabled:opacity-50"
                                         title="Hapus Produk"
                                         aria-label="Hapus produk"

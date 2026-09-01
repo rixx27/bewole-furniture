@@ -4,6 +4,7 @@ namespace App\Livewire\Frontend;
 
 use App\Services\CartService;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class CartPage extends Component
@@ -16,6 +17,7 @@ class CartPage extends Component
         $this->loadCart();
     }
 
+    #[On('cart-updated')]
     public function loadCart(): void
     {
         $cartService = app(CartService::class);
@@ -61,6 +63,7 @@ class CartPage extends Component
 
     public function render()
     {
+        $this->loadCart();
         return view('livewire.frontend.cart-page');
     }
 }
