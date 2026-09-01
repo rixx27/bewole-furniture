@@ -147,6 +147,19 @@ class Order extends Model
     }
 
     /**
+     * Get the payment method label attribute.
+     */
+    public function getPaymentMethodLabelAttribute(): string
+    {
+        return match ($this->payment_method) {
+            'manual_transfer', 'transfer' => 'Transfer Bank Manual',
+            'cash', 'cod' => 'Tunai / COD',
+            'qris' => 'QRIS',
+            default => $this->payment_method ? ucwords(str_replace('_', ' ', $this->payment_method)) : '-',
+        };
+    }
+
+    /**
      * Get the shipping method label attribute.
      */
     public function getShippingMethodLabelAttribute(): string

@@ -117,23 +117,11 @@ class Product extends Model
     }
 
     /**
-     * Auto-adjust status based on stock quantity.
-     *
-     * Rules:
-     * - If stock is 0 and status is NOT 'sold_out', change to 'pre_order'
-     * - If stock > 0 and status is 'pre_order', change to 'active'
-     * - 'sold_out' status is NEVER changed automatically
+     * Auto-adjust status (defaults to active / Tersedia).
      */
     public function autoAdjustStatus(): void
     {
-        // Never auto-change if status is sold_out
-        if ($this->status === 'sold_out') {
-            return;
-        }
-
-        if ($this->stock <= 0) {
-            $this->status = 'pre_order';
-        } elseif ($this->stock > 0 && $this->status === 'pre_order') {
+        if (empty($this->status)) {
             $this->status = 'active';
         }
     }
@@ -236,10 +224,8 @@ class Product extends Model
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {
-            'active' => 'Aktif',
-            'pre_order' => 'Pre Order',
             'sold_out' => 'Habis Terjual',
-            default => ucfirst($this->status),
+            default => 'Tersedia',
         };
     }
 
@@ -249,10 +235,8 @@ class Product extends Model
     public function getStatusColorAttribute(): string
     {
         return match ($this->status) {
-            'active' => 'emerald',
-            'pre_order' => 'amber',
             'sold_out' => 'gray',
-            default => 'gray',
+            default => 'emerald',
         };
     }
 

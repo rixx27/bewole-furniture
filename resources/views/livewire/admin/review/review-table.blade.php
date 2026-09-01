@@ -6,7 +6,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-xs font-medium uppercase tracking-wider text-text-muted">Total Ulasan</p>
-                    <p class="mt-1.5 text-2xl font-bold text-text-primary dark:text-white">{{ number_format($totalReviews) }}</p>
+                    <p class="mt-1.5 text-2xl font-bold text-text-primary dark:text-black">{{ number_format($totalReviews) }}</p>
                 </div>
                 <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -22,7 +22,7 @@
                 <div>
                     <p class="text-xs font-medium uppercase tracking-wider text-text-muted">Rata-rata Rating</p>
                     <div class="mt-1.5 flex items-center gap-2">
-                        <p class="text-2xl font-bold text-text-primary dark:text-white">{{ number_format($averageRating, 1) }}</p>
+                        <p class="text-2xl font-bold text-text-primary dark:text-black">{{ number_format($averageRating, 1) }}</p>
                         <div class="flex items-center">
                             @for ($i = 1; $i <= 5; $i++)
                                 @if ($i <= round($averageRating))

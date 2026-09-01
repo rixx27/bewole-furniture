@@ -211,7 +211,7 @@
                     </div>
                     <div class="flex justify-between">
                         <span class="text-text-muted">Metode Bayar</span>
-                        <span class="font-medium text-text-primary dark:text-white">{{ $order->payment_method ?? '-' }}</span>
+                        <span class="font-medium text-text-primary dark:text-white">{{ $order->payment_method_label }}</span>
                     </div>
                 </div>
             </div>

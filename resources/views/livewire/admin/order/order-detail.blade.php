@@ -229,7 +229,7 @@
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="text-gray-600 font-medium">Metode Pembayaran</span>
-                                        <span class="font-bold text-gray-900">{{ $order->payment_method ?? '-' }}</span>
+                                        <span class="font-bold text-gray-900">{{ $order->payment_method_label }}</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="text-gray-600 font-medium">Metode Pengiriman</span>

@@ -25,6 +25,17 @@ class StoreProductRequest extends FormRequest
             $cleanedPrice = str_replace(',', '.', $cleanedPrice);
             $this->merge(['price' => $cleanedPrice]);
         }
+
+        if ($this->has('materials') && is_array($this->input('materials'))) {
+            $materials = $this->input('materials');
+            foreach ($materials as $key => $mat) {
+                if (isset($mat['price_per_meter'])) {
+                    $cleanedMatPrice = str_replace(['.', ','], ['', '.'], $mat['price_per_meter']);
+                    $materials[$key]['price_per_meter'] = $cleanedMatPrice;
+                }
+            }
+            $this->merge(['materials' => $materials]);
+        }
     }
 
     /**

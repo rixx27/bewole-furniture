@@ -85,12 +85,10 @@
                         <label for="status" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
                             Status <span class="text-red-500">*</span>
                         </label>
-                            <select id="status"
+                        <select id="status"
                                 name="status"
                                 class="w-full rounded-lg border {{ $errors->has('status') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary outline-hidden ring-0 transition-colors">
-                            <option value="active" {{ old('status', $product->status) == 'active' ? 'selected' : '' }}>Aktif</option>
-                            <option value="pre_order" {{ old('status', $product->status) == 'pre_order' ? 'selected' : '' }}>Pre Order</option>
-                            <option value="sold_out" {{ old('status', $product->status) == 'sold_out' ? 'selected' : '' }}>Habis Terjual</option>
+                            <option value="active" selected>Tersedia</option>
                         </select>
                         @error('status')
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>

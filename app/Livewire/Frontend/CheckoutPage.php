@@ -137,7 +137,7 @@ class CheckoutPage extends Component
         $itemBreakdowns = [];
 
         foreach ($this->cart as $productId => $item) {
-            $product = Product::active()->find($productId);
+            $product = Product::whereIn('status', ['active', 'pre_order'])->find($productId);
             if (!$product) {
                 continue;
             }
@@ -223,7 +223,7 @@ class CheckoutPage extends Component
         } elseif ($this->meubel_type === 'matang') {
             $hasError = false;
             foreach ($this->cart as $productId => $item) {
-                $product = Product::active()->find($productId);
+                $product = Product::whereIn('status', ['active', 'pre_order'])->find($productId);
                 if (!$product) {
                     continue;
                 }
@@ -259,7 +259,7 @@ class CheckoutPage extends Component
         $customizationTexts = [];
 
         foreach ($currentCart as $productId => $item) {
-            $product = Product::active()->find($productId);
+            $product = Product::whereIn('status', ['active', 'pre_order'])->find($productId);
             if (!$product) {
                 continue;
             }

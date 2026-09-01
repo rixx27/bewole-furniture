@@ -78,18 +78,11 @@
                         </option>
                     @endforeach
                 </select>
-                <select name="status"
-                        class="rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary">
-                    <option value="">Semua Status</option>
-                    <option value="active" {{ $statusFilter == 'active' ? 'selected' : '' }}>Aktif</option>
-                    <option value="pre_order" {{ $statusFilter == 'pre_order' ? 'selected' : '' }}>Pre Order</option>
-                    <option value="sold_out" {{ $statusFilter == 'sold_out' ? 'selected' : '' }}>Habis Terjual</option>
-                </select>
                 <button type="submit"
                         class="rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-text-secondary hover:bg-bg-secondary transition-colors">
                     Cari
                 </button>
-                @if ($search || $categoryFilter || $statusFilter)
+                @if ($search || $categoryFilter)
                     <a href="{{ route('admin.products.index') }}"
                        class="rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-text-secondary hover:bg-bg-secondary transition-colors">
                         Reset

@@ -61,11 +61,7 @@
                 <span class="rounded-full bg-wood-primary/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-wood-primary">
                     {{ $product->category?->name ?? 'Bewole Furniture' }}
                 </span>
-                <span class="rounded-full px-3.5 py-1 text-xs font-semibold
-                    {{ $product->status === 'active' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : '' }}
-                    {{ $product->status === 'pre_order' ? 'bg-amber-50 text-amber-700 border border-amber-200' : '' }}
-                    {{ $product->status === 'sold_out' ? 'bg-rose-50 text-rose-700 border border-rose-200' : '' }}
-                ">
+                <span class="rounded-full px-3.5 py-1 text-xs font-semibold {{ $product->status === 'sold_out' ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200' }}">
                     {{ $product->status_label }}
                 </span>
             </div>
