@@ -17,13 +17,20 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
             $table->foreignId('order_id')->constrained()->cascadeOnDelete();
             $table->unsignedTinyInteger('rating');
-            $table->text('review')->nullable();
+            $table->text('comment')->nullable();
             $table->boolean('is_verified')->default(true);
-            $table->boolean('is_active')->default(true);
+            $table->boolean('is_visible')->default(true);
             $table->timestamps();
 
             // Ensure one review per user per product per order
             $table->unique(['user_id', 'product_id', 'order_id']);
+        });
+
+        Schema::create('product_review_images', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('product_review_id')->constrained()->cascadeOnDelete();
+            $table->string('image');
+            $table->timestamps();
         });
     }
 
@@ -32,7 +39,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('product_review_images');
         Schema::dropIfExists('product_reviews');
     }
 };
-

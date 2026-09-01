@@ -27,6 +27,15 @@ return new class extends Migration
             $table->string('status', 20)->default('inactive');
             $table->timestamps();
         });
+
+        Schema::create('faqs', function (Blueprint $table) {
+            $table->id();
+            $table->string('question', 255);
+            $table->longText('answer');
+            $table->integer('sort_order')->default(0);
+            $table->boolean('is_active')->default(true);
+            $table->timestamps();
+        });
     }
 
     /**
@@ -34,6 +43,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('faqs');
         Schema::dropIfExists('hero_banners');
     }
 };

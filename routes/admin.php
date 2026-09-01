@@ -10,7 +10,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
     // Master Data
     Route::get('categories', App\Livewire\Admin\Category\CategoryManager::class)->name('categories.index');
     Route::resource('products', App\Http\Controllers\Admin\ProductController::class)->names('products');
-    Route::resource('product-images', App\Http\Controllers\Admin\ProductImageController::class)->names('product-images');
+    Route::resource('product-images', App\Http\Controllers\Admin\ProductImageController::class)->only(['index'])->names('product-images');
 
     // Content
     Route::resource('hero-banners', App\Http\Controllers\Admin\HeroBannerController::class)->names('hero-banners');
@@ -33,7 +33,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
     });
 
     // Website
-    Route::resource('settings', App\Http\Controllers\Admin\SettingController::class)->names('settings');
+    Route::resource('settings', App\Http\Controllers\Admin\SettingController::class)->only(['index'])->names('settings');
     Route::get('company-profile', [App\Http\Controllers\Admin\CompanyProfileController::class, 'index'])->name('company-profile.index');
 });
 
