@@ -24,10 +24,10 @@ class CheckoutPage extends Component
     public string $postal_code = '';
     public string $notes = '';
 
-    // Meubel & Packing selections
+    // Meubel selection
     public string $meubel_type = ''; // 'mentah' or 'matang'
-    public string $packing_type = ''; // 'kardus' or 'plastik'
-    public array $customization_selections = []; // [product_id => selection]
+    public ?string $packing_type = null;
+    public ?array $customization_selections = [];
     public int $customization_fee = 0;
     public int $packing_fee = 0;
 
@@ -44,7 +44,6 @@ class CheckoutPage extends Component
         'postal_code' => 'nullable|string|max:20',
         'notes' => 'nullable|string|max:1000',
         'meubel_type' => 'required|in:mentah,matang',
-        'packing_type' => 'required|in:kardus,plastik',
     ];
 
     protected array $messages = [
@@ -55,8 +54,6 @@ class CheckoutPage extends Component
         'shipping_address.required' => 'Alamat Lengkap wajib diisi.',
         'meubel_type.required' => 'Jenis Meubel wajib dipilih.',
         'meubel_type.in' => 'Pilihan Jenis Meubel tidak valid.',
-        'packing_type.required' => 'Bahan Packing wajib dipilih.',
-        'packing_type.in' => 'Pilihan Bahan Packing tidak valid.',
     ];
 
     public function mount(): void
@@ -86,10 +83,7 @@ class CheckoutPage extends Component
 
     public function updatedMeubelType($value): void
     {
-        if ($value === 'mentah') {
-            $this->customization_selections = [];
-            $this->resetErrorBag('customization_selections');
-        }
+        // Re-trigger calculation on meubel type change
     }
 
     public function loadProvinces(): void
@@ -117,16 +111,6 @@ class CheckoutPage extends Component
         }
     }
 
-    public function updatedPackingType($value): void
-    {
-        // Re-trigger calculation on packing type change
-    }
-
-    public function updatedCustomizationSelections(): void
-    {
-        // Re-trigger calculation on seat material selection change
-    }
-
     /**
      * Calculate material costs dynamically based on unit mentah/matang prices
      */
@@ -143,7 +127,7 @@ class CheckoutPage extends Component
 
             $qty = (int) ($item['quantity'] ?? 1);
 
-            // 1. Seat / Finishing Customization Cost (Harga Unit Matang vs Mentah)
+            // Meubel Matang Customization Cost (Difference between price_matang and base price)
             $seatName = null;
             $seatCost = 0;
             $seatUnitPrice = 0;
@@ -154,15 +138,7 @@ class CheckoutPage extends Component
                 $diff = max(0, $matangPrice - $basePrice);
                 $seatUnitPrice = $diff;
                 $seatCost = $diff * $qty;
-
-                $selectedSeat = $this->customization_selections[$productId] ?? null;
-                $seatName = $selectedSeat ?: ($diff > 0 ? 'Meubel Matang' : null);
-            }
-
-            // 2. Packing preference (Biaya packing termasuk dalam pengiriman & ongkir = Rp 0)
-            $packingName = null;
-            if (!empty($this->packing_type)) {
-                $packingName = $this->packing_type === 'kardus' ? 'Kardus' : 'Plastik';
+                $seatName = $diff > 0 ? 'Meubel Matang' : null;
             }
 
             $totalCustomFee += $seatCost;
@@ -173,9 +149,9 @@ class CheckoutPage extends Component
                 'seat_price_per_meter' => $seatUnitPrice,
                 'seat_usage_meter' => 1,
                 'seat_material_cost' => $seatCost,
-                'packing_material_name' => $packingName,
+                'packing_material_name' => null,
                 'packing_price_per_meter' => 0,
-                'packing_usage_meter' => 1,
+                'packing_usage_meter' => 0,
                 'packing_material_cost' => 0,
             ];
         }
@@ -191,32 +167,6 @@ class CheckoutPage extends Component
     {
         $this->validate();
 
-        // Custom validation for Meubel Matang customization per product
-        if ($this->meubel_type === 'mentah') {
-            $this->customization_selections = [];
-        } elseif ($this->meubel_type === 'matang') {
-            $hasError = false;
-            foreach ($this->cart as $productId => $item) {
-                $product = Product::whereIn('status', ['active', 'pre_order'])->find($productId);
-                if (!$product) {
-                    continue;
-                }
-
-                $options = $product->getCustomizationOptions();
-                if ($options && !empty($options['required'])) {
-                    $selection = $this->customization_selections[$productId] ?? null;
-                    if (empty($selection)) {
-                        $this->addError("customization_selections.{$productId}", "Pilihan {$options['label']} untuk {$product->name} wajib dipilih.");
-                        $hasError = true;
-                    }
-                }
-            }
-
-            if ($hasError) {
-                return;
-            }
-        }
-
         $cartService = app(CartService::class);
         $currentCart = $this->cart;
 
@@ -230,7 +180,6 @@ class CheckoutPage extends Component
         $totalQuantity = 0;
         $firstProductId = null;
         $itemSummaries = [];
-        $customizationTexts = [];
 
         foreach ($currentCart as $productId => $item) {
             $product = Product::whereIn('status', ['active', 'pre_order'])->find($productId);
@@ -248,11 +197,6 @@ class CheckoutPage extends Component
             $totalQuantity += $qty;
 
             $itemSummaries[] = "- {$product->name} (Qty: {$qty}) - Rp " . number_format($price * $qty, 0, ',', '.');
-
-            if ($this->meubel_type === 'matang' && isset($this->customization_selections[$productId])) {
-                $custVal = $this->customization_selections[$productId];
-                $customizationTexts[] = "Bahan Dudukan ({$product->name}): {$custVal}";
-            }
         }
 
         if ($serverSubtotal <= 0 || !$firstProductId) {
@@ -267,16 +211,11 @@ class CheckoutPage extends Component
         $serverTotal = $serverSubtotal + $serverCustomFee;
 
         $meubelText = $this->meubel_type === 'matang' ? 'Meubel Matang' : 'Meubel Mentah';
-        $packingText = $this->packing_type === 'kardus' ? 'Kardus' : 'Plastik';
 
         // Format full notes for internal log
         $itemsText = implode("\n", $itemSummaries);
-        $fullNotes = "Detail Customisasi & Packing:\n"
-            . "Jenis Meubel: {$meubelText}\n";
-        if ($this->meubel_type === 'matang' && !empty($customizationTexts)) {
-            $fullNotes .= implode("\n", $customizationTexts) . "\n";
-        }
-        $fullNotes .= "Bahan Packing: {$packingText}\n\n"
+        $fullNotes = "Detail Pilihan Meubel:\n"
+            . "Jenis Meubel: {$meubelText}\n\n"
             . "Item Pesanan:\n" . $itemsText;
 
         if (!empty($this->notes)) {
@@ -295,8 +234,8 @@ class CheckoutPage extends Component
             'city' => $this->city,
             'postal_code' => $this->postal_code,
             'meubel_type' => $this->meubel_type,
-            'packing_type' => $this->packing_type,
-            'customization_details' => $this->meubel_type === 'matang' ? $this->customization_selections : null,
+            'packing_type' => null,
+            'customization_details' => null,
             'customization_fee' => $serverCustomFee,
             'packing_fee' => 0,
             'item_breakdowns' => $itemBreakdowns,
@@ -331,15 +270,6 @@ class CheckoutPage extends Component
         }
 
         $waMessage .= "\nJenis Meubel:\n{$meubelText}\n\n";
-
-        if ($this->meubel_type === 'matang' && !empty($customizationTexts)) {
-            foreach ($customizationTexts as $cText) {
-                $waMessage .= "{$cText}\n";
-            }
-            $waMessage .= "\n";
-        }
-
-        $waMessage .= "Bahan Packing:\n{$packingText}\n\n";
         $waMessage .= "Alamat Pengiriman:\n{$this->shipping_address}, {$this->city}, Provinsi {$this->province}\n\n";
 
         if (!empty($this->notes)) {
@@ -348,7 +278,7 @@ class CheckoutPage extends Component
 
         $waMessage .= "Subtotal:\nRp " . number_format($serverSubtotal, 0, ',', '.') . "\n\n";
         if ($serverCustomFee > 0) {
-            $waMessage .= "Biaya Customisasi:\nRp " . number_format($serverCustomFee, 0, ',', '.') . "\n\n";
+            $waMessage .= "Tambahan Meubel Matang:\nRp " . number_format($serverCustomFee, 0, ',', '.') . "\n\n";
         }
         $waMessage .= "Total:\nRp " . number_format($serverTotal, 0, ',', '.');
 

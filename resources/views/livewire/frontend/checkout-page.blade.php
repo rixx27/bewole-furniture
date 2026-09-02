@@ -109,9 +109,9 @@
                 </div>
             </div>
 
-            {{-- 3. Pilihan Meubel & Packing --}}
+            {{-- 3. Pilihan Meubel --}}
             <div class="rounded-3xl border border-wood-border/60 bg-white p-6 shadow-sm space-y-6">
-                <h2 class="text-lg font-bold text-wood-text border-b border-wood-border/40 pb-3">3. Pilihan Meubel & Packing</h2>
+                <h2 class="text-lg font-bold text-wood-text border-b border-wood-border/40 pb-3">3. Pilihan Meubel</h2>
 
                 {{-- Jenis Meubel --}}
                 <div>
@@ -151,88 +151,6 @@
                     </div>
                     @error('meubel_type') <span class="mt-1.5 block text-xs text-rose-500">{{ $message }}</span> @enderror
                 </div>
-
-                {{-- Detail Meubel Matang (Conditional Customization Form per Product) --}}
-                @if ($meubel_type === 'matang')
-                    <div class="border-t border-wood-border/30 pt-5 space-y-5 transition-all duration-300">
-                        @foreach ($cart as $productId => $item)
-                            @php
-                                $productModel = \App\Models\Product::active()->find($productId);
-                                $customization = $productModel?->getCustomizationOptions();
-                            @endphp
-
-                            @if ($customization)
-                                <div class="rounded-2xl border border-wood-border/40 bg-wood-light/10 p-4 space-y-3">
-                                    <div class="flex items-center justify-between">
-                                        <h3 class="text-xs font-bold text-wood-text uppercase tracking-wider">
-                                            Pilihan {{ $customization['label'] }} ({{ $item['name'] }})
-                                        </h3>
-                                        <span class="text-[10px] font-medium text-wood-muted">Qty: {{ $item['quantity'] }}</span>
-                                    </div>
-
-                                    <label class="block text-xs font-semibold text-wood-muted">
-                                        {{ $customization['label'] }} <span class="text-rose-500">*</span>
-                                    </label>
-
-                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                        @foreach ($customization['options'] as $opt)
-                                            @php
-                                                $isSelected = isset($customization_selections[$productId]) && $customization_selections[$productId] === $opt['value'];
-                                            @endphp
-                                            <label class="relative flex items-center cursor-pointer rounded-xl border p-3 transition-all focus-within:ring-2 focus-within:ring-wood-primary/20 {{ $isSelected ? 'border-wood-primary bg-wood-primary/10 font-semibold' : 'border-wood-border/60 bg-white hover:border-wood-primary/40' }}">
-                                                <input
-                                                    type="radio"
-                                                    name="customization_{{ $productId }}"
-                                                    value="{{ $opt['value'] }}"
-                                                    wire:model.live="customization_selections.{{ $productId }}"
-                                                    class="h-3.5 w-3.5 text-wood-primary focus:ring-wood-primary border-wood-border"
-                                                >
-                                                <span class="ml-2.5 text-xs text-wood-text">{{ $opt['label'] }}</span>
-                                            </label>
-                                        @endforeach
-                                    </div>
-                                    @error("customization_selections.{$productId}")
-                                        <span class="mt-1 block text-xs text-rose-500">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            @endif
-                        @endforeach
-                    </div>
-                @endif
-
-                {{-- Bahan Packing --}}
-                <div class="border-t border-wood-border/30 pt-5">
-                    <h3 class="text-sm font-bold text-wood-text mb-0.5">Bahan Packing</h3>
-                    <p class="text-xs text-wood-muted mb-3">Pilihan pengemasan produk (biaya packing sudah termasuk dalam pengiriman & ongkir).</p>
-                    <label class="block text-xs font-semibold text-wood-muted mb-3">Bahan Packing <span class="text-rose-500">*</span></label>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {{-- Kardus --}}
-                        <label class="relative flex items-center cursor-pointer rounded-2xl border p-4 transition-all focus-within:ring-2 focus-within:ring-wood-primary/20 {{ $packing_type === 'kardus' ? 'border-wood-primary bg-wood-primary/5 shadow-sm' : 'border-wood-border/60 bg-white hover:border-wood-primary/40' }}">
-                            <input
-                                type="radio"
-                                name="packing_type"
-                                value="kardus"
-                                wire:model.live="packing_type"
-                                class="h-4 w-4 text-wood-primary focus:ring-wood-primary border-wood-border"
-                            >
-                            <span class="ml-3 text-xs font-bold text-wood-text">Kardus</span>
-                        </label>
-
-                        {{-- Plastik --}}
-                        <label class="relative flex items-center cursor-pointer rounded-2xl border p-4 transition-all focus-within:ring-2 focus-within:ring-wood-primary/20 {{ $packing_type === 'plastik' ? 'border-wood-primary bg-wood-primary/5 shadow-sm' : 'border-wood-border/60 bg-white hover:border-wood-primary/40' }}">
-                            <input
-                                type="radio"
-                                name="packing_type"
-                                value="plastik"
-                                wire:model.live="packing_type"
-                                class="h-4 w-4 text-wood-primary focus:ring-wood-primary border-wood-border"
-                            >
-                            <span class="ml-3 text-xs font-bold text-wood-text">Plastik</span>
-                        </label>
-                    </div>
-                    @error('packing_type') <span class="mt-1.5 block text-xs text-rose-500">{{ $message }}</span> @enderror
-                </div>
             </div>
         </div>
 
@@ -271,7 +189,7 @@
 
                 {{-- Detail Customisasi Summary --}}
                 <div class="mt-4 rounded-2xl bg-wood-light/20 p-3.5 border border-wood-border/40 space-y-2 text-xs">
-                    <h4 class="font-bold text-wood-text text-[11px] uppercase tracking-wider border-b border-wood-border/30 pb-1 mb-2">Detail Customisasi & Packing</h4>
+                    <h4 class="font-bold text-wood-text text-[11px] uppercase tracking-wider border-b border-wood-border/30 pb-1 mb-2">Detail Pilihan Meubel</h4>
                     
                     <div class="flex justify-between text-wood-muted">
                         <span>Meubel:</span>
@@ -292,47 +210,15 @@
                                 $breakdown = $itemBreakdowns[$productId] ?? null;
                             @endphp
 
-                            @if ($breakdown && !empty($breakdown['seat_material_name']))
+                            @if ($breakdown && $breakdown['seat_material_cost'] > 0)
                                 <div class="space-y-0.5 border-l-2 border-amber-600/40 pl-2.5 my-1">
                                     <div class="flex justify-between font-semibold text-wood-text">
-                                        <span>Custom Meubel Matang ({{ $item['name'] }}):</span>
-                                        <span>{{ $breakdown['seat_material_name'] }}</span>
+                                        <span>{{ $item['name'] }}:</span>
+                                        <span>Meubel Matang</span>
                                     </div>
-                                    @if ($breakdown['seat_material_cost'] > 0)
-                                        <div class="flex justify-between text-[11px] text-wood-muted">
-                                            <span>Biaya Finishing & Jok:</span>
-                                            <span class="font-bold text-wood-text">+ Rp {{ number_format($breakdown['seat_material_cost'], 0, ',', '.') }}</span>
-                                        </div>
-                                    @endif
-                                </div>
-                            @endif
-                        @endforeach
-                    @endif
-
-                    <div class="flex justify-between text-wood-muted pt-1 border-t border-wood-border/20">
-                        <span>Packing:</span>
-                        <span class="font-bold text-wood-text">
-                            @if($packing_type === 'kardus')
-                                Kardus
-                            @elseif($packing_type === 'plastik')
-                                Plastik
-                            @else
-                                <span class="font-normal italic text-wood-muted/70">Belum dipilih</span>
-                            @endif
-                        </span>
-                    </div>
-
-                    @if (!empty($packing_type))
-                        @foreach ($cart as $productId => $item)
-                            @php
-                                $breakdown = $itemBreakdowns[$productId] ?? null;
-                            @endphp
-
-                            @if ($breakdown && !empty($breakdown['packing_material_name']) && $breakdown['packing_material_cost'] > 0)
-                                <div class="space-y-0.5 border-l-2 border-emerald-600/40 pl-2.5 my-1">
                                     <div class="flex justify-between text-[11px] text-wood-muted">
-                                        <span>{{ $breakdown['product_name'] ?? $item['name'] }} (Packing {{ $breakdown['packing_material_name'] }}):</span>
-                                        <span class="font-bold text-wood-text">+ Rp {{ number_format($breakdown['packing_material_cost'], 0, ',', '.') }}</span>
+                                        <span>Tambahan Matang:</span>
+                                        <span class="font-bold text-wood-text">+ Rp {{ number_format($breakdown['seat_material_cost'], 0, ',', '.') }}</span>
                                     </div>
                                 </div>
                             @endif
@@ -348,15 +234,15 @@
                     </div>
                     @if ($customization_fee > 0)
                         <div class="flex justify-between text-wood-muted">
-                            <span>Biaya Customisasi</span>
+                            <span>Tambahan Meubel Matang</span>
                             <span class="font-bold text-wood-text">
                                 Rp {{ number_format($customization_fee, 0, ',', '.') }}
                             </span>
                         </div>
                     @endif
                     <div class="flex justify-between text-wood-muted">
-                        <span>Biaya Packing & Pengiriman</span>
-                        <span class="font-semibold text-emerald-600">Termasuk Ongkir (via WhatsApp)</span>
+                        <span>Biaya Pengiriman</span>
+                        <span class="font-semibold text-emerald-600">Dikonfirmasi via WhatsApp</span>
                     </div>
                 </div>
 
@@ -368,7 +254,7 @@
                         </span>
                     </div>
                     <p class="mt-1.5 text-[11px] leading-tight text-wood-muted">
-                        * Total pembayaran di atas <span class="font-semibold text-rose-500">belum termasuk ongkos kirim</span>. Biaya pengiriman dan packing akan dikonfirmasi lebih lanjut via WhatsApp.
+                        * Total pembayaran di atas <span class="font-semibold text-rose-500">belum termasuk ongkos kirim</span>. Biaya pengiriman akan dikonfirmasi lebih lanjut via WhatsApp.
                     </p>
                 </div>
 

@@ -43,7 +43,7 @@ class CheckoutCustomizationTest extends TestCase
             'slug' => 'kursi-tamu-minimalis',
             'price' => 1760000,
             'price_matang' => 1780000,
-            'packing_fee' => 12000,
+            'packing_fee' => 0,
             'status' => 'active',
             'stock' => 10,
         ]);
@@ -54,16 +54,16 @@ class CheckoutCustomizationTest extends TestCase
             'slug' => 'meja-makan-jati',
             'price' => 3500000,
             'price_matang' => 3600000,
-            'packing_fee' => 15000,
+            'packing_fee' => 0,
             'status' => 'active',
             'stock' => 5,
         ]);
     }
 
     /**
-     * TEST 1: Meubel Mentah success without custom fee & seating choice hidden.
+     * TEST 1: Meubel Mentah checkout success.
      */
-    public function test_1_meubel_mentah_checkout_success(): void
+    public function test_meubel_mentah_checkout_success(): void
     {
         $cartService = app(CartService::class);
         $cartService->add($this->productKursi->id, 5);
@@ -71,7 +71,6 @@ class CheckoutCustomizationTest extends TestCase
         Livewire::actingAs($this->user)
             ->test(\App\Livewire\Frontend\CheckoutPage::class)
             ->set('meubel_type', 'mentah')
-            ->set('packing_type', 'kardus')
             ->set('customer_name', 'Budi Santoso')
             ->set('customer_phone', '08123456789')
             ->set('province', 'Jawa Tengah')
@@ -84,16 +83,15 @@ class CheckoutCustomizationTest extends TestCase
         $this->assertDatabaseHas('orders', [
             'product_id' => $this->productKursi->id,
             'quantity' => 5,
-            'total_price' => 8800000, // 5 x 1.760.000 (biaya packing termasuk ongkir)
+            'total_price' => 8800000, // 5 x 1.760.000
             'meubel_type' => 'mentah',
-            'packing_type' => 'kardus',
         ]);
     }
 
     /**
-     * TEST 2: Meubel Matang with seating option Kulit and Kardus packing.
+     * TEST 2: Meubel Matang checkout success with matang difference added.
      */
-    public function test_2_meubel_matang_kulit_kardus_success(): void
+    public function test_meubel_matang_checkout_success(): void
     {
         $cartService = app(CartService::class);
         $cartService->add($this->productKursi->id, 5);
@@ -101,8 +99,6 @@ class CheckoutCustomizationTest extends TestCase
         Livewire::actingAs($this->user)
             ->test(\App\Livewire\Frontend\CheckoutPage::class)
             ->set('meubel_type', 'matang')
-            ->set("customization_selections.{$this->productKursi->id}", 'Kulit')
-            ->set('packing_type', 'kardus')
             ->set('customer_name', 'Budi Santoso')
             ->set('customer_phone', '08123456789')
             ->set('province', 'Jawa Tengah')
@@ -114,78 +110,29 @@ class CheckoutCustomizationTest extends TestCase
 
         $order = Order::latest()->first();
         $this->assertEquals('matang', $order->meubel_type);
-        $this->assertEquals('kardus', $order->packing_type);
-        $this->assertEquals([(string)$this->productKursi->id => 'Kulit'], $order->customization_details);
+        // Base: 5 x 1.760.000 = 8.800.000
+        // Matang diff: 5 x (1.780.000 - 1.760.000) = 100.000
+        // Total: 8.900.000 (5 x 1.780.000)
+        $this->assertEquals(8900000, $order->total_price);
+        $this->assertEquals(100000, $order->customization_fee);
 
         $this->assertDatabaseHas('order_items', [
             'order_id' => $order->id,
             'product_id' => $this->productKursi->id,
             'meubel_type' => 'matang',
-            'customization_option' => 'Kulit',
-            'packing_type' => 'kardus',
         ]);
     }
 
     /**
-     * TEST 3: Meubel Matang with seating option Benang and Plastik packing.
+     * TEST 3: Missing meubel_type fails validation.
      */
-    public function test_3_meubel_matang_benang_plastik_success(): void
-    {
-        $cartService = app(CartService::class);
-        $cartService->add($this->productKursi->id, 5);
-
-        Livewire::actingAs($this->user)
-            ->test(\App\Livewire\Frontend\CheckoutPage::class)
-            ->set('meubel_type', 'matang')
-            ->set("customization_selections.{$this->productKursi->id}", 'Benang')
-            ->set('packing_type', 'plastik')
-            ->set('customer_name', 'Budi Santoso')
-            ->set('customer_phone', '08123456789')
-            ->set('province', 'Jawa Tengah')
-            ->set('city', 'Jepara')
-            ->set('shipping_address', 'Jl. Pemuda No 10')
-            ->call('placeOrder')
-            ->assertHasNoErrors()
-            ->assertRedirect();
-
-        $order = Order::latest()->first();
-        $this->assertEquals('matang', $order->meubel_type);
-        $this->assertEquals('plastik', $order->packing_type);
-        $this->assertEquals([(string)$this->productKursi->id => 'Benang'], $order->customization_details);
-    }
-
-    /**
-     * TEST 4: Meubel Matang requires seating option for Kursi.
-     */
-    public function test_4_meubel_matang_without_seating_option_fails(): void
-    {
-        $cartService = app(CartService::class);
-        $cartService->add($this->productKursi->id, 2);
-
-        Livewire::actingAs($this->user)
-            ->test(\App\Livewire\Frontend\CheckoutPage::class)
-            ->set('meubel_type', 'matang')
-            ->set('packing_type', 'kardus')
-            ->set('customer_name', 'Budi Santoso')
-            ->set('customer_phone', '08123456789')
-            ->set('province', 'Jawa Tengah')
-            ->set('city', 'Jepara')
-            ->set('shipping_address', 'Jl. Pemuda No 10')
-            ->call('placeOrder')
-            ->assertHasErrors(["customization_selections.{$this->productKursi->id}"]);
-    }
-
-    /**
-     * TEST 5: Missing meubel_type fails validation.
-     */
-    public function test_5_missing_meubel_type_fails(): void
+    public function test_missing_meubel_type_fails(): void
     {
         $cartService = app(CartService::class);
         $cartService->add($this->productKursi->id, 1);
 
         Livewire::actingAs($this->user)
             ->test(\App\Livewire\Frontend\CheckoutPage::class)
-            ->set('packing_type', 'kardus')
             ->set('customer_name', 'Budi Santoso')
             ->set('customer_phone', '08123456789')
             ->set('province', 'Jawa Tengah')
@@ -196,55 +143,17 @@ class CheckoutCustomizationTest extends TestCase
     }
 
     /**
-     * TEST 6: Missing packing_type fails validation.
+     * TEST 4: Multiple products in cart with Meubel Matang.
      */
-    public function test_6_missing_packing_type_fails(): void
+    public function test_multiple_products_cart_matang_checkout(): void
     {
         $cartService = app(CartService::class);
-        $cartService->add($this->productKursi->id, 1);
-
-        Livewire::actingAs($this->user)
-            ->test(\App\Livewire\Frontend\CheckoutPage::class)
-            ->set('meubel_type', 'mentah')
-            ->set('customer_name', 'Budi Santoso')
-            ->set('customer_phone', '08123456789')
-            ->set('province', 'Jawa Tengah')
-            ->set('city', 'Jepara')
-            ->set('shipping_address', 'Jl. Pemuda No 10')
-            ->call('placeOrder')
-            ->assertHasErrors(['packing_type']);
-    }
-
-    /**
-     * TEST 7: Switching from Matang (with selection) back to Mentah resets selection.
-     */
-    public function test_7_switching_to_mentah_resets_customization(): void
-    {
-        $cartService = app(CartService::class);
-        $cartService->add($this->productKursi->id, 1);
+        $cartService->add($this->productKursi->id, 2); // 2 x 1.760.000 (diff: 2 x 20.000 = 40.000)
+        $cartService->add($this->productMeja->id, 1); // 1 x 3.500.000 (diff: 1 x 100.000 = 100.000)
 
         Livewire::actingAs($this->user)
             ->test(\App\Livewire\Frontend\CheckoutPage::class)
             ->set('meubel_type', 'matang')
-            ->set("customization_selections.{$this->productKursi->id}", 'Kulit')
-            ->set('meubel_type', 'mentah')
-            ->assertSet('customization_selections', []);
-    }
-
-    /**
-     * TEST 8: Cart with Kursi + Meja (Kursi requires seating, Meja does not).
-     */
-    public function test_8_multiple_products_cart_customization(): void
-    {
-        $cartService = app(CartService::class);
-        $cartService->add($this->productKursi->id, 2);
-        $cartService->add($this->productMeja->id, 1);
-
-        Livewire::actingAs($this->user)
-            ->test(\App\Livewire\Frontend\CheckoutPage::class)
-            ->set('meubel_type', 'matang')
-            ->set("customization_selections.{$this->productKursi->id}", 'Anyaman')
-            ->set('packing_type', 'plastik')
             ->set('customer_name', 'Budi Santoso')
             ->set('customer_phone', '08123456789')
             ->set('province', 'Jawa Tengah')
@@ -255,6 +164,11 @@ class CheckoutCustomizationTest extends TestCase
             ->assertRedirect();
 
         $order = Order::latest()->first();
-        $this->assertEquals([(string)$this->productKursi->id => 'Anyaman'], $order->customization_details);
+        $this->assertEquals('matang', $order->meubel_type);
+        // Subtotal: 3.520.000 + 3.500.000 = 7.020.000
+        // Matang Fee: 40.000 + 100.000 = 140.000
+        // Total: 7.160.000
+        $this->assertEquals(7160000, $order->total_price);
+        $this->assertEquals(140000, $order->customization_fee);
     }
 }

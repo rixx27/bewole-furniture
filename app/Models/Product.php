@@ -396,42 +396,7 @@ class Product extends Model
      */
     public function getCustomizationOptions(): ?array
     {
-        $categoryName = strtolower($this->category?->name ?? '');
-        $categorySlug = strtolower($this->category?->slug ?? '');
-        $productName = strtolower($this->name ?? '');
-
-        $isSeatingProduct = str_contains($categoryName, 'kursi')
-            || str_contains($categoryName, 'sofa')
-            || str_contains($categoryName, 'stool')
-            || str_contains($categoryName, 'bench')
-            || str_contains($categoryName, 'dudukan')
-            || str_contains($categorySlug, 'kursi')
-            || str_contains($categorySlug, 'sofa')
-            || str_contains($productName, 'kursi')
-            || str_contains($productName, 'sofa')
-            || str_contains($productName, 'stool')
-            || str_contains($productName, 'bench')
-            || $this->seatMaterials()->where('is_active', true)->exists();
-
-        if (!$isSeatingProduct) {
-            return null;
-        }
-
-        $seatMaterials = $this->getAvailableSeatMaterials();
-        if ($seatMaterials->isEmpty()) {
-            return null;
-        }
-
-        return [
-            'type' => 'dudukan',
-            'label' => 'Bahan Dudukan',
-            'required' => true,
-            'options' => $seatMaterials->map(fn($m) => [
-                'value' => $m->name,
-                'label' => $m->name,
-                'price_per_meter' => (float) $m->price_per_meter,
-            ])->values()->toArray()
-        ];
+        return null;
     }
 }
 
