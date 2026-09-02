@@ -54,9 +54,24 @@ class Product extends Model
             'discount_percentage' => 'integer',
             'is_featured' => 'boolean',
             'stock' => 'integer',
+            'weight' => 'float',
             'seat_material_usage' => 'float',
             'packing_material_usage' => 'float',
         ];
+    }
+
+    /**
+     * Mutator to ensure weight is always stored as a clean float or null.
+     */
+    public function setWeightAttribute($value): void
+    {
+        if ($value === null || $value === '') {
+            $this->attributes['weight'] = null;
+        } else {
+            $cleaned = preg_replace('/\s*kg\b/i', '', (string) $value);
+            $cleaned = str_replace(',', '.', trim($cleaned));
+            $this->attributes['weight'] = is_numeric($cleaned) ? (float) $cleaned : null;
+        }
     }
 
     /**

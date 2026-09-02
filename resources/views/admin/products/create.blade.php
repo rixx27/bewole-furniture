@@ -263,15 +263,20 @@
                     {{-- Berat --}}
                     <div>
                         <label for="weight" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                            Berat
+                            Berat (kg)
                         </label>
-                        <input type="text"
-                               id="weight"
-                               name="weight"
-                               value="{{ old('weight') }}"
-                               placeholder="Misal: 5 kg"
-                               class="w-full rounded-lg border {{ $errors->has('weight') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors">
-                               @error('weight')
+                        <div class="relative">
+                            <input type="number"
+                                   step="0.01"
+                                   min="0"
+                                   id="weight"
+                                   name="weight"
+                                   value="{{ old('weight') }}"
+                                   placeholder="Misal: 5"
+                                   class="w-full rounded-lg border {{ $errors->has('weight') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 pr-10 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors">
+                            <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-sm text-text-muted">kg</span>
+                        </div>
+                        @error('weight')
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                         @enderror
                     </div>

@@ -35,6 +35,15 @@ class StoreProductRequest extends FormRequest
             }
         }
 
+        if ($this->has('weight')) {
+            $val = $this->input('weight');
+            if ($val !== null && $val !== '') {
+                $cleanedWeight = preg_replace('/\s*kg\b/i', '', (string) $val);
+                $cleanedWeight = str_replace(',', '.', trim($cleanedWeight));
+                $this->merge(['weight' => $cleanedWeight !== '' ? $cleanedWeight : null]);
+            }
+        }
+
         if ($this->has('materials') && is_array($this->input('materials'))) {
             $materials = $this->input('materials');
             foreach ($materials as $key => $mat) {
@@ -69,7 +78,7 @@ class StoreProductRequest extends FormRequest
             'seat_material_usage' => ['nullable', 'numeric', 'min:0'],
             'packing_material_usage' => ['nullable', 'numeric', 'min:0'],
             'dimensions' => ['nullable', 'string', 'max:255'],
-            'weight' => ['nullable', 'string', 'max:255'],
+            'weight' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
             'status' => ['required', Rule::in(['active', 'pre_order', 'sold_out'])],
             'is_featured' => ['boolean'],
             'thumbnail' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
@@ -112,7 +121,9 @@ class StoreProductRequest extends FormRequest
             'material.required' => 'Bahan wajib diisi.',
             'material.max' => 'Bahan maksimal 255 karakter.',
             'dimensions.max' => 'Dimensi maksimal 255 karakter.',
-            'weight.max' => 'Berat maksimal 255 karakter.',
+            'weight.numeric' => 'Berat harus berupa angka (dalam kg).',
+            'weight.min' => 'Berat tidak boleh kurang dari 0 kg.',
+            'weight.max' => 'Berat maksimal 999.999 kg.',
             'status.required' => 'Status wajib dipilih.',
             'status.in' => 'Status yang dipilih tidak valid.',
             'thumbnail.required' => 'Thumbnail wajib diunggah.',
