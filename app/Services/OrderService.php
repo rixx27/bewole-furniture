@@ -60,7 +60,7 @@ class OrderService
                     $unitPrice = (int) ($product->discount_price ?? $product->price);
                     $meubelType = $data['meubel_type'] ?? null;
                     $custDetails = $data['customization_details'] ?? [];
-                    $custOpt = ($meubelType === 'matang' && isset($custDetails[$productId]))
+                    $custOpt = (in_array($meubelType, ['matang', 'finished']) && isset($custDetails[$productId]))
                         ? $custDetails[$productId]
                         : null;
 
@@ -121,19 +121,89 @@ class OrderService
     }
 
     /**
-     * Update payment status.
+     * Update payment status and details.
      */
-    public function updatePayment(Order $order, PaymentStatus $paymentStatus, ?string $notes = null): Order
-    {
-        return DB::transaction(function () use ($order, $paymentStatus, $notes) {
+    public function updatePayment(
+        Order $order,
+        PaymentStatus $paymentStatus,
+        ?string $notes = null,
+        ?float $downPaymentAmount = null,
+        ?string $rejectionReason = null
+    ): Order {
+        return DB::transaction(function () use ($order, $paymentStatus, $notes, $downPaymentAmount, $rejectionReason) {
             $order->payment_status = $paymentStatus->value;
+
+            if ($paymentStatus === PaymentStatus::DownPayment) {
+                if ($downPaymentAmount !== null && $downPaymentAmount > 0) {
+                    $order->down_payment_amount = $downPaymentAmount;
+                }
+                $order->payment_rejection_reason = null;
+            } elseif ($paymentStatus === PaymentStatus::Paid) {
+                $order->down_payment_amount = $order->total_price;
+                $order->payment_rejection_reason = null;
+            } elseif ($paymentStatus === PaymentStatus::Failed) {
+                if ($rejectionReason !== null) {
+                    $order->payment_rejection_reason = $rejectionReason;
+                }
+            } elseif ($paymentStatus === PaymentStatus::Unpaid) {
+                $order->down_payment_amount = 0;
+            }
+
             $order->save();
+
+            // Build informative history note
+            $historyNote = $notes;
+            if (!$historyNote) {
+                if ($paymentStatus === PaymentStatus::DownPayment) {
+                    $dpFmt = 'Rp ' . number_format((float) ($order->down_payment_amount ?? 0), 0, ',', '.');
+                    $remFmt = 'Rp ' . number_format($order->remaining_payment, 0, ',', '.');
+                    $historyNote = "Pembayaran DP Diterima: {$dpFmt} (Sisa Tagihan: {$remFmt})";
+                } elseif ($paymentStatus === PaymentStatus::Paid) {
+                    $historyNote = "Pembayaran Lunas Diverifikasi";
+                } elseif ($paymentStatus === PaymentStatus::Failed && $rejectionReason) {
+                    $historyNote = "Bukti Pembayaran Ditolak: {$rejectionReason}";
+                } else {
+                    $historyNote = "Status Pembayaran: {$paymentStatus->label()}";
+                }
+            }
 
             // Create status history for payment change
             $this->createStatusHistory(
                 $order,
                 OrderStatus::tryFrom($order->status),
-                $notes ?: "Pembayaran: {$paymentStatus->label()}"
+                $historyNote
+            );
+
+            return $order->fresh();
+        });
+    }
+
+    /**
+     * Attach a payment proof image to an order.
+     */
+    public function attachPaymentProof(Order $order, string $filePath, bool $isFinal = false): Order
+    {
+        return DB::transaction(function () use ($order, $filePath, $isFinal) {
+            if ($isFinal) {
+                $order->final_payment_proof = $filePath;
+                $order->final_payment_proof_uploaded_at = now();
+                $note = "Bukti Pelunasan Diunggah oleh Pelanggan";
+            } else {
+                $order->payment_proof = $filePath;
+                $order->payment_proof_uploaded_at = now();
+                $note = "Bukti Pembayaran Diunggah oleh Pelanggan";
+            }
+
+            $order->payment_rejection_reason = null;
+            if ($order->payment_status === PaymentStatus::Failed->value) {
+                $order->payment_status = PaymentStatus::Unpaid->value;
+            }
+            $order->save();
+
+            $this->createStatusHistory(
+                $order,
+                OrderStatus::tryFrom($order->status),
+                $note
             );
 
             return $order->fresh();

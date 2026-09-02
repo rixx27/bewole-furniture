@@ -342,6 +342,18 @@
                         <td>Grand Total</td>
                         <td class="amount">{{ $order->formatted_total_price }}</td>
                     </tr>
+                    @if ($order->down_payment_amount > 0)
+                    <tr>
+                        <td style="color: #4b3d33; font-weight: 600;">DP Diterima</td>
+                        <td class="amount" style="color: #4b3d33; font-weight: 600;">{{ $order->formatted_down_payment_amount }}</td>
+                    </tr>
+                    <tr>
+                        <td style="color: {{ $order->payment_status === 'paid' ? '#059669' : '#dc2626' }}; font-weight: bold;">Sisa Tagihan</td>
+                        <td class="amount" style="color: {{ $order->payment_status === 'paid' ? '#059669' : '#dc2626' }}; font-weight: bold;">
+                            {{ $order->payment_status === 'paid' ? 'Rp 0 (LUNAS)' : $order->formatted_remaining_payment }}
+                        </td>
+                    </tr>
+                    @endif
                 </table>
             </td>
         </tr>

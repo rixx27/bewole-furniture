@@ -183,7 +183,7 @@
                                         <span class="font-bold text-gray-900">{{ $order->meubel_type_label }}</span>
                                     </div>
 
-                                    @if ($order->meubel_type === 'matang' && !empty($order->customization_details))
+                                    @if (($order->meubel_type === 'matang' || $order->meubel_type === 'finished') && !empty($order->customization_details))
                                         @foreach ($order->customization_details as $pId => $selection)
                                             @php
                                                 $pModel = \App\Models\Product::find($pId);
@@ -223,10 +223,24 @@
                                     </div>
                                     <div class="flex justify-between items-center">
                                         <span class="text-gray-600 font-medium">Status Pembayaran</span>
-                                        <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-900 border border-emerald-300">
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-{{ $order->payment_status_color }}-100 px-3 py-1 text-xs font-bold text-{{ $order->payment_status_color }}-900 border border-{{ $order->payment_status_color }}-300">
                                             {{ $order->payment_status_label }}
                                         </span>
                                     </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600 font-medium">Total Tagihan</span>
+                                        <span class="font-bold text-gray-900">{{ $order->formatted_total_price }}</span>
+                                    </div>
+                                    @if ($order->down_payment_amount > 0)
+                                        <div class="flex justify-between text-indigo-900 font-medium">
+                                            <span>DP Diterima</span>
+                                            <span class="font-bold">{{ $order->formatted_down_payment_amount }}</span>
+                                        </div>
+                                        <div class="flex justify-between {{ $order->remaining_payment > 0 ? 'text-rose-700' : 'text-emerald-700' }} font-medium">
+                                            <span>Sisa Tagihan</span>
+                                            <span class="font-bold">{{ $order->payment_status === 'paid' ? 'Rp 0 (LUNAS)' : $order->formatted_remaining_payment }}</span>
+                                        </div>
+                                    @endif
                                     <div class="flex justify-between">
                                         <span class="text-gray-600 font-medium">Metode Pembayaran</span>
                                         <span class="font-bold text-gray-900">{{ $order->payment_method_label }}</span>
@@ -235,6 +249,38 @@
                                         <span class="text-gray-600 font-medium">Metode Pengiriman</span>
                                         <span class="font-bold text-gray-900">{{ $order->shipping_method_label }}</span>
                                     </div>
+
+                                    @if ($order->payment_rejection_reason)
+                                        <div class="rounded-lg bg-red-50 p-2.5 text-xs text-red-800 border border-red-200">
+                                            <span class="font-bold block">Alasan Penolakan:</span>
+                                            {{ $order->payment_rejection_reason }}
+                                        </div>
+                                    @endif
+
+                                    {{-- Pratinjau Bukti Pembayaran --}}
+                                    @if ($order->has_payment_proof || $order->has_final_payment_proof)
+                                        <div class="pt-2 border-t border-gray-200 space-y-2">
+                                            <span class="text-xs font-bold text-gray-700 block">Bukti Transfer:</span>
+                                            <div class="grid grid-cols-2 gap-2">
+                                                @if ($order->has_payment_proof)
+                                                    <div>
+                                                        <span class="text-[10px] text-gray-500 block mb-1">Bukti Awal / DP:</span>
+                                                        <a href="{{ $order->payment_proof_url }}" target="_blank" class="block aspect-video rounded-lg overflow-hidden border border-gray-300 hover:opacity-80 transition-opacity bg-black/5">
+                                                            <img src="{{ $order->payment_proof_url }}" alt="Bukti Transfer" class="h-full w-full object-cover">
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                                @if ($order->has_final_payment_proof)
+                                                    <div>
+                                                        <span class="text-[10px] text-gray-500 block mb-1">Bukti Pelunasan:</span>
+                                                        <a href="{{ $order->final_payment_proof_url }}" target="_blank" class="block aspect-video rounded-lg overflow-hidden border border-emerald-300 hover:opacity-80 transition-opacity bg-black/5">
+                                                            <img src="{{ $order->final_payment_proof_url }}" alt="Bukti Pelunasan" class="h-full w-full object-cover">
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
 

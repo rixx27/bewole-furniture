@@ -13,6 +13,8 @@ class OrderPayment extends Component
     public ?Order $order = null;
     public bool $show = false;
     public ?string $payment_status = null;
+    public ?string $down_payment_amount = null;
+    public ?string $rejection_reason = null;
     public ?string $notes = null;
 
     public function mount(?int $orderId = null): void
@@ -22,13 +24,21 @@ class OrderPayment extends Component
         }
     }
 
-    protected $rules = [
-        'payment_status' => 'required|in:unpaid,paid,failed,refunded',
-        'notes' => 'nullable|string|max:1000',
-    ];
+    protected function rules(): array
+    {
+        return [
+            'payment_status' => 'required|in:unpaid,down_payment,paid,failed,refunded',
+            'down_payment_amount' => 'required_if:payment_status,down_payment|nullable|string',
+            'rejection_reason' => 'nullable|string|max:500',
+            'notes' => 'nullable|string|max:1000',
+        ];
+    }
 
     protected $messages = [
         'payment_status.required' => 'Status pembayaran wajib dipilih.',
+        'payment_status.in' => 'Status pembayaran tidak valid.',
+        'down_payment_amount.required_if' => 'Nominal DP wajib diisi jika memilih status DP (Uang Muka).',
+        'rejection_reason.max' => 'Alasan penolakan maksimal 500 karakter.',
         'notes.max' => 'Catatan maksimal 1000 karakter.',
     ];
 
@@ -37,7 +47,16 @@ class OrderPayment extends Component
     {
         $this->order = Order::find($orderId);
         $this->payment_status = $this->order?->payment_status;
+        $this->rejection_reason = $this->order?->payment_rejection_reason;
         $this->notes = null;
+
+        if ($this->order) {
+            $dpVal = $this->order->down_payment_amount > 0 
+                ? (float) $this->order->down_payment_amount 
+                : round((float) $this->order->total_price * 0.5);
+            $this->down_payment_amount = number_format($dpVal, 0, ',', '.');
+        }
+
         $this->show = true;
     }
 
@@ -64,7 +83,19 @@ class OrderPayment extends Component
                 return;
             }
 
-            $orderService->updatePayment($this->order, $paymentStatus, $this->notes);
+            $parsedDp = null;
+            if ($paymentStatus === PaymentStatus::DownPayment && $this->down_payment_amount) {
+                $cleaned = str_replace(['.', ','], ['', '.'], $this->down_payment_amount);
+                $parsedDp = (float) $cleaned;
+            }
+
+            $orderService->updatePayment(
+                $this->order,
+                $paymentStatus,
+                $this->notes,
+                $parsedDp,
+                $this->rejection_reason
+            );
 
             $this->dispatch('orderUpdated');
             $this->dispatch('notify', type: 'success', message: "Status pembayaran berhasil diubah menjadi {$paymentStatus->label()}.");

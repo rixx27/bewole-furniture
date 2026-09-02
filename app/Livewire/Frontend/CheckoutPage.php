@@ -25,7 +25,7 @@ class CheckoutPage extends Component
     public string $notes = '';
 
     // Meubel selection
-    public string $meubel_type = ''; // 'mentah' or 'matang'
+    public string $meubel_type = ''; // 'unfinished' or 'finished'
     public ?string $packing_type = null;
     public ?array $customization_selections = [];
     public int $customization_fee = 0;
@@ -43,7 +43,7 @@ class CheckoutPage extends Component
         'city' => 'required|string|max:255',
         'postal_code' => 'nullable|string|max:20',
         'notes' => 'nullable|string|max:1000',
-        'meubel_type' => 'required|in:mentah,matang',
+        'meubel_type' => 'required|in:unfinished,finished,mentah,matang',
     ];
 
     protected array $messages = [
@@ -52,7 +52,7 @@ class CheckoutPage extends Component
         'province.required' => 'Provinsi wajib dipilih.',
         'city.required' => 'Kota / Kabupaten wajib dipilih.',
         'shipping_address.required' => 'Alamat Lengkap wajib diisi.',
-        'meubel_type.required' => 'Jenis Meubel wajib dipilih.',
+        'meubel_type.required' => 'Pilihan Meubel (Unfinished / Finished) wajib dipilih.',
         'meubel_type.in' => 'Pilihan Jenis Meubel tidak valid.',
     ];
 
@@ -112,7 +112,7 @@ class CheckoutPage extends Component
     }
 
     /**
-     * Calculate material costs dynamically based on unit mentah/matang prices
+     * Calculate material costs dynamically based on unit unfinished/finished prices
      */
     public function calculateMaterialCosts(): array
     {
@@ -127,18 +127,18 @@ class CheckoutPage extends Component
 
             $qty = (int) ($item['quantity'] ?? 1);
 
-            // Meubel Matang Customization Cost (Difference between price_matang and base price)
+            // Meubel Finished Customization Cost (Difference between price_matang/price_finished and base price)
             $seatName = null;
             $seatCost = 0;
             $seatUnitPrice = 0;
 
-            if ($this->meubel_type === 'matang') {
+            if ($this->meubel_type === 'finished' || $this->meubel_type === 'matang') {
                 $basePrice = (int) $product->price;
-                $matangPrice = (int) ($product->price_matang ?: $product->price);
-                $diff = max(0, $matangPrice - $basePrice);
+                $finishedPrice = (int) ($product->price_matang ?: $product->price);
+                $diff = max(0, $finishedPrice - $basePrice);
                 $seatUnitPrice = $diff;
                 $seatCost = $diff * $qty;
-                $seatName = $diff > 0 ? 'Meubel Matang' : null;
+                $seatName = $diff > 0 ? 'Finished' : null;
             }
 
             $totalCustomFee += $seatCost;
@@ -210,7 +210,7 @@ class CheckoutPage extends Component
         $itemBreakdowns = $calc['item_breakdowns'];
         $serverTotal = $serverSubtotal + $serverCustomFee;
 
-        $meubelText = $this->meubel_type === 'matang' ? 'Meubel Matang' : 'Meubel Mentah';
+        $meubelText = in_array($this->meubel_type, ['finished', 'matang']) ? 'Finished' : 'Unfinished';
 
         // Format full notes for internal log
         $itemsText = implode("\n", $itemSummaries);
@@ -278,7 +278,7 @@ class CheckoutPage extends Component
 
         $waMessage .= "Subtotal:\nRp " . number_format($serverSubtotal, 0, ',', '.') . "\n\n";
         if ($serverCustomFee > 0) {
-            $waMessage .= "Tambahan Meubel Matang:\nRp " . number_format($serverCustomFee, 0, ',', '.') . "\n\n";
+            $waMessage .= "Tambahan Meubel Finished:\nRp " . number_format($serverCustomFee, 0, ',', '.') . "\n\n";
         }
         $waMessage .= "Total:\nRp " . number_format($serverTotal, 0, ',', '.');
 

@@ -312,11 +312,26 @@
                             </div>
                         @endif
 
-                        <div class="mt-4 pt-3 border-t border-wood-border/40 flex justify-between items-center text-xs">
-                            <span class="font-semibold text-wood-muted">Total Pembayaran:</span>
-                            <span class="font-bold text-wood-primary text-sm">{{ $order->formatted_total_price }}</span>
+                        <div class="mt-4 pt-3 border-t border-wood-border/40 space-y-1.5 text-xs">
+                            <div class="flex justify-between items-center">
+                                <span class="font-semibold text-wood-muted">Total Pembayaran:</span>
+                                <span class="font-bold text-wood-primary text-sm">{{ $order->formatted_total_price }}</span>
+                            </div>
+                            @if ($order->down_payment_amount > 0)
+                                <div class="flex justify-between items-center text-amber-800">
+                                    <span>DP (Uang Muka) Masuk:</span>
+                                    <span class="font-bold">{{ $order->formatted_down_payment_amount }}</span>
+                                </div>
+                                <div class="flex justify-between items-center {{ $order->remaining_payment > 0 ? 'text-rose-600' : 'text-emerald-600' }}">
+                                    <span>Sisa Tagihan:</span>
+                                    <span class="font-bold">{{ $order->payment_status === 'paid' ? 'Rp 0 (LUNAS)' : $order->formatted_remaining_payment }}</span>
+                                </div>
+                            @endif
                         </div>
                     </div>
+
+                    {{-- Payment Info & Proof Upload Section --}}
+                    <livewire:frontend.order-payment-upload :order-id="$order->id" />
 
                     {{-- Customization & Packing Card --}}
                     @if ($order->meubel_type || $order->packing_type)
@@ -326,7 +341,7 @@
                                 <span class="text-wood-muted">Jenis Meubel:</span>
                                 <span class="font-semibold text-wood-text">{{ $order->meubel_type_label }}</span>
                             </div>
-                            @if ($order->meubel_type === 'matang' && !empty($order->customization_details))
+                            @if (($order->meubel_type === 'matang' || $order->meubel_type === 'finished') && !empty($order->customization_details))
                                 @foreach ($order->customization_details as $pId => $selection)
                                     @php
                                         $pModel = \App\Models\Product::find($pId);

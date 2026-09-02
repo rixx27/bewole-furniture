@@ -154,7 +154,7 @@
                         </div>
                         @if ($order->customization_fee > 0)
                             <div class="flex justify-between text-wood-muted">
-                                <span>Biaya Customisasi Meubel Matang</span>
+                                <span>Biaya Tambahan Meubel Finished</span>
                                 <span class="font-semibold text-wood-text">Rp {{ number_format($order->customization_fee, 0, ',', '.') }}</span>
                             </div>
                         @endif
@@ -174,6 +174,9 @@
                         </div>
                     </div>
                 </div>
+
+                {{-- Payment Info & Proof Upload Section --}}
+                <livewire:frontend.order-payment-upload :order-id="$order->id" />
 
                 {{-- Product Review Section for Completed Orders --}}
                 @if ($order->status === 'completed')

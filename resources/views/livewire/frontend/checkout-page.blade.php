@@ -119,34 +119,34 @@
                     <label class="block text-xs font-semibold text-wood-muted mb-3">Jenis Meubel <span class="text-rose-500">*</span></label>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {{-- Meubel Mentah --}}
-                        <label class="relative flex flex-col cursor-pointer rounded-2xl border p-4 transition-all focus-within:ring-2 focus-within:ring-wood-primary/20 {{ $meubel_type === 'mentah' ? 'border-wood-primary bg-wood-primary/5 shadow-sm' : 'border-wood-border/60 bg-white hover:border-wood-primary/40' }}">
+                        {{-- Meubel Unfinished --}}
+                        <label class="relative flex flex-col cursor-pointer rounded-2xl border p-4 transition-all focus-within:ring-2 focus-within:ring-wood-primary/20 {{ ($meubel_type === 'unfinished' || $meubel_type === 'mentah') ? 'border-wood-primary bg-wood-primary/5 shadow-sm' : 'border-wood-border/60 bg-white hover:border-wood-primary/40' }}">
                             <div class="flex items-center gap-3">
                                 <input
                                     type="radio"
                                     name="meubel_type"
-                                    value="mentah"
+                                    value="unfinished"
                                     wire:model.live="meubel_type"
                                     class="h-4 w-4 text-wood-primary focus:ring-wood-primary border-wood-border"
                                 >
-                                <span class="text-xs font-bold text-wood-text">Meubel Mentah</span>
+                                <span class="text-xs font-bold text-wood-text">Unfinished</span>
                             </div>
-                            <span class="mt-2 text-[11px] text-wood-muted pl-7">Kondisi kayu mentah</span>
+                            <span class="mt-2 text-[11px] text-wood-muted pl-7">Kondisi kayu unfinished</span>
                         </label>
 
-                        {{-- Meubel Matang --}}
-                        <label class="relative flex flex-col cursor-pointer rounded-2xl border p-4 transition-all focus-within:ring-2 focus-within:ring-wood-primary/20 {{ $meubel_type === 'matang' ? 'border-wood-primary bg-wood-primary/5 shadow-sm' : 'border-wood-border/60 bg-white hover:border-wood-primary/40' }}">
+                        {{-- Meubel Finished --}}
+                        <label class="relative flex flex-col cursor-pointer rounded-2xl border p-4 transition-all focus-within:ring-2 focus-within:ring-wood-primary/20 {{ ($meubel_type === 'finished' || $meubel_type === 'matang') ? 'border-wood-primary bg-wood-primary/5 shadow-sm' : 'border-wood-border/60 bg-white hover:border-wood-primary/40' }}">
                             <div class="flex items-center gap-3">
                                 <input
                                     type="radio"
                                     name="meubel_type"
-                                    value="matang"
+                                    value="finished"
                                     wire:model.live="meubel_type"
                                     class="h-4 w-4 text-wood-primary focus:ring-wood-primary border-wood-border"
                                 >
-                                <span class="text-xs font-bold text-wood-text">Meubel Matang</span>
+                                <span class="text-xs font-bold text-wood-text">Finished</span>
                             </div>
-                            <span class="mt-2 text-[11px] text-wood-muted pl-7">Siap finishing/custom</span>
+                            <span class="mt-2 text-[11px] text-wood-muted pl-7">Siap pakai (finishing)</span>
                         </label>
                     </div>
                     @error('meubel_type') <span class="mt-1.5 block text-xs text-rose-500">{{ $message }}</span> @enderror
@@ -194,17 +194,17 @@
                     <div class="flex justify-between text-wood-muted">
                         <span>Meubel:</span>
                         <span class="font-bold text-wood-text">
-                            @if($meubel_type === 'mentah')
-                                Meubel Mentah
-                            @elseif($meubel_type === 'matang')
-                                Meubel Matang
+                            @if($meubel_type === 'unfinished' || $meubel_type === 'mentah')
+                                Unfinished
+                            @elseif($meubel_type === 'finished' || $meubel_type === 'matang')
+                                Finished
                             @else
                                 <span class="font-normal italic text-wood-muted/70">Belum dipilih</span>
                             @endif
                         </span>
                     </div>
 
-                    @if ($meubel_type === 'matang')
+                    @if ($meubel_type === 'finished' || $meubel_type === 'matang')
                         @foreach ($cart as $productId => $item)
                             @php
                                 $breakdown = $itemBreakdowns[$productId] ?? null;
@@ -214,10 +214,10 @@
                                 <div class="space-y-0.5 border-l-2 border-amber-600/40 pl-2.5 my-1">
                                     <div class="flex justify-between font-semibold text-wood-text">
                                         <span>{{ $item['name'] }}:</span>
-                                        <span>Meubel Matang</span>
+                                        <span>Finished</span>
                                     </div>
                                     <div class="flex justify-between text-[11px] text-wood-muted">
-                                        <span>Tambahan Matang:</span>
+                                        <span>Tambahan Finished:</span>
                                         <span class="font-bold text-wood-text">+ Rp {{ number_format($breakdown['seat_material_cost'], 0, ',', '.') }}</span>
                                     </div>
                                 </div>
@@ -234,7 +234,7 @@
                     </div>
                     @if ($customization_fee > 0)
                         <div class="flex justify-between text-wood-muted">
-                            <span>Tambahan Meubel Matang</span>
+                            <span>Tambahan Meubel Finished</span>
                             <span class="font-bold text-wood-text">
                                 Rp {{ number_format($customization_fee, 0, ',', '.') }}
                             </span>

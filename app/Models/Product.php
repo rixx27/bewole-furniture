@@ -210,20 +210,30 @@ class Product extends Model
     }
 
     /**
-     * Get the formatted raw unit price attribute.
+     * Get the formatted raw / unfinished unit price attribute.
      */
-    public function getFormattedPriceMentahAttribute(): string
+    public function getFormattedPriceUnfinishedAttribute(): string
     {
         return 'Rp ' . number_format($this->price, 0, ',', '.');
+    }
+
+    public function getFormattedPriceMentahAttribute(): string
+    {
+        return $this->formatted_price_unfinished;
     }
 
     /**
      * Get the formatted finished unit price attribute.
      */
+    public function getFormattedPriceFinishedAttribute(): string
+    {
+        $finishedPrice = $this->price_matang ?: $this->price;
+        return 'Rp ' . number_format($finishedPrice, 0, ',', '.');
+    }
+
     public function getFormattedPriceMatangAttribute(): string
     {
-        $matangPrice = $this->price_matang ?: $this->price;
-        return 'Rp ' . number_format($matangPrice, 0, ',', '.');
+        return $this->formatted_price_finished;
     }
 
     /**
@@ -235,19 +245,29 @@ class Product extends Model
     }
 
     /**
-     * Get the effective price for matang unit.
+     * Get the effective price for finished unit.
      */
-    public function getMatangPriceAttribute(): int
+    public function getFinishedPriceAttribute(): int
     {
         return $this->price_matang ?: $this->price;
     }
 
+    public function getMatangPriceAttribute(): int
+    {
+        return $this->finished_price;
+    }
+
     /**
-     * Get the effective price for mentah unit.
+     * Get the effective price for unfinished unit.
      */
-    public function getMentahPriceAttribute(): int
+    public function getUnfinishedPriceAttribute(): int
     {
         return $this->price;
+    }
+
+    public function getMentahPriceAttribute(): int
+    {
+        return $this->unfinished_price;
     }
 
     /**

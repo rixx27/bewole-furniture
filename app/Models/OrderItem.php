@@ -58,8 +58,8 @@ class OrderItem extends Model
     public function getMeubelTypeLabelAttribute(): string
     {
         return match ($this->meubel_type) {
-            'mentah', 'raw' => 'Meubel Mentah',
-            'matang', 'finished' => 'Meubel Matang',
+            'mentah', 'raw', 'unfinished' => 'Unfinished',
+            'matang', 'finished' => 'Finished',
             default => $this->meubel_type ?: '-',
         };
     }

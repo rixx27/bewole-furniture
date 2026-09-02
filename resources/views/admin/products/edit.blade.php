@@ -133,13 +133,13 @@
             {{-- ======================== --}}
             <div class="rounded-xl border border-border bg-card p-6 shadow-sm mb-6">
                 <h3 class="text-base font-semibold text-text-primary dark:text-white mb-1">Harga, Pilihan Meubel & Stok</h3>
-                <p class="text-xs text-text-muted mb-5">Atur harga untuk meubel mentah, meubel matang, diskon, dan ketersediaan stok.</p>
+                <p class="text-xs text-text-muted mb-5">Atur harga untuk produk unfinished, finished, diskon, dan ketersediaan stok.</p>
 
                 <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-                    {{-- Harga Unit Mentah --}}
+                    {{-- Harga Unit Unfinished --}}
                     <div>
                         <label for="price" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                            Harga Unit Mentah (Rp) <span class="text-red-500">*</span>
+                            Harga Unit Unfinished (Rp) <span class="text-red-500">*</span>
                         </label>
                         <input type="text"
                                id="price"
@@ -152,13 +152,13 @@
                         @error('price')
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                         @enderror
-                        <p class="mt-1 text-xs text-text-muted">Harga dasar produk kayu mentah (belum finishing).</p>
+                        <p class="mt-1 text-xs text-text-muted">Harga dasar produk kayu unfinished.</p>
                     </div>
 
-                    {{-- Harga Unit Matang --}}
+                    {{-- Harga Unit Finished --}}
                     <div>
                         <label for="price_matang" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                            Harga Unit Matang (Rp)
+                            Harga Unit Finished (Rp)
                         </label>
                         <input type="text"
                                id="price_matang"
@@ -171,7 +171,7 @@
                         @error('price_matang')
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                         @enderror
-                        <p class="mt-1 text-xs text-text-muted">Harga siap pakai (finishing & jok). Kosongkan jika sama.</p>
+                        <p class="mt-1 text-xs text-text-muted">Harga unit finished (siap pakai). Kosongkan jika sama.</p>
                     </div>
 
                     {{-- Diskon --}}

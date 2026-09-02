@@ -38,6 +38,12 @@ class Order extends Model
         'status',
         'payment_status',
         'payment_method',
+        'down_payment_amount',
+        'payment_proof',
+        'payment_proof_uploaded_at',
+        'final_payment_proof',
+        'final_payment_proof_uploaded_at',
+        'payment_rejection_reason',
         'whatsapp_number',
         'shipping_method',
         'courier',
@@ -61,6 +67,9 @@ class Order extends Model
             'customization_details' => 'array',
             'customization_fee' => 'decimal:2',
             'packing_fee' => 'decimal:2',
+            'down_payment_amount' => 'decimal:2',
+            'payment_proof_uploaded_at' => 'datetime',
+            'final_payment_proof_uploaded_at' => 'datetime',
             'shipping_date' => 'date',
             'pickup_date' => 'date',
         ];
@@ -136,8 +145,8 @@ class Order extends Model
     public function getMeubelTypeLabelAttribute(): string
     {
         return match ($this->meubel_type) {
-            'mentah', 'raw' => 'Meubel Mentah',
-            'matang', 'finished' => 'Meubel Matang',
+            'mentah', 'raw', 'unfinished' => 'Unfinished',
+            'matang', 'finished' => 'Finished',
             default => $this->meubel_type ?: '-',
         };
     }
@@ -219,6 +228,62 @@ class Order extends Model
     {
         $status = PaymentStatus::tryFrom($this->payment_status);
         return $status ? $status->color() : 'gray';
+    }
+
+    /**
+     * Get the formatted down payment amount.
+     */
+    public function getFormattedDownPaymentAmountAttribute(): string
+    {
+        return 'Rp ' . number_format((float) ($this->down_payment_amount ?? 0), 0, ',', '.');
+    }
+
+    /**
+     * Get remaining payment amount.
+     */
+    public function getRemainingPaymentAttribute(): float
+    {
+        return (float) max(0, (float) $this->total_price - (float) ($this->down_payment_amount ?? 0));
+    }
+
+    /**
+     * Get formatted remaining payment.
+     */
+    public function getFormattedRemainingPaymentAttribute(): string
+    {
+        return 'Rp ' . number_format($this->remaining_payment, 0, ',', '.');
+    }
+
+    /**
+     * Get URL of initial payment proof.
+     */
+    public function getPaymentProofUrlAttribute(): ?string
+    {
+        return $this->payment_proof ? asset('storage/' . $this->payment_proof) : null;
+    }
+
+    /**
+     * Get URL of final payment proof.
+     */
+    public function getFinalPaymentProofUrlAttribute(): ?string
+    {
+        return $this->final_payment_proof ? asset('storage/' . $this->final_payment_proof) : null;
+    }
+
+    /**
+     * Check if payment proof is available.
+     */
+    public function getHasPaymentProofAttribute(): bool
+    {
+        return !empty($this->payment_proof);
+    }
+
+    /**
+     * Check if final payment proof is available.
+     */
+    public function getHasFinalPaymentProofAttribute(): bool
+    {
+        return !empty($this->final_payment_proof);
     }
 
     /**

@@ -100,7 +100,7 @@
                                             <p class="text-[11px] text-text-muted">{{ $item->seat_usage_meter }}m @ Rp {{ number_format($item->seat_price_per_meter, 0, ',', '.') }}/m</p>
                                             <p class="font-bold text-text-primary dark:text-white">Biaya: Rp {{ number_format($item->seat_material_cost, 0, ',', '.') }}</p>
                                         @else
-                                            <span class="text-text-muted italic">Tidak ada (Meubel Mentah)</span>
+                                            <span class="text-text-muted italic">Tidak ada (Unfinished)</span>
                                         @endif
                                     </td>
                                     <td class="px-4 py-3">
@@ -191,9 +191,9 @@
                 <p class="mt-1 text-xs text-text-muted">{{ $order->city }}{{ $order->postal_code ? ', ' . $order->postal_code : '' }}</p>
             </div>
 
-            {{-- Status --}}
+            {{-- Status & Pembayaran --}}
             <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
-                <h3 class="mb-4 text-base font-semibold text-text-primary dark:text-white">Status</h3>
+                <h3 class="mb-4 text-base font-semibold text-text-primary dark:text-white">Status & Pembayaran</h3>
                 <div class="space-y-3 text-sm">
                     <div class="flex justify-between items-center">
                         <span class="text-text-muted">Pesanan</span>
@@ -210,9 +210,55 @@
                         </span>
                     </div>
                     <div class="flex justify-between">
+                        <span class="text-text-muted">Total Tagihan</span>
+                        <span class="font-bold text-text-primary dark:text-white">{{ $order->formatted_total_price }}</span>
+                    </div>
+                    @if ($order->down_payment_amount > 0)
+                        <div class="flex justify-between text-indigo-900 dark:text-indigo-400 font-medium">
+                            <span>DP Diterima</span>
+                            <span class="font-bold">{{ $order->formatted_down_payment_amount }}</span>
+                        </div>
+                        <div class="flex justify-between {{ $order->remaining_payment > 0 ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400' }} font-medium">
+                            <span>Sisa Tagihan</span>
+                            <span class="font-bold">{{ $order->payment_status === 'paid' ? 'Rp 0 (LUNAS)' : $order->formatted_remaining_payment }}</span>
+                        </div>
+                    @endif
+                    <div class="flex justify-between">
                         <span class="text-text-muted">Metode Bayar</span>
                         <span class="font-medium text-text-primary dark:text-white">{{ $order->payment_method_label }}</span>
                     </div>
+
+                    @if ($order->payment_rejection_reason)
+                        <div class="rounded-lg bg-red-50 dark:bg-red-950/40 p-2.5 text-xs text-red-800 dark:text-red-300 border border-red-200 dark:border-red-900">
+                            <span class="font-bold block">Alasan Penolakan:</span>
+                            {{ $order->payment_rejection_reason }}
+                        </div>
+                    @endif
+
+                    {{-- Bukti Transfer Preview --}}
+                    @if ($order->has_payment_proof || $order->has_final_payment_proof)
+                        <div class="pt-2 border-t border-border space-y-2">
+                            <span class="text-xs font-semibold text-text-muted block">Bukti Transfer:</span>
+                            <div class="grid grid-cols-2 gap-2">
+                                @if ($order->has_payment_proof)
+                                    <div>
+                                        <span class="text-[10px] text-text-muted block mb-1">Bukti Awal / DP:</span>
+                                        <a href="{{ $order->payment_proof_url }}" target="_blank" class="block aspect-video rounded-lg overflow-hidden border border-border hover:opacity-80 transition-opacity bg-black/5">
+                                            <img src="{{ $order->payment_proof_url }}" alt="Bukti Transfer" class="h-full w-full object-cover">
+                                        </a>
+                                    </div>
+                                @endif
+                                @if ($order->has_final_payment_proof)
+                                    <div>
+                                        <span class="text-[10px] text-text-muted block mb-1">Bukti Pelunasan:</span>
+                                        <a href="{{ $order->final_payment_proof_url }}" target="_blank" class="block aspect-video rounded-lg overflow-hidden border border-border hover:opacity-80 transition-opacity bg-black/5">
+                                            <img src="{{ $order->final_payment_proof_url }}" alt="Bukti Pelunasan" class="h-full w-full object-cover">
+                                        </a>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
 

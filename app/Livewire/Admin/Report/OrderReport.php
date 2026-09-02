@@ -153,14 +153,21 @@ class OrderReport extends Component
         // Calculate summary cards matching active filters
         $totalOrders = (clone $baseQuery)->count();
 
-        // Revenue: paid orders or completed orders, strictly excluding cancelled orders
-        $totalRevenue = (clone $baseQuery)
+        // Revenue: paid orders or completed orders, plus verified DP amounts, strictly excluding cancelled orders
+        $paidRevenue = (clone $baseQuery)
             ->where(function ($q) {
                 $q->where('payment_status', PaymentStatus::Paid->value)
                   ->orWhere('status', OrderStatus::Completed->value);
             })
             ->where('status', '!=', OrderStatus::Cancelled->value)
             ->sum('total_price');
+
+        $dpRevenue = (clone $baseQuery)
+            ->where('payment_status', PaymentStatus::DownPayment->value)
+            ->where('status', '!=', OrderStatus::Cancelled->value)
+            ->sum('down_payment_amount');
+
+        $totalRevenue = $paidRevenue + $dpRevenue;
 
         $completedOrders = (clone $baseQuery)
             ->where('status', OrderStatus::Completed->value)
