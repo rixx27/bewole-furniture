@@ -107,11 +107,19 @@ class Order extends Model
     }
 
     /**
-     * Get the review associated with the order.
+     * Get the review associated with the order (single/first review).
      */
     public function review(): HasOne
     {
         return $this->hasOne(ProductReview::class);
+    }
+
+    /**
+     * Get all reviews associated with the order.
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ProductReview::class);
     }
 
     /**

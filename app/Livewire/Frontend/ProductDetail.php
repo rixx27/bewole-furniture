@@ -118,10 +118,19 @@ class ProductDetail extends Component
             return false;
         }
 
-        return Order::where('user_id', Auth::id())
-            ->where('product_id', $this->product->id)
+        $userId = Auth::id();
+        $productId = $this->product->id;
+
+        return Order::where('user_id', $userId)
             ->where('status', OrderStatus::Completed->value)
-            ->whereDoesntHave('review')
+            ->where(function ($q) use ($productId) {
+                $q->whereHas('items', function ($itemQ) use ($productId) {
+                    $itemQ->where('product_id', $productId);
+                })->orWhere('product_id', $productId);
+            })
+            ->whereDoesntHave('reviews', function ($revQ) use ($productId) {
+                $revQ->where('product_id', $productId);
+            })
             ->exists();
     }
 
@@ -146,9 +155,15 @@ class ProductDetail extends Component
         $user = Auth::user();
 
         $eligibleOrder = Order::where('user_id', $user->id)
-            ->where('product_id', $this->product->id)
             ->where('status', OrderStatus::Completed->value)
-            ->whereDoesntHave('review')
+            ->where(function ($q) {
+                $q->whereHas('items', function ($itemQ) {
+                    $itemQ->where('product_id', $this->product->id);
+                })->orWhere('product_id', $this->product->id);
+            })
+            ->whereDoesntHave('reviews', function ($revQ) {
+                $revQ->where('product_id', $this->product->id);
+            })
             ->latest()
             ->first();
 

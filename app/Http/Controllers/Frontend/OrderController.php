@@ -36,6 +36,8 @@ class OrderController extends Controller
             'items.product',
             'product',
             'statusHistories',
+            'reviews.images',
+            'reviews.product',
             'review.images',
         ]);
 

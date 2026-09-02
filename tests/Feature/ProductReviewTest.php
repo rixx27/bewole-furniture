@@ -297,4 +297,88 @@ test('Order show page displays review CTA button for completed order without rev
     $response->assertSee('Kursi sangat nyaman dan pengiriman cepat.');
 });
 
+test('Multi-item order allows reviewing each product individually', function () {
+    $user = User::factory()->create();
+
+    $productB = Product::create([
+        'category_id' => $this->category->id,
+        'name' => 'Meja Makan Jati',
+        'slug' => 'meja-makan-jati',
+        'description' => 'Meja makan jati 6 kursi.',
+        'short_description' => 'Meja makan mewah',
+        'price' => 3500000,
+        'discount_price' => 3500000,
+        'material' => 'Kayu Jati',
+        'dimensions' => '160x90x75 cm',
+        'weight' => 40,
+        'stock' => 5,
+        'status' => 'active',
+    ]);
+
+    $order = Order::create([
+        'user_id' => $user->id,
+        'product_id' => $this->product->id, // fallback legacy pointer
+        'order_code' => 'ORD-MULTI-01',
+        'customer_name' => $user->name,
+        'customer_phone' => '081234567890',
+        'shipping_address' => 'Jl. Pemuda No. 10',
+        'city' => 'Jepara',
+        'quantity' => 2,
+        'total_price' => 5000000,
+        'status' => OrderStatus::Completed->value,
+    ]);
+
+    \App\Models\OrderItem::create([
+        'order_id' => $order->id,
+        'product_id' => $this->product->id,
+        'quantity' => 1,
+        'unit_price' => 1500000,
+        'total_price' => 1500000,
+    ]);
+
+    \App\Models\OrderItem::create([
+        'order_id' => $order->id,
+        'product_id' => $productB->id,
+        'quantity' => 1,
+        'unit_price' => 3500000,
+        'total_price' => 3500000,
+    ]);
+
+    // 1. User reviews Product A (Kursi Santai Jati)
+    Livewire::actingAs($user)
+        ->test(ProductDetail::class, ['product' => $this->product])
+        ->set('rating', 5)
+        ->set('comment', 'Kursinya sangat bagus!')
+        ->call('submitReview')
+        ->assertSee('Ulasan Berhasil Dikirim!');
+
+    expect(ProductReview::where('product_id', $this->product->id)->count())->toBe(1);
+
+    // 2. User cannot re-review Product A
+    Livewire::actingAs($user)
+        ->test(ProductDetail::class, ['product' => $this->product])
+        ->set('rating', 4)
+        ->set('comment', 'Coba review lagi')
+        ->call('submitReview')
+        ->assertSee('Anda sudah memberikan ulasan untuk produk ini.');
+
+    // 3. User CAN still review Product B (Meja Makan Jati) from the SAME order
+    Livewire::actingAs($user)
+        ->test(ProductDetail::class, ['product' => $productB])
+        ->set('rating', 5)
+        ->set('comment', 'Mejanya sangat kokoh dan finishing mulus!')
+        ->call('submitReview')
+        ->assertSee('Ulasan Berhasil Dikirim!');
+
+    expect(ProductReview::where('product_id', $productB->id)->count())->toBe(1);
+    expect(ProductReview::where('order_id', $order->id)->count())->toBe(2);
+
+    // 4. Order show page displays reviews for both products
+    $response = $this->actingAs($user)->get(route('orders.show', $order->order_code));
+    $response->assertOk();
+    $response->assertSee('Kursinya sangat bagus!');
+    $response->assertSee('Mejanya sangat kokoh dan finishing mulus!');
+});
+
+
 
