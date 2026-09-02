@@ -42,6 +42,8 @@ class CheckoutCustomizationTest extends TestCase
             'name' => 'Kursi Tamu Minimalis',
             'slug' => 'kursi-tamu-minimalis',
             'price' => 1760000,
+            'price_matang' => 1780000,
+            'packing_fee' => 12000,
             'status' => 'active',
             'stock' => 10,
         ]);
@@ -51,6 +53,8 @@ class CheckoutCustomizationTest extends TestCase
             'name' => 'Meja Makan Jati',
             'slug' => 'meja-makan-jati',
             'price' => 3500000,
+            'price_matang' => 3600000,
+            'packing_fee' => 15000,
             'status' => 'active',
             'stock' => 5,
         ]);
@@ -80,7 +84,7 @@ class CheckoutCustomizationTest extends TestCase
         $this->assertDatabaseHas('orders', [
             'product_id' => $this->productKursi->id,
             'quantity' => 5,
-            'total_price' => 8860000, // 5 x 1.760.000 + (5 x 1.2m x Rp 10.000 packing)
+            'total_price' => 8800000, // 5 x 1.760.000 (biaya packing termasuk ongkir)
             'meubel_type' => 'mentah',
             'packing_type' => 'kardus',
         ]);

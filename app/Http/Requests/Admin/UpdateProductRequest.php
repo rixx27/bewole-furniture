@@ -26,6 +26,15 @@ class UpdateProductRequest extends FormRequest
             $this->merge(['price' => $cleanedPrice]);
         }
 
+        if ($this->has('price_matang')) {
+            $val = $this->input('price_matang');
+            if ($val !== null && $val !== '') {
+                $cleanedMatang = str_replace('.', '', $val);
+                $cleanedMatang = str_replace(',', '.', $cleanedMatang);
+                $this->merge(['price_matang' => $cleanedMatang]);
+            }
+        }
+
         if ($this->has('materials') && is_array($this->input('materials'))) {
             $materials = $this->input('materials');
             foreach ($materials as $key => $mat) {
@@ -59,6 +68,7 @@ class UpdateProductRequest extends FormRequest
             'short_description' => ['required', 'string', 'max:500'],
             'description' => ['required', 'string'],
             'price' => ['required', 'numeric', 'gt:0'],
+            'price_matang' => ['nullable', 'numeric', 'min:0'],
             'discount_percentage' => ['nullable', 'integer', 'min:0', 'max:100'],
             'stock' => ['required', 'integer', 'min:0'],
             'sku' => [

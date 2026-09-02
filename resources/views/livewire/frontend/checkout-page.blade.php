@@ -202,7 +202,8 @@
 
                 {{-- Bahan Packing --}}
                 <div class="border-t border-wood-border/30 pt-5">
-                    <h3 class="text-sm font-bold text-wood-text mb-1">Bahan Packing</h3>
+                    <h3 class="text-sm font-bold text-wood-text mb-0.5">Bahan Packing</h3>
+                    <p class="text-xs text-wood-muted mb-3">Pilihan pengemasan produk (biaya packing sudah termasuk dalam pengiriman & ongkir).</p>
                     <label class="block text-xs font-semibold text-wood-muted mb-3">Bahan Packing <span class="text-rose-500">*</span></label>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -294,13 +295,15 @@
                             @if ($breakdown && !empty($breakdown['seat_material_name']))
                                 <div class="space-y-0.5 border-l-2 border-amber-600/40 pl-2.5 my-1">
                                     <div class="flex justify-between font-semibold text-wood-text">
-                                        <span>Bahan Dudukan ({{ $item['name'] }}):</span>
+                                        <span>Custom Meubel Matang ({{ $item['name'] }}):</span>
                                         <span>{{ $breakdown['seat_material_name'] }}</span>
                                     </div>
-                                    <div class="flex justify-between text-[11px] text-wood-muted">
-                                        <span>Penggunaan: {{ $breakdown['seat_usage_meter'] }}m @ Rp {{ number_format($breakdown['seat_price_per_meter'], 0, ',', '.') }}/m</span>
-                                        <span class="font-bold text-wood-text">+ Rp {{ number_format($breakdown['seat_material_cost'], 0, ',', '.') }}</span>
-                                    </div>
+                                    @if ($breakdown['seat_material_cost'] > 0)
+                                        <div class="flex justify-between text-[11px] text-wood-muted">
+                                            <span>Biaya Finishing & Jok:</span>
+                                            <span class="font-bold text-wood-text">+ Rp {{ number_format($breakdown['seat_material_cost'], 0, ',', '.') }}</span>
+                                        </div>
+                                    @endif
                                 </div>
                             @endif
                         @endforeach
@@ -325,10 +328,10 @@
                                 $breakdown = $itemBreakdowns[$productId] ?? null;
                             @endphp
 
-                            @if ($breakdown && !empty($breakdown['packing_material_name']))
+                            @if ($breakdown && !empty($breakdown['packing_material_name']) && $breakdown['packing_material_cost'] > 0)
                                 <div class="space-y-0.5 border-l-2 border-emerald-600/40 pl-2.5 my-1">
                                     <div class="flex justify-between text-[11px] text-wood-muted">
-                                        <span>{{ $breakdown['product_name'] ?? $item['name'] }} ({{ $breakdown['packing_usage_meter'] }}m @ Rp {{ number_format($breakdown['packing_price_per_meter'], 0, ',', '.') }}/m):</span>
+                                        <span>{{ $breakdown['product_name'] ?? $item['name'] }} (Packing {{ $breakdown['packing_material_name'] }}):</span>
                                         <span class="font-bold text-wood-text">+ Rp {{ number_format($breakdown['packing_material_cost'], 0, ',', '.') }}</span>
                                     </div>
                                 </div>
@@ -343,21 +346,17 @@
                         <span>Subtotal Produk</span>
                         <span class="font-bold text-wood-text">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
                     </div>
+                    @if ($customization_fee > 0)
+                        <div class="flex justify-between text-wood-muted">
+                            <span>Biaya Customisasi</span>
+                            <span class="font-bold text-wood-text">
+                                Rp {{ number_format($customization_fee, 0, ',', '.') }}
+                            </span>
+                        </div>
+                    @endif
                     <div class="flex justify-between text-wood-muted">
-                        <span>Biaya Customisasi</span>
-                        <span class="font-bold text-wood-text">
-                            {{ $customization_fee > 0 ? 'Rp ' . number_format($customization_fee, 0, ',', '.') : 'Rp 0' }}
-                        </span>
-                    </div>
-                    <div class="flex justify-between text-wood-muted">
-                        <span>Biaya Packing</span>
-                        <span class="font-bold text-wood-text">
-                            {{ $packing_fee > 0 ? 'Rp ' . number_format($packing_fee, 0, ',', '.') : 'Rp 0' }}
-                        </span>
-                    </div>
-                    <div class="flex justify-between text-wood-muted">
-                        <span>Biaya Pengiriman</span>
-                        <span class="font-semibold text-emerald-600">Dikonfirmasi via WhatsApp</span>
+                        <span>Biaya Packing & Pengiriman</span>
+                        <span class="font-semibold text-emerald-600">Termasuk Ongkir (via WhatsApp)</span>
                     </div>
                 </div>
 
@@ -365,11 +364,11 @@
                     <div class="flex justify-between text-base font-bold text-wood-text">
                         <span>Total Pembayaran</span>
                         <span class="text-lg text-wood-primary">
-                            Rp {{ number_format($subtotal + $customization_fee + $packing_fee, 0, ',', '.') }}
+                            Rp {{ number_format($subtotal + $customization_fee, 0, ',', '.') }}
                         </span>
                     </div>
                     <p class="mt-1.5 text-[11px] leading-tight text-wood-muted">
-                        * Total pembayaran di atas <span class="font-semibold text-rose-500">belum termasuk ongkos kirim</span>. Biaya tersebut akan dikonfirmasi lebih lanjut via WhatsApp.
+                        * Total pembayaran di atas <span class="font-semibold text-rose-500">belum termasuk ongkos kirim</span>. Biaya pengiriman dan packing akan dikonfirmasi lebih lanjut via WhatsApp.
                     </p>
                 </div>
 

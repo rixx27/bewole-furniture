@@ -22,6 +22,8 @@ class Product extends Model
         'description',
         'short_description',
         'price',
+        'price_matang',
+        'packing_fee',
         'discount_percentage',
         'discount_price',
         'sku',
@@ -46,6 +48,8 @@ class Product extends Model
     {
         return [
             'price' => 'integer',
+            'price_matang' => 'integer',
+            'packing_fee' => 'integer',
             'discount_price' => 'integer',
             'discount_percentage' => 'integer',
             'is_featured' => 'boolean',
@@ -183,11 +187,52 @@ class Product extends Model
     }
 
     /**
-     * Get the formatted price attribute.
+     * Get the formatted price attribute (default / mentah).
      */
     public function getFormattedPriceAttribute(): string
     {
         return 'Rp ' . number_format($this->price, 0, ',', '.');
+    }
+
+    /**
+     * Get the formatted raw unit price attribute.
+     */
+    public function getFormattedPriceMentahAttribute(): string
+    {
+        return 'Rp ' . number_format($this->price, 0, ',', '.');
+    }
+
+    /**
+     * Get the formatted finished unit price attribute.
+     */
+    public function getFormattedPriceMatangAttribute(): string
+    {
+        $matangPrice = $this->price_matang ?: $this->price;
+        return 'Rp ' . number_format($matangPrice, 0, ',', '.');
+    }
+
+    /**
+     * Get the formatted packing fee attribute.
+     */
+    public function getFormattedPackingFeeAttribute(): string
+    {
+        return 'Rp ' . number_format($this->packing_fee ?? 0, 0, ',', '.');
+    }
+
+    /**
+     * Get the effective price for matang unit.
+     */
+    public function getMatangPriceAttribute(): int
+    {
+        return $this->price_matang ?: $this->price;
+    }
+
+    /**
+     * Get the effective price for mentah unit.
+     */
+    public function getMentahPriceAttribute(): int
+    {
+        return $this->price;
     }
 
     /**

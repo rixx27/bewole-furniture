@@ -128,27 +128,50 @@
                 </div>
             </div>
 
-            {{-- Panel Harga & Stok --}}
+            {{-- ======================== --}}
+            {{-- Panel Harga, Pilihan Meubel & Stok --}}
+            {{-- ======================== --}}
             <div class="rounded-xl border border-border bg-card p-6 shadow-sm mb-6">
-                <h3 class="text-base font-semibold text-text-primary dark:text-white mb-1">Harga & Stok</h3>
-                <p class="text-xs text-text-muted mb-5">Informasi harga dan ketersediaan stok.</p>
+                <h3 class="text-base font-semibold text-text-primary dark:text-white mb-1">Harga, Pilihan Meubel & Stok</h3>
+                <p class="text-xs text-text-muted mb-5">Atur harga untuk meubel mentah, meubel matang, diskon, dan ketersediaan stok.</p>
 
-                <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
-                    {{-- Harga Asli --}}
+                <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                    {{-- Harga Unit Mentah --}}
                     <div>
                         <label for="price" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                            Harga Asli (Rp) <span class="text-red-500">*</span>
+                            Harga Unit Mentah (Rp) <span class="text-red-500">*</span>
                         </label>
                         <input type="text"
-                        id="price"
-                        name="price"
-                        value="{{ old('price', number_format($product->price, 0, ',', '.')) }}"
-                        placeholder="2.000.000"
-                        autocomplete="off"
-                        class="w-full rounded-lg border {{ $errors->has('price') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors">
+                               id="price"
+                               name="price"
+                               inputmode="numeric"
+                               value="{{ old('price', $product->price ? number_format($product->price, 0, ',', '.') : '') }}"
+                               placeholder="1.500.000"
+                               autocomplete="off"
+                               class="w-full rounded-lg border {{ $errors->has('price') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors">
                         @error('price')
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                         @enderror
+                        <p class="mt-1 text-xs text-text-muted">Harga dasar produk kayu mentah (belum finishing).</p>
+                    </div>
+
+                    {{-- Harga Unit Matang --}}
+                    <div>
+                        <label for="price_matang" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
+                            Harga Unit Matang (Rp)
+                        </label>
+                        <input type="text"
+                               id="price_matang"
+                               name="price_matang"
+                               inputmode="numeric"
+                               value="{{ old('price_matang', $product->price_matang ? number_format($product->price_matang, 0, ',', '.') : '') }}"
+                               placeholder="1.800.000"
+                               autocomplete="off"
+                               class="w-full rounded-lg border {{ $errors->has('price_matang') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors">
+                        @error('price_matang')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
+                        <p class="mt-1 text-xs text-text-muted">Harga siap pakai (finishing & jok). Kosongkan jika sama.</p>
                     </div>
 
                     {{-- Diskon --}}
@@ -190,7 +213,9 @@
                         @enderror
                     </div>
                 </div>
+                {{-- END grid --}}
             </div>
+            {{-- END Panel Harga, Pilihan Meubel & Stok --}}
 
             {{-- Panel Detail Produk --}}
             <div class="rounded-xl border border-border bg-card p-6 shadow-sm mb-6">
@@ -263,236 +288,6 @@
                 </div>
             </div>
 
-            {{-- Panel Harga Bahan & Customisasi --}}
-            <div class="rounded-xl border border-border bg-card p-6 shadow-sm mb-6"
-                 x-data="{
-                     seatMaterials: {{ Js::from($product->seatMaterials->isNotEmpty() ? $product->seatMaterials->map(fn($m) => [
-                         'id' => $m->id,
-                         'type' => 'seat_material',
-                         'name' => $m->name,
-                         'price_per_meter' => (int) $m->price_per_meter,
-                         'is_active' => (bool) $m->is_active
-                     ]) : [
-                         ['id' => null, 'type' => 'seat_material', 'name' => 'Kulit', 'price_per_meter' => 25000, 'is_active' => true],
-                         ['id' => null, 'type' => 'seat_material', 'name' => 'Benang', 'price_per_meter' => 5000, 'is_active' => true],
-                         ['id' => null, 'type' => 'seat_material', 'name' => 'Anyaman', 'price_per_meter' => 15000, 'is_active' => true],
-                     ]) }},
-                     packingMaterials: {{ Js::from($product->packingMaterials->isNotEmpty() ? $product->packingMaterials->map(fn($m) => [
-                         'id' => $m->id,
-                         'type' => 'packing_material',
-                         'name' => $m->name,
-                         'price_per_meter' => (int) $m->price_per_meter,
-                         'is_active' => (bool) $m->is_active
-                     ]) : [
-                         ['id' => null, 'type' => 'packing_material', 'name' => 'Kardus', 'price_per_meter' => 10000, 'is_active' => true],
-                         ['id' => null, 'type' => 'packing_material', 'name' => 'Plastik', 'price_per_meter' => 5000, 'is_active' => true],
-                     ]) }},
-                     init() {
-                          this.seatMaterials.forEach(m => m.price_per_meter = this.formatPrice(m.price_per_meter));
-                          this.packingMaterials.forEach(m => m.price_per_meter = this.formatPrice(m.price_per_meter));
-                      },
-                      formatPrice(val) {
-                          if (val === null || val === undefined || val === '') return '';
-                          let digits = String(val).replace(/\D/g, '');
-                          return digits ? Number(digits).toLocaleString('id-ID') : '';
-                      },
-                      onPriceInput(mat, event) {
-                          let digits = event.target.value.replace(/\D/g, '');
-                          mat.price_per_meter = digits ? Number(digits).toLocaleString('id-ID') : '';
-                      },
-                      addSeatMaterial() {
-                         this.seatMaterials.push({ id: null, type: 'seat_material', name: '', price_per_meter: 0, is_active: true });
-                     },
-                     removeSeatMaterial(index) {
-                         this.seatMaterials.splice(index, 1);
-                     },
-                     addPackingMaterial() {
-                         this.packingMaterials.push({ id: null, type: 'packing_material', name: '', price_per_meter: 0, is_active: true });
-                     },
-                     removePackingMaterial(index) {
-                         this.packingMaterials.splice(index, 1);
-                     }
-                 }">
-                <h3 class="text-base font-semibold text-text-primary dark:text-white mb-1">Harga Bahan & Customisasi</h3>
-                <p class="text-xs text-text-muted mb-5">Atur kebutuhan bahan per produk serta harga per meter untuk bahan dudukan dan packing.</p>
-
-                <div class="grid grid-cols-1 gap-5 lg:grid-cols-2 mb-6 pb-6 border-b border-border">
-                    {{-- Kebutuhan Bahan Dudukan --}}
-                    <div>
-                        <label for="seat_material_usage" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                            Kebutuhan Bahan Dudukan / Produk (Meter)
-                        </label>
-                        <div class="relative">
-                            <input type="number"
-                                   step="0.01"
-                                   min="0"
-                                   id="seat_material_usage"
-                                   name="seat_material_usage"
-                                   value="{{ old('seat_material_usage', $product->seat_material_usage ?? 0.8) }}"
-                                   placeholder="0.8"
-                                   class="w-full rounded-lg border border-border focus:border-primary focus:ring-primary bg-card px-4 py-2.5 text-sm text-text-primary outline-hidden ring-0 transition-colors pr-16">
-                            <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-xs text-text-muted font-medium">Meter</span>
-                        </div>
-                        <p class="mt-1 text-xs text-text-muted">Estimasi jumlah meter bahan dudukan yang dibutuhkan per unit produk.</p>
-                    </div>
-
-                    {{-- Kebutuhan Bahan Packing --}}
-                    <div>
-                        <label for="packing_material_usage" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                            Kebutuhan Bahan Packing / Produk (Meter)
-                        </label>
-                        <div class="relative">
-                            <input type="number"
-                                   step="0.01"
-                                   min="0"
-                                   id="packing_material_usage"
-                                   name="packing_material_usage"
-                                   value="{{ old('packing_material_usage', $product->packing_material_usage ?? 1.2) }}"
-                                   placeholder="1.2"
-                                   class="w-full rounded-lg border border-border focus:border-primary focus:ring-primary bg-card px-4 py-2.5 text-sm text-text-primary outline-hidden ring-0 transition-colors pr-16">
-                            <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-xs text-text-muted font-medium">Meter</span>
-                        </div>
-                        <p class="mt-1 text-xs text-text-muted">Estimasi jumlah meter bahan packing yang dibutuhkan per unit produk.</p>
-                    </div>
-                </div>
-
-                {{-- BAHAN DUDUKAN --}}
-                <div class="mb-8">
-                    <div class="flex items-center justify-between mb-3">
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-text-primary dark:text-white">A. Harga Bahan Dudukan</h4>
-                        <button type="button" @click="addSeatMaterial()" class="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
-                            + Tambah Bahan Dudukan
-                        </button>
-                    </div>
-                    <div class="overflow-x-auto rounded-lg border border-border">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-bg-secondary text-text-muted uppercase font-bold border-b border-border">
-                                <tr>
-                                    <th class="px-4 py-3">Nama Bahan</th>
-                                    <th class="px-4 py-3">Harga / Meter (Rp)</th>
-                                    <th class="px-4 py-3 text-center">Status</th>
-                                    <th class="px-4 py-3 text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-border">
-                                <template x-for="(mat, idx) in seatMaterials" :key="idx">
-                                    <tr>
-                                        <td class="px-4 py-2.5">
-                                            <input type="hidden" :name="'materials[' + idx + '][id]'" :value="mat.id">
-                                            <input type="hidden" :name="'materials[' + idx + '][type]'" value="seat_material">
-                                            <input type="text"
-                                                   :name="'materials[' + idx + '][name]'"
-                                                   x-model="mat.name"
-                                                   placeholder="Nama Bahan (misal: Kulit)"
-                                                   required
-                                                   class="w-full rounded-md border border-border px-3 py-1.5 text-xs text-text-primary focus:border-primary focus:ring-primary">
-                                        </td>
-                                        <td class="px-4 py-2.5">
-                                            <div class="relative">
-                                                <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5 text-xs text-text-muted font-medium">Rp</span>
-                                                <input type="text"
-                                                       inputmode="numeric"
-                                                       autocomplete="off"
-                                                       :name="'materials[' + idx + '][price_per_meter]'"
-                                                       x-model="mat.price_per_meter"
-                                                       @input="onPriceInput(mat, $event)"
-                                                       placeholder="25.000"
-                                                       required
-                                                       class="w-full rounded-md border border-border pl-8 pr-3 py-1.5 text-xs text-text-primary focus:border-primary focus:ring-primary font-mono font-bold">
-                                            </div>
-                                        </td>
-                                        <td class="px-4 py-2.5 text-center">
-                                            <label class="inline-flex items-center cursor-pointer">
-                                                <input type="checkbox"
-                                                       :name="'materials[' + idx + '][is_active]'"
-                                                       value="1"
-                                                       x-model="mat.is_active"
-                                                       class="sr-only peer">
-                                                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600 relative"></div>
-                                                <span class="ml-2 text-xs font-medium" :class="mat.is_active ? 'text-emerald-600 font-semibold' : 'text-gray-400'" x-text="mat.is_active ? 'Aktif' : 'Nonaktif'"></span>
-                                            </label>
-                                        </td>
-                                        <td class="px-4 py-2.5 text-center">
-                                            <button type="button" @click="removeSeatMaterial(idx)" class="text-rose-500 hover:text-rose-700 font-medium text-xs">
-                                                Hapus
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </template>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                {{-- BAHAN PACKING --}}
-                <div>
-                    <div class="flex items-center justify-between mb-3">
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-text-primary dark:text-white">B. Harga Bahan Packing</h4>
-                        <button type="button" @click="addPackingMaterial()" class="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
-                            + Tambah Bahan Packing
-                        </button>
-                    </div>
-                    <div class="overflow-x-auto rounded-lg border border-border">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-bg-secondary text-text-muted uppercase font-bold border-b border-border">
-                                <tr>
-                                    <th class="px-4 py-3">Bahan Packing</th>
-                                    <th class="px-4 py-3">Harga / Meter (Rp)</th>
-                                    <th class="px-4 py-3 text-center">Status</th>
-                                    <th class="px-4 py-3 text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-border">
-                                <template x-for="(mat, idx) in packingMaterials" :key="idx">
-                                    <tr>
-                                        <td class="px-4 py-2.5">
-                                            <input type="hidden" :name="'materials[' + (idx + 100) + '][id]'" :value="mat.id">
-                                            <input type="hidden" :name="'materials[' + (idx + 100) + '][type]'" value="packing_material">
-                                            <input type="text"
-                                                   :name="'materials[' + (idx + 100) + '][name]'"
-                                                   x-model="mat.name"
-                                                   placeholder="Nama Packing (misal: Kardus)"
-                                                   required
-                                                   class="w-full rounded-md border border-border px-3 py-1.5 text-xs text-text-primary focus:border-primary focus:ring-primary">
-                                        </td>
-                                        <td class="px-4 py-2.5">
-                                            <div class="relative">
-                                                <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5 text-xs text-text-muted font-medium">Rp</span>
-                                                <input type="text"
-                                                       inputmode="numeric"
-                                                       autocomplete="off"
-                                                       :name="'materials[' + (idx + 100) + '][price_per_meter]'"
-                                                       x-model="mat.price_per_meter"
-                                                       @input="onPriceInput(mat, $event)"
-                                                       placeholder="10.000"
-                                                       required
-                                                       class="w-full rounded-md border border-border pl-8 pr-3 py-1.5 text-xs text-text-primary focus:border-primary focus:ring-primary font-mono font-bold">
-                                            </div>
-                                        </td>
-                                        <td class="px-4 py-2.5 text-center">
-                                            <label class="inline-flex items-center cursor-pointer">
-                                                <input type="checkbox"
-                                                       :name="'materials[' + (idx + 100) + '][is_active]'"
-                                                       value="1"
-                                                       x-model="mat.is_active"
-                                                       class="sr-only peer">
-                                                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600 relative"></div>
-                                                <span class="ml-2 text-xs font-medium" :class="mat.is_active ? 'text-emerald-600 font-semibold' : 'text-gray-400'" x-text="mat.is_active ? 'Aktif' : 'Nonaktif'"></span>
-                                            </label>
-                                        </td>
-                                        <td class="px-4 py-2.5 text-center">
-                                            <button type="button" @click="removePackingMaterial(idx)" class="text-rose-500 hover:text-rose-700 font-medium text-xs">
-                                                Hapus
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </template>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
             {{-- Panel Thumbnail --}}
             <div class="rounded-xl border border-border bg-card p-6 shadow-sm mb-6">
                 <h3 class="text-base font-semibold text-text-primary dark:text-white mb-1">Thumbnail</h3>
@@ -506,14 +301,16 @@
                         {{-- Current Thumbnail --}}
                         @if ($product->thumbnail)
                             <div class="shrink-0">
+                                <p class="text-[11px] font-semibold text-text-muted mb-1 uppercase tracking-wider">Thumbnail Saat Ini</p>
                                 <img src="{{ asset('storage/' . $product->thumbnail) }}"
                                      alt="{{ $product->name }}"
                                      class="h-32 w-32 rounded-lg border border-border object-cover">
                             </div>
                         @endif
                         {{-- Preview new --}}
-                        <div id="thumbnail-preview" class="{{ $product->thumbnail ? '' : 'hidden' }}">
-                            <img id="thumbnail-image" src="" alt="Preview Baru" class="h-32 w-32 rounded-lg border border-border object-cover">
+                        <div id="thumbnail-preview" class="hidden shrink-0">
+                            <p class="text-[11px] font-semibold text-emerald-600 mb-1 uppercase tracking-wider">Preview Baru</p>
+                            <img id="thumbnail-image" src="" alt="Preview Baru" class="h-32 w-32 rounded-lg border border-emerald-500 object-cover">
                         </div>
                         <div class="flex-1">
                             <input type="file"
@@ -531,28 +328,32 @@
             </div>
 
             {{-- Panel Galeri --}}
-            <div class="rounded-xl border border-border bg-card p-6 shadow-sm mb-6">
+            <div class="rounded-xl border border-border bg-card p-6 shadow-sm mb-6" x-data="galleryUploader()">
                 <h3 class="text-base font-semibold text-text-primary dark:text-white mb-1">Galeri Gambar</h3>
-                <p class="text-xs text-text-muted mb-5">Kelola gambar galeri produk. Klik gambar untuk menghapus (opsional, max. 2MB per gambar, format: JPG/PNG/WebP).</p>
+                <p class="text-xs text-text-muted mb-5">Kelola gambar galeri produk. Anda bisa menambahkan foto satu per satu atau beberapa sekaligus (max. 2MB per gambar, format: JPG/PNG/WebP).</p>
 
                 {{-- Existing Gallery --}}
                 @if ($product->images->count() > 0)
-                    <div class="mb-4">
-                        <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-text-muted">Galeri Saat Ini</p>
-                        <div class="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
+                    <div class="mb-5 pb-5 border-b border-border">
+                        <p class="mb-2.5 text-xs font-bold uppercase tracking-wider text-text-muted">Galeri Saat Ini ({{ $product->images->count() }} foto)</p>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
                             @foreach ($product->images as $image)
-                                <div class="relative group" x-data="{ confirmDelete: false }">
+                                <div class="relative group rounded-lg border border-border overflow-hidden bg-bg-secondary/40 aspect-square" x-data="{ confirmDelete: false }">
                                     <img src="{{ asset('storage/' . $image->image) }}"
                                          alt="Galeri {{ $loop->iteration }}"
-                                         class="h-24 w-full rounded-lg border border-border object-cover">
+                                         class="h-full w-full object-cover">
+                                    
+                                    {{-- Delete button trigger --}}
                                     <button type="button"
-                                            x-on:click="confirmDelete = !confirmDelete"
-                                            class="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white opacity-0 shadow-xs transition-opacity group-hover:opacity-100 hover:bg-red-600">
-                                        <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            x-on:click="confirmDelete = true"
+                                            title="Hapus foto dari galeri"
+                                            class="absolute top-1.5 right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white opacity-0 shadow-xs transition-opacity group-hover:opacity-100 hover:bg-red-600">
+                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                         </svg>
                                     </button>
-                                    {{-- Confirm delete --}}
+
+                                    {{-- Confirm delete overlay --}}
                                     <div x-show="confirmDelete"
                                          x-transition:enter="transition ease-out duration-150"
                                          x-transition:enter-start="opacity-0 scale-95"
@@ -560,22 +361,20 @@
                                          x-transition:leave="transition ease-in duration-100"
                                          x-transition:leave-start="opacity-100 scale-100"
                                          x-transition:leave-end="opacity-0 scale-95"
-                                         class="absolute inset-0 flex items-center justify-center rounded-lg bg-black/60 backdrop-blur-sm">
-                                        <div class="text-center">
-                                            <p class="mb-2 text-xs text-white">Hapus gambar?</p>
-                                            <div class="flex items-center gap-2">
-                                                <button type="button"
-                                                        x-on:click="confirmDelete = false"
-                                                        class="rounded bg-gray-500 px-2 py-1 text-xs text-white hover:bg-gray-600">Batal</button>
-                                                <label class="flex cursor-pointer items-center gap-1 rounded bg-red-500 px-2 py-1 text-xs text-white hover:bg-red-600">
-                                                    <input type="checkbox"
-                                                           name="deleted_images[]"
-                                                           value="{{ $image->id }}"
-                                                           x-on:change="confirmDelete = false"
-                                                           class="hidden">
-                                                    Ya, Hapus
-                                                </label>
-                                            </div>
+                                         class="absolute inset-0 flex flex-col items-center justify-center p-2 rounded-lg bg-black/75 backdrop-blur-xs text-center z-10">
+                                        <p class="mb-2 text-[11px] font-medium text-white leading-tight">Hapus foto ini?</p>
+                                        <div class="flex items-center gap-1.5">
+                                            <button type="button"
+                                                    x-on:click="confirmDelete = false"
+                                                    class="rounded bg-gray-600 px-2 py-0.5 text-[10px] text-white hover:bg-gray-700">Batal</button>
+                                            <label class="flex cursor-pointer items-center gap-1 rounded bg-red-600 px-2 py-0.5 text-[10px] font-semibold text-white hover:bg-red-700">
+                                                <input type="checkbox"
+                                                       name="deleted_images[]"
+                                                       value="{{ $image->id }}"
+                                                       x-on:change="confirmDelete = false"
+                                                       class="hidden">
+                                                Hapus
+                                            </label>
                                         </div>
                                     </div>
                                 </div>
@@ -584,26 +383,61 @@
                     </div>
                 @endif
 
+                {{-- New Gallery Upload Area --}}
                 <div>
-                    <label for="gallery" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                        Tambah Gambar Baru
-                    </label>
-                    <input type="file"
-                           id="gallery"
-                           name="gallery[]"
-                           multiple
-                           accept="image/jpeg,image/png,image/webp"
-                           class="w-full rounded-lg border {{ $errors->has('gallery') || $errors->has('gallery.*') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card text-sm text-text-primary file:mr-4 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-primary-dark outline-hidden ring-0 transition-colors">
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-text-muted">
+                            Tambah Foto Baru Galeri
+                        </label>
+                        <span class="text-xs font-medium text-primary" x-show="items.length > 0" x-text="items.length + ' foto baru dipilih'"></span>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                        {{-- Uploaded new items preview --}}
+                        <template x-for="(item, index) in items" :key="item.id">
+                            <div class="relative group rounded-lg border border-border bg-bg-secondary/40 overflow-hidden shadow-2xs aspect-square flex flex-col">
+                                <img :src="item.preview" class="w-full h-full object-cover">
+                                
+                                {{-- Number badge --}}
+                                <span class="absolute top-1.5 left-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white shadow">
+                                    <span x-text="index + 1"></span>
+                                </span>
+
+                                {{-- Remove button --}}
+                                <button type="button"
+                                        @click="removeItem(item.id)"
+                                        title="Hapus foto ini"
+                                        class="absolute top-1.5 right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow hover:bg-red-600 transition-colors">
+                                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+
+                                {{-- File name label on hover --}}
+                                <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-1.5 pt-3">
+                                    <p class="text-[10px] text-white truncate text-center" x-text="item.name"></p>
+                                </div>
+                            </div>
+                        </template>
+
+                        {{-- Add Photo Slot / Button --}}
+                        <label class="cursor-pointer border-2 border-dashed border-border hover:border-primary rounded-lg aspect-square flex flex-col items-center justify-center p-3 text-center transition-colors bg-card hover:bg-primary/5 group">
+                            <input type="file" accept="image/jpeg,image/png,image/webp" multiple @change="handleFiles($event)" class="hidden">
+                            <div class="w-9 h-9 rounded-full bg-primary/10 group-hover:bg-primary/20 text-primary flex items-center justify-center mb-1.5 transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            </div>
+                            <span class="text-xs font-semibold text-text-primary group-hover:text-primary transition-colors">+ Tambah Foto</span>
+                            <span class="text-[10px] text-text-muted mt-0.5 leading-tight">Satu per satu / Banyak</span>
+                        </label>
+                    </div>
+
                     @error('gallery')
-                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
                     @enderror
                     @error('gallery.*')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                     @enderror
-                    <p class="mt-1 text-xs text-text-muted">Pilih gambar baru untuk ditambahkan ke galeri.</p>
 
-                    {{-- Gallery Preview --}}
-                    <div id="gallery-preview" class="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6"></div>
+                    {{-- Hidden file inputs container for submitting to backend --}}
+                    <div x-ref="inputContainer" class="hidden"></div>
                 </div>
             </div>
 
@@ -626,6 +460,56 @@
 
     @push('scripts')
     <script>
+        // Gallery Uploader with dynamic individual file inputs (allows uploading one-by-one or multiple)
+        function galleryUploader() {
+            return {
+                items: [],
+                counter: 0,
+                handleFiles(event) {
+                    const files = Array.from(event.target.files);
+                    if (!files.length) return;
+
+                    files.forEach(file => {
+                        this.counter++;
+                        const itemId = 'gallery_file_' + this.counter;
+
+                        // Create hidden input for form submission
+                        const container = this.$refs.inputContainer;
+                        const input = document.createElement('input');
+                        input.type = 'file';
+                        input.name = 'gallery[]';
+                        input.id = itemId;
+                        input.style.display = 'none';
+
+                        // Transfer file via DataTransfer
+                        const dt = new DataTransfer();
+                        dt.items.add(file);
+                        input.files = dt.files;
+                        container.appendChild(input);
+
+                        // Read preview
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            this.items.push({
+                                id: itemId,
+                                name: file.name,
+                                preview: e.target.result,
+                            });
+                        };
+                        reader.readAsDataURL(file);
+                    });
+
+                    // Reset picker value so re-selecting same file triggers change
+                    event.target.value = '';
+                },
+                removeItem(itemId) {
+                    const el = document.getElementById(itemId);
+                    if (el) el.remove();
+                    this.items = this.items.filter(item => item.id !== itemId);
+                }
+            };
+        }
+
         // Thumbnail preview
         document.getElementById('thumbnail')?.addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -641,27 +525,38 @@
             }
         });
 
-        // Gallery preview
-        document.getElementById('gallery')?.addEventListener('change', function(e) {
-            const preview = document.getElementById('gallery-preview');
-            preview.innerHTML = '';
-            Array.from(e.target.files).forEach((file, index) => {
-                const reader = new FileReader();
-                reader.onload = function(ev) {
-                    const div = document.createElement('div');
-                    div.className = 'relative group';
-                    div.innerHTML = `
-                        <img src="${ev.target.result}" alt="Gallery ${index + 1}"
-                             class="h-24 w-full rounded-lg border border-border object-cover">
-                        <span class="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-white shadow-xs">
-                            ${index + 1}
-                        </span>
-                    `;
-                    preview.appendChild(div);
-                };
-                reader.readAsDataURL(file);
-            });
+        // Format Harga Rupiah
+        const currencyInputs = ['price', 'price_matang'];
+
+        currencyInputs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                // Initial format if value exists
+                if (el.value) {
+                    let digits = el.value.replace(/\D/g, '');
+                    if (digits) el.value = Number(digits).toLocaleString('id-ID');
+                }
+
+                // Format saat mengetik
+                el.addEventListener('input', function() {
+                    let value = this.value.replace(/\D/g, '');
+                    this.value = value === '' ? '' : Number(value).toLocaleString('id-ID');
+                });
+            }
         });
+
+        // Sebelum submit kirim angka asli (tanpa titik)
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function() {
+                currencyInputs.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el && el.value) {
+                        el.value = el.value.replace(/\./g, '');
+                    }
+                });
+            });
+        }
     </script>
     @endpush
 

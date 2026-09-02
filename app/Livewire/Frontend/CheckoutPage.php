@@ -128,12 +128,11 @@ class CheckoutPage extends Component
     }
 
     /**
-     * Calculate material costs dynamically based on database prices & usage
+     * Calculate material costs dynamically based on unit mentah/matang prices
      */
     public function calculateMaterialCosts(): array
     {
         $totalCustomFee = 0;
-        $totalPackingFee = 0;
         $itemBreakdowns = [];
 
         foreach ($this->cart as $productId => $item) {
@@ -144,71 +143,46 @@ class CheckoutPage extends Component
 
             $qty = (int) ($item['quantity'] ?? 1);
 
-            // 1. Seat Material Cost
+            // 1. Seat / Finishing Customization Cost (Harga Unit Matang vs Mentah)
             $seatName = null;
-            $seatPricePerMeter = 0;
-            $seatUsageTotal = 0;
             $seatCost = 0;
+            $seatUnitPrice = 0;
 
             if ($this->meubel_type === 'matang') {
+                $basePrice = (int) $product->price;
+                $matangPrice = (int) ($product->price_matang ?: $product->price);
+                $diff = max(0, $matangPrice - $basePrice);
+                $seatUnitPrice = $diff;
+                $seatCost = $diff * $qty;
+
                 $selectedSeat = $this->customization_selections[$productId] ?? null;
-                if (!empty($selectedSeat)) {
-                    $seatMaterials = $product->getAvailableSeatMaterials();
-                    $matchedSeat = $seatMaterials->firstWhere('name', $selectedSeat);
-                    if ($matchedSeat) {
-                        $seatName = $matchedSeat->name;
-                        $seatPricePerMeter = (float) $matchedSeat->price_per_meter;
-                        $seatUsagePerUnit = (float) ($product->seat_material_usage ?? 0.8);
-                        $seatUsageTotal = $seatUsagePerUnit * $qty;
-                        $seatCost = (int) round($seatUsageTotal * $seatPricePerMeter);
-                    }
-                }
+                $seatName = $selectedSeat ?: ($diff > 0 ? 'Meubel Matang' : null);
             }
 
-            // 2. Packing Material Cost
+            // 2. Packing preference (Biaya packing termasuk dalam pengiriman & ongkir = Rp 0)
             $packingName = null;
-            $packingPricePerMeter = 0;
-            $packingUsageTotal = 0;
-            $packingCost = 0;
-
             if (!empty($this->packing_type)) {
-                $packingMaterials = $product->getAvailablePackingMaterials();
-                $matchedPacking = $packingMaterials->first(function ($pMat) {
-                    return strtolower($pMat->name) === strtolower($this->packing_type);
-                });
-
-                if (!$matchedPacking && $packingMaterials->isNotEmpty()) {
-                    $matchedPacking = $packingMaterials->first();
-                }
-
-                if ($matchedPacking) {
-                    $packingName = $matchedPacking->name;
-                    $packingPricePerMeter = (float) $matchedPacking->price_per_meter;
-                    $packingUsagePerUnit = (float) ($product->packing_material_usage ?? 1.2);
-                    $packingUsageTotal = $packingUsagePerUnit * $qty;
-                    $packingCost = (int) round($packingUsageTotal * $packingPricePerMeter);
-                }
+                $packingName = $this->packing_type === 'kardus' ? 'Kardus' : 'Plastik';
             }
 
             $totalCustomFee += $seatCost;
-            $totalPackingFee += $packingCost;
 
             $itemBreakdowns[$productId] = [
                 'product_name' => $product->name,
                 'seat_material_name' => $seatName,
-                'seat_price_per_meter' => $seatPricePerMeter,
-                'seat_usage_meter' => $seatUsageTotal,
+                'seat_price_per_meter' => $seatUnitPrice,
+                'seat_usage_meter' => 1,
                 'seat_material_cost' => $seatCost,
                 'packing_material_name' => $packingName,
-                'packing_price_per_meter' => $packingPricePerMeter,
-                'packing_usage_meter' => $packingUsageTotal,
-                'packing_material_cost' => $packingCost,
+                'packing_price_per_meter' => 0,
+                'packing_usage_meter' => 1,
+                'packing_material_cost' => 0,
             ];
         }
 
         return [
             'customization_fee' => $totalCustomFee,
-            'packing_fee' => $totalPackingFee,
+            'packing_fee' => 0,
             'item_breakdowns' => $itemBreakdowns,
         ];
     }
@@ -244,7 +218,7 @@ class CheckoutPage extends Component
         }
 
         $cartService = app(CartService::class);
-        $currentCart = $cartService->getCart();
+        $currentCart = $this->cart;
 
         if (empty($currentCart)) {
             $this->dispatch('notify', message: 'Keranjang Anda kosong.');
@@ -254,8 +228,8 @@ class CheckoutPage extends Component
         // Calculate total server-side & validate products
         $serverSubtotal = 0;
         $totalQuantity = 0;
-        $itemSummaries = [];
         $firstProductId = null;
+        $itemSummaries = [];
         $customizationTexts = [];
 
         foreach ($currentCart as $productId => $item) {
@@ -268,14 +242,12 @@ class CheckoutPage extends Component
                 $firstProductId = $product->id;
             }
 
-            $qty = (int) $item['quantity'];
+            $qty = (int) ($item['quantity'] ?? 1);
             $price = (int) ($product->discount_price ?? $product->price);
-            $itemTotal = $price * $qty;
-
-            $serverSubtotal += $itemTotal;
+            $serverSubtotal += $price * $qty;
             $totalQuantity += $qty;
 
-            $itemSummaries[] = "{$product->name} × {$qty} (Rp " . number_format($itemTotal, 0, ',', '.') . ")";
+            $itemSummaries[] = "- {$product->name} (Qty: {$qty}) - Rp " . number_format($price * $qty, 0, ',', '.');
 
             if ($this->meubel_type === 'matang' && isset($this->customization_selections[$productId])) {
                 $custVal = $this->customization_selections[$productId];
@@ -290,9 +262,9 @@ class CheckoutPage extends Component
 
         $calc = $this->calculateMaterialCosts();
         $serverCustomFee = $calc['customization_fee'];
-        $serverPackingFee = $calc['packing_fee'];
+        $serverPackingFee = 0;
         $itemBreakdowns = $calc['item_breakdowns'];
-        $serverTotal = $serverSubtotal + $serverCustomFee + $serverPackingFee;
+        $serverTotal = $serverSubtotal + $serverCustomFee;
 
         $meubelText = $this->meubel_type === 'matang' ? 'Meubel Matang' : 'Meubel Mentah';
         $packingText = $this->packing_type === 'kardus' ? 'Kardus' : 'Plastik';
@@ -326,7 +298,7 @@ class CheckoutPage extends Component
             'packing_type' => $this->packing_type,
             'customization_details' => $this->meubel_type === 'matang' ? $this->customization_selections : null,
             'customization_fee' => $serverCustomFee,
-            'packing_fee' => $serverPackingFee,
+            'packing_fee' => 0,
             'item_breakdowns' => $itemBreakdowns,
             'quantity' => $totalQuantity,
             'total_price' => $serverTotal,
@@ -375,8 +347,9 @@ class CheckoutPage extends Component
         }
 
         $waMessage .= "Subtotal:\nRp " . number_format($serverSubtotal, 0, ',', '.') . "\n\n";
-        $waMessage .= "Biaya Customisasi:\nRp " . number_format($serverCustomFee, 0, ',', '.') . "\n\n";
-        $waMessage .= "Biaya Packing:\nRp " . number_format($serverPackingFee, 0, ',', '.') . "\n\n";
+        if ($serverCustomFee > 0) {
+            $waMessage .= "Biaya Customisasi:\nRp " . number_format($serverCustomFee, 0, ',', '.') . "\n\n";
+        }
         $waMessage .= "Total:\nRp " . number_format($serverTotal, 0, ',', '.');
 
         $waUrl = "https://wa.me/{$adminWhatsapp}?text=" . rawurlencode($waMessage);
@@ -388,11 +361,11 @@ class CheckoutPage extends Component
     {
         $calc = $this->calculateMaterialCosts();
         $this->customization_fee = $calc['customization_fee'];
-        $this->packing_fee = $calc['packing_fee'];
+        $this->packing_fee = 0;
 
         return view('livewire.frontend.checkout-page', [
             'itemBreakdowns' => $calc['item_breakdowns'],
-            'totalPayable' => $this->subtotal + $this->customization_fee + $this->packing_fee,
+            'totalPayable' => $this->subtotal + $this->customization_fee,
         ]);
     }
 }
