@@ -15,6 +15,7 @@ class OrderController extends Controller
     {
         $orders = $request->user()
             ->orders()
+            ->with(['items.product', 'product'])
             ->latest()
             ->paginate(10);
 
@@ -30,6 +31,13 @@ class OrderController extends Controller
         if ($order->user_id !== auth()->id()) {
             abort(403, 'You are not authorized to view this order.');
         }
+
+        $order->load([
+            'items.product',
+            'product',
+            'statusHistories',
+            'review.images',
+        ]);
 
         return view('frontend.orders.show', compact('order'));
     }

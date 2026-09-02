@@ -35,7 +35,7 @@ class OrderTracking extends Component
             return;
         }
 
-        $this->order = Order::with(['product', 'statusHistories'])
+        $this->order = Order::with(['items.product', 'product', 'statusHistories'])
             ->where('order_code', $code)
             ->first();
 

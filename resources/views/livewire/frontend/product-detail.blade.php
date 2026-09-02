@@ -119,8 +119,11 @@
                         </div>
                     @endif
                     <div>
-                        <span class="text-wood-muted block">Ketersediaan Stok</span>
-                        <span class="font-medium text-wood-text">{{ $product->stock > 0 ? $product->stock . ' unit' : 'Stok Kosong / Pre-Order' }}</span>
+                        <span class="text-wood-muted block">Ketersediaan</span>
+                        <span class="inline-flex items-center gap-1.5 font-semibold text-emerald-700">
+                            <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            Tersedia
+                        </span>
                     </div>
                 </div>
             </div>

@@ -182,7 +182,7 @@ class OrderController extends Controller
     {
         Gate::authorize('view', $order);
 
-        $order->load('product');
+        $order->load(['items.product', 'product']);
 
         $pdf = Pdf::loadView('admin.invoices.order', compact('order'));
 

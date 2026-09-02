@@ -46,9 +46,14 @@
                             {{-- Order Info --}}
                             <div class="flex items-center gap-4">
                                 {{-- Product Thumbnail --}}
+                                @php
+                                    $firstItem = $order->items?->first();
+                                    $displayProduct = $firstItem?->product ?? $order->product;
+                                    $itemCount = $order->items?->count() ?: 1;
+                                @endphp
                                 <div class="h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-wood-light/50 border border-wood-border/40">
-                                    @if ($order->product && $order->product->thumbnail)
-                                        <img src="{{ asset('storage/' . $order->product->thumbnail) }}" alt="{{ $order->product->name }}" class="h-full w-full object-cover">
+                                    @if ($displayProduct && $displayProduct->thumbnail)
+                                        <img src="{{ asset('storage/' . $displayProduct->thumbnail) }}" alt="{{ $displayProduct->name }}" class="h-full w-full object-cover">
                                     @else
                                         <div class="flex h-full w-full items-center justify-center text-wood-muted">
                                             <svg class="h-8 w-8 stroke-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,9 +66,9 @@
                                 <div>
                                     <span class="font-mono text-xs font-bold text-wood-primary">{{ $order->order_code }}</span>
                                     <h3 class="mt-0.5 text-sm font-semibold text-wood-text">
-                                        {{ $order->product?->name ?? 'Produk' }}
-                                        @if ($order->quantity > 1)
-                                            <span class="font-normal text-wood-muted">& pesanan lainnya</span>
+                                        {{ $displayProduct?->name ?? 'Produk' }}
+                                        @if ($itemCount > 1)
+                                            <span class="font-normal text-wood-muted">(+{{ $itemCount - 1 }} produk lain)</span>
                                         @endif
                                     </h3>
                                     <p class="mt-0.5 text-xs text-wood-muted">

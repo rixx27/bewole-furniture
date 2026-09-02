@@ -55,41 +55,122 @@
         <div class="grid gap-6 lg:grid-cols-3">
             {{-- Main Content (2/3) --}}
             <div class="space-y-6 lg:col-span-2">
-                {{-- Product Info --}}
+                {{-- Product Items List --}}
                 <div class="rounded-3xl border border-wood-border/60 bg-white p-6 shadow-sm">
-                    <h2 class="mb-4 text-base font-bold text-wood-text border-b border-wood-border/40 pb-3">Informasi Produk</h2>
-                    <div class="flex items-start gap-4">
-                        <div class="h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-wood-light/40 border border-wood-border/40">
-                            @if ($order->product && $order->product->thumbnail)
-                                <img src="{{ asset('storage/' . $order->product->thumbnail) }}" alt="{{ $order->product->name }}" class="h-full w-full object-cover">
-                            @else
-                                <div class="flex h-full w-full items-center justify-center text-wood-muted">
-                                    <svg class="h-9 w-9 stroke-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                                    </svg>
+                    <div class="flex items-center justify-between border-b border-wood-border/40 pb-3 mb-4">
+                        <h2 class="text-base font-bold text-wood-text">Daftar Produk Pesanan</h2>
+                        <span class="text-xs font-semibold text-wood-muted">
+                            Total: {{ $order->items && $order->items->count() > 0 ? $order->items->count() : 1 }} Produk ({{ $order->quantity }} Unit)
+                        </span>
+                    </div>
+
+                    @if ($order->items && $order->items->count() > 0)
+                        <div class="divide-y divide-wood-border/40">
+                            @foreach ($order->items as $item)
+                                <div class="py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row items-start gap-4">
+                                    <div class="h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-wood-light/40 border border-wood-border/40">
+                                        @if ($item->product && $item->product->thumbnail)
+                                            <img src="{{ asset('storage/' . $item->product->thumbnail) }}" alt="{{ $item->product->name }}" class="h-full w-full object-cover">
+                                        @else
+                                            <div class="flex h-full w-full items-center justify-center text-wood-muted">
+                                                <svg class="h-9 w-9 stroke-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                                </svg>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="flex-1 min-w-0 w-full">
+                                        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1">
+                                            <div>
+                                                <h3 class="text-base font-semibold text-wood-text">{{ $item->product?->name ?? 'Produk' }}</h3>
+                                                <p class="text-xs text-wood-muted mt-0.5">
+                                                    {{ $item->quantity }} pcs × Rp {{ number_format($item->unit_price, 0, ',', '.') }}
+                                                </p>
+                                            </div>
+                                            <span class="text-sm font-bold text-wood-primary">
+                                                Rp {{ number_format($item->total_price, 0, ',', '.') }}
+                                            </span>
+                                        </div>
+
+                                        {{-- Variations & Customization details per item --}}
+                                        <div class="mt-2.5 flex flex-wrap gap-2 text-xs">
+                                            @if ($item->meubel_type)
+                                                <span class="inline-flex items-center rounded-lg bg-amber-50 px-2.5 py-1 font-semibold text-amber-800 border border-amber-200">
+                                                    {{ $item->meubel_type_label }}
+                                                </span>
+                                            @endif
+                                            @if ($item->seat_material_name)
+                                                <span class="inline-flex items-center rounded-lg bg-wood-light/60 px-2.5 py-1 font-medium text-wood-text border border-wood-border/60">
+                                                    Dudukan: {{ $item->seat_material_name }}
+                                                </span>
+                                            @endif
+                                            @if ($item->packing_material_name)
+                                                <span class="inline-flex items-center rounded-lg bg-emerald-50 px-2.5 py-1 font-medium text-emerald-800 border border-emerald-200">
+                                                    Packing: {{ $item->packing_material_name }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
                                 </div>
-                            @endif
+                            @endforeach
                         </div>
-                        <div class="flex-1">
-                            <h3 class="text-lg font-semibold text-wood-text">{{ $order->product?->name ?? 'Produk' }}</h3>
-                            <div class="mt-3 grid grid-cols-2 gap-4 text-xs">
-                                <div>
-                                    <span class="text-wood-muted block mb-0.5">Harga Satuan</span>
-                                    <span class="font-semibold text-wood-text">{{ $order->product?->formatted_price ?? 'Rp 0' }}</span>
-                                </div>
-                                <div>
-                                    <span class="text-wood-muted block mb-0.5">Jumlah</span>
-                                    <span class="font-semibold text-wood-text">{{ $order->quantity }}</span>
-                                </div>
-                                <div>
-                                    <span class="text-wood-muted block mb-0.5">Grand Total</span>
-                                    <span class="font-bold text-wood-primary text-sm">{{ $order->formatted_total_price }}</span>
-                                </div>
-                                <div>
-                                    <span class="text-wood-muted block mb-0.5">Tanggal Pesan</span>
-                                    <span class="font-semibold text-wood-text">{{ $order->created_at->format('d M Y') }}</span>
+                    @else
+                        {{-- Fallback for legacy single product order --}}
+                        <div class="flex items-start gap-4">
+                            <div class="h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-wood-light/40 border border-wood-border/40">
+                                @if ($order->product && $order->product->thumbnail)
+                                    <img src="{{ asset('storage/' . $order->product->thumbnail) }}" alt="{{ $order->product->name }}" class="h-full w-full object-cover">
+                                @else
+                                    <div class="flex h-full w-full items-center justify-center text-wood-muted">
+                                        <svg class="h-9 w-9 stroke-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                        </svg>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-base font-semibold text-wood-text">{{ $order->product?->name ?? 'Produk' }}</h3>
+                                <div class="mt-3 grid grid-cols-2 gap-4 text-xs">
+                                    <div>
+                                        <span class="text-wood-muted block mb-0.5">Harga Satuan</span>
+                                        <span class="font-semibold text-wood-text">{{ $order->product?->formatted_price ?? 'Rp 0' }}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-wood-muted block mb-0.5">Jumlah</span>
+                                        <span class="font-semibold text-wood-text">{{ $order->quantity }}</span>
+                                    </div>
                                 </div>
                             </div>
+                        </div>
+                    @endif
+
+                    {{-- Breakdown Summary inside card --}}
+                    <div class="mt-5 pt-4 border-t border-wood-border/40 space-y-2 text-xs">
+                        <div class="flex justify-between text-wood-muted">
+                            <span>Subtotal Produk</span>
+                            <span class="font-semibold text-wood-text">
+                                Rp {{ number_format(($order->total_price - ($order->customization_fee ?? 0) - ($order->packing_fee ?? 0)), 0, ',', '.') }}
+                            </span>
+                        </div>
+                        @if ($order->customization_fee > 0)
+                            <div class="flex justify-between text-wood-muted">
+                                <span>Biaya Customisasi Meubel Matang</span>
+                                <span class="font-semibold text-wood-text">Rp {{ number_format($order->customization_fee, 0, ',', '.') }}</span>
+                            </div>
+                        @endif
+                        @if ($order->packing_fee > 0)
+                            <div class="flex justify-between text-wood-muted">
+                                <span>Biaya Bahan Packing</span>
+                                <span class="font-semibold text-wood-text">Rp {{ number_format($order->packing_fee, 0, ',', '.') }}</span>
+                            </div>
+                        @endif
+                        <div class="flex justify-between text-wood-muted">
+                            <span>Ongkos Kirim</span>
+                            <span class="font-semibold text-emerald-700">Rp 0 (Termasuk / Sesuai Kesepakatan WA)</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm font-bold text-wood-text pt-2 border-t border-wood-border/30">
+                            <span>Grand Total</span>
+                            <span class="text-base text-wood-primary">{{ $order->formatted_total_price }}</span>
                         </div>
                     </div>
                 </div>
@@ -141,28 +222,48 @@
                             @endif
                         </div>
                     </div>
-                @elseif ($order->status === 'completed' && $order->product)
+                @elseif ($order->status === 'completed')
                     <div class="rounded-3xl border-2 border-dashed border-wood-primary/40 bg-white p-6 shadow-sm">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                            <div class="flex items-start gap-3">
-                                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-wood-primary/10 text-wood-primary">
-                                    <span class="text-lg">★</span>
-                                </div>
-                                <div>
-                                    <h3 class="text-sm font-bold text-wood-text">Beri Ulasan Produk</h3>
-                                    <p class="text-xs text-wood-muted mt-0.5">Pesanan Anda telah selesai! Bagikan pengalaman Anda untuk membantu pembeli lain.</p>
-                                </div>
+                        <div class="flex items-start gap-3 mb-4">
+                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-wood-primary/10 text-wood-primary">
+                                <span class="text-lg">★</span>
                             </div>
+                            <div>
+                                <h3 class="text-sm font-bold text-wood-text">Beri Ulasan Produk</h3>
+                                <p class="text-xs text-wood-muted mt-0.5">Pesanan Anda telah selesai! Bagikan pengalaman Anda untuk membantu pembeli lain.</p>
+                            </div>
+                        </div>
+
+                        @if ($order->items && $order->items->count() > 0)
+                            <div class="space-y-2">
+                                @foreach ($order->items as $item)
+                                    @if ($item->product)
+                                        <div class="flex items-center justify-between p-3 rounded-2xl bg-wood-light/20 border border-wood-border/40">
+                                            <span class="text-xs font-semibold text-wood-text truncate">{{ $item->product->name }}</span>
+                                            <a
+                                                href="{{ route('products.show', $item->product->slug) }}#ulasan"
+                                                class="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-wood-primary px-3.5 py-1.5 text-xs font-bold text-white hover:bg-wood-primary-dark transition-all shadow-xs"
+                                            >
+                                                <span>Ulas Produk</span>
+                                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                                                </svg>
+                                            </a>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            </div>
+                        @elseif ($order->product)
                             <a
                                 href="{{ route('products.show', $order->product->slug) }}#ulasan"
-                                class="shrink-0 inline-flex items-center justify-center gap-2 rounded-2xl bg-wood-primary px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-wood-primary/20 hover:bg-wood-primary-dark transition-all"
+                                class="inline-flex items-center justify-center gap-2 rounded-2xl bg-wood-primary px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-wood-primary/20 hover:bg-wood-primary-dark transition-all"
                             >
                                 <span>Tulis Ulasan</span>
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                                 </svg>
                             </a>
-                        </div>
+                        @endif
                     </div>
                 @endif
 

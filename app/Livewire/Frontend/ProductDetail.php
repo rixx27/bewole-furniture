@@ -38,9 +38,6 @@ class ProductDetail extends Component
 
     public function incrementQuantity(): void
     {
-        if ($this->product->stock > 0 && $this->quantity >= $this->product->stock) {
-            return;
-        }
         $this->quantity++;
     }
 
