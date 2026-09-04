@@ -140,7 +140,7 @@
                     <a
                         role="listitem"
                         href="{{ $linkBase . $category->slug }}"
-                        class="relative flex h-[460px] w-[85%] shrink-0 snap-center items-end justify-start overflow-hidden rounded-[2rem] shadow-lg shadow-black/10 transition-all duration-500 ease-in-out"
+                        class="relative flex h-[460px] w-[85%] shrink-0 snap-start items-end justify-start overflow-hidden rounded-[2rem] shadow-lg shadow-black/10 transition-all duration-500 ease-in-out"
                         aria-label="{{ $category->name }}"
                     >
 @if ($category->cover_image_url)

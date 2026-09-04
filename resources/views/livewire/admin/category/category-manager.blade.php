@@ -48,7 +48,7 @@
                     <span class="text-text-secondary">{{ $editingId ? 'Ubah Kategori' : 'Tambah Kategori' }}</span>
                 </div>
                 <h2 class="text-2xl font-bold tracking-tight text-text-primary dark:text-black">{{ $editingId ? 'Ubah Kategori' : 'Tambah Kategori' }}</h2>
-                <p class="mt-1 text-sm text-text-secondary">Kelola kategori untuk section "Explore Our Collection".</p>
+                <p class="mt-1 text-sm text-text-secondary">Kelola kategori dan pengaturan tampilan pada beranda.</p>
             </div>
 
             <form wire:submit="save" class="space-y-5">
@@ -123,8 +123,8 @@
                     @enderror
                 </div>
 
-                {{-- Urutan + Status --}}
-                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                {{-- Urutan + Status + Tampilan Beranda --}}
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
                     <div>
                         <label for="sort_order" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
                             Urutan
@@ -138,17 +138,29 @@
                         @error('sort_order')
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                         @enderror
+                        <p class="mt-1 text-xs text-text-muted">Urutan tampil (1 = paling kiri/pertama, 2 = kedua, dst. 0 = di akhir).</p>
                     </div>
 
                     <div>
                         <label class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">Status</label>
-                        <label class="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-2.5">
+                        <label class="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-2.5 cursor-pointer">
                             <input type="checkbox"
                                    wire:model="is_active"
                                    class="h-4 w-4 rounded border-border text-primary focus:ring-primary">
                             <span class="text-sm font-medium text-text-primary dark:text-black">Aktif</span>
                         </label>
-                        <p class="mt-1 text-xs text-text-muted">Nonaktifkan untuk menyembunyikan dari tampilan publik.</p>
+                        <p class="mt-1 text-xs text-text-muted">Aktifkan atau nonaktifkan kategori ini.</p>
+                    </div>
+
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">Tampilan Beranda</label>
+                        <label class="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-2.5 cursor-pointer">
+                            <input type="checkbox"
+                                   wire:model="show_on_home"
+                                   class="h-4 w-4 rounded border-border text-primary focus:ring-primary">
+                            <span class="text-sm font-medium text-text-primary dark:text-black">Tampilkan di Beranda</span>
+                        </label>
+                        <p class="mt-1 text-xs text-text-muted">Tampilkan pada section "Explore Our Collection" di beranda.</p>
                     </div>
                 </div>
 
@@ -217,6 +229,7 @@
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Nama</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Code</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Status</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Beranda</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Urutan</th>
                             <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-text-muted">Aksi</th>
                         </tr>
@@ -257,9 +270,20 @@
                                     <button type="button"
                                             wire:click="toggleActive({{ $category['id'] }})"
                                             class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors {{ $category['is_active'] ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-950 dark:text-red-300' }}"
-                                            title="Klik untuk mengubah status">
+                                            title="Klik untuk mengubah status aktif">
                                         <span class="h-1.5 w-1.5 rounded-full {{ $category['is_active'] ? 'bg-emerald-500' : 'bg-red-500' }}"></span>
                                         {{ $category['is_active'] ? 'Aktif' : 'Nonaktif' }}
+                                    </button>
+                                </td>
+
+                                {{-- Beranda --}}
+                                <td class="px-6 py-4">
+                                    <button type="button"
+                                            wire:click="toggleShowOnHome({{ $category['id'] }})"
+                                            class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors {{ $category['show_on_home'] ? 'bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-950 dark:text-blue-300' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400' }}"
+                                            title="Klik untuk mengubah status tampilan beranda">
+                                        <span class="h-1.5 w-1.5 rounded-full {{ $category['show_on_home'] ? 'bg-blue-500' : 'bg-zinc-400' }}"></span>
+                                        {{ $category['show_on_home'] ? 'Tampil' : 'Sembunyi' }}
                                     </button>
                                 </td>
 
@@ -357,7 +381,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-16 text-center">
+                                <td colspan="7" class="px-6 py-16 text-center">
                                     <div class="flex flex-col items-center">
                                         <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-bg-secondary">
                                             <svg class="h-8 w-8 text-text-muted/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">

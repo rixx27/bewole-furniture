@@ -54,6 +54,11 @@ class UpdateProductRequest extends FormRequest
             }
             $this->merge(['materials' => $materials]);
         }
+
+        if ($this->has('sort_order')) {
+            $val = $this->input('sort_order');
+            $this->merge(['sort_order' => $val !== null && $val !== '' ? (int) $val : 0]);
+        }
     }
 
     /**
@@ -92,6 +97,7 @@ class UpdateProductRequest extends FormRequest
             'dimensions' => ['nullable', 'string', 'max:255'],
             'weight' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
             'status' => ['required', Rule::in(['active', 'pre_order', 'sold_out'])],
+            'sort_order' => ['nullable', 'integer', 'min:0'],
             'is_featured' => ['boolean'],
             'thumbnail' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'gallery' => ['nullable', 'array'],
@@ -132,6 +138,8 @@ class UpdateProductRequest extends FormRequest
             'stock.required' => 'Stok wajib diisi.',
             'stock.integer' => 'Stok harus berupa angka bulat.',
             'stock.min' => 'Stok tidak boleh negatif.',
+            'sort_order.integer' => 'Urutan harus berupa angka.',
+            'sort_order.min' => 'Urutan minimal 0.',
             'material.required' => 'Bahan wajib diisi.',
             'material.max' => 'Bahan maksimal 255 karakter.',
             'dimensions.max' => 'Dimensi maksimal 255 karakter.',

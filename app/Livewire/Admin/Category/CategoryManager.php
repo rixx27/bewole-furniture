@@ -30,6 +30,7 @@ class CategoryManager extends Component
     public string $name = '';
     public string $short_description = '';
     public bool $is_active = true;
+    public bool $show_on_home = false;
     public int $sort_order = 0;
 
     // Cover upload state
@@ -82,6 +83,7 @@ class CategoryManager extends Component
                 'cover_image_url' => $category->cover_image_url,
                 'sort_order' => $category->sort_order,
                 'is_active' => $category->is_active,
+                'show_on_home' => (bool) $category->show_on_home,
                 'short_description' => $category->short_description,
                 'products_count' => $category->products()->count(),
             ])
@@ -118,6 +120,7 @@ class CategoryManager extends Component
         $this->name = $category->name;
         $this->short_description = $category->short_description ?? '';
         $this->is_active = (bool) $category->is_active;
+        $this->show_on_home = (bool) $category->show_on_home;
         $this->sort_order = (int) $category->sort_order;
         $this->existing_cover = $category->cover_image;
         $this->cover_preview = $category->cover_image_url;
@@ -142,6 +145,7 @@ class CategoryManager extends Component
         $this->name = '';
         $this->short_description = '';
         $this->is_active = true;
+        $this->show_on_home = false;
         $this->sort_order = 0;
         $this->cover_image = null;
         $this->cover_preview = null;
@@ -184,6 +188,7 @@ class CategoryManager extends Component
                 'name' => $this->name,
                 'short_description' => $this->short_description === '' ? null : $this->short_description,
                 'is_active' => $this->is_active,
+                'show_on_home' => $this->show_on_home,
                 'sort_order' => $this->sort_order,
             ];
 
@@ -220,6 +225,20 @@ class CategoryManager extends Component
         $category->save();
 
         $status = $category->is_active ? 'diaktifkan' : 'dinonaktifkan';
+        $this->loadCategories();
+        $this->dispatch('category-saved', type: 'success', message: "Kategori \"{$category->name}\" berhasil {$status}.");
+    }
+
+    /**
+     * Toggle a category's show on home status.
+     */
+    public function toggleShowOnHome(int $categoryId): void
+    {
+        $category = Category::findOrFail($categoryId);
+        $category->show_on_home = !$category->show_on_home;
+        $category->save();
+
+        $status = $category->show_on_home ? 'ditampilkan di beranda' : 'disembunyikan dari beranda';
         $this->loadCategories();
         $this->dispatch('category-saved', type: 'success', message: "Kategori \"{$category->name}\" berhasil {$status}.");
     }
@@ -262,6 +281,7 @@ class CategoryManager extends Component
             'name' => $nameRules,
             'short_description' => ['nullable', 'string', 'max:500'],
             'is_active' => ['boolean'],
+            'show_on_home' => ['boolean'],
             'sort_order' => ['integer', 'min:0', 'max:9999'],
             'cover_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ];

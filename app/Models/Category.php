@@ -22,6 +22,7 @@ class Category extends Model
         'short_description',
         'sort_order',
         'is_active',
+        'show_on_home',
     ];
 
     /**
@@ -33,6 +34,7 @@ class Category extends Model
     {
         return [
             'is_active' => 'boolean',
+            'show_on_home' => 'boolean',
             'sort_order' => 'integer',
         ];
     }
@@ -109,10 +111,23 @@ class Category extends Model
     }
 
     /**
+     * Scope a query to only include categories shown on home.
+     */
+    public function scopeShowOnHome($query)
+    {
+        return $query->where('show_on_home', true);
+    }
+
+    /**
      * Scope a query to order categories by sort order then name.
+     * Categories with specified order (1, 2, 3...) appear first,
+     * while unprioritized categories (sort_order = 0 or null) appear after.
      */
     public function scopeSorted($query)
     {
-        return $query->orderBy('sort_order')->orderBy('name');
+        return $query
+            ->orderByRaw('CASE WHEN sort_order = 0 OR sort_order IS NULL THEN 1 ELSE 0 END ASC')
+            ->orderBy('sort_order', 'asc')
+            ->orderBy('name', 'asc');
     }
 }

@@ -37,6 +37,7 @@ class ProductController extends Controller
             ->when($statusFilter, function ($query, $statusFilter) {
                 $query->where('status', $statusFilter);
             })
+            ->orderBy('sort_order', 'asc')
             ->orderBy('created_at', 'desc')
             ->paginate(10)
             ->withQueryString();

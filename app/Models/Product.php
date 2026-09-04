@@ -54,6 +54,7 @@ class Product extends Model
             'discount_percentage' => 'integer',
             'is_featured' => 'boolean',
             'stock' => 'integer',
+            'sort_order' => 'integer',
             'weight' => 'float',
             'seat_material_usage' => 'float',
             'packing_material_usage' => 'float',

@@ -47,6 +47,7 @@ class CategoryShowcase extends Component
     ) {
         $this->categories = Category::query()
             ->active()
+            ->showOnHome()
             ->sorted()
             ->get();
 

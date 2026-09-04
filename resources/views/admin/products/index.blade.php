@@ -103,6 +103,7 @@
                         <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Harga</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Stok</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Status</th>
+                        <th class="px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider text-text-muted">Urutan</th>
                         <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-text-muted">Aksi</th>
                     </tr>
                 </thead>
@@ -166,6 +167,11 @@
                                 <span class="inline-flex items-center gap-1 rounded-full bg-{{ $color }}-50 px-2.5 py-0.5 text-xs font-medium text-{{ $color }}-700 dark:bg-{{ $color }}-950 dark:text-{{ $color }}-300">
                                     <span class="h-1.5 w-1.5 rounded-full bg-{{ $color }}-500"></span>
                                     {{ $product->status_label }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-4 text-center">
+                                <span class="inline-flex items-center justify-center rounded-md bg-bg-secondary px-2.5 py-1 text-xs font-medium text-text-primary dark:text-black">
+                                    {{ $product->sort_order }}
                                 </span>
                             </td>
                             <td class="px-6 py-4">
@@ -271,7 +277,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-16 text-center">
+                            <td colspan="7" class="px-6 py-16 text-center">
                                 <div class="flex flex-col items-center">
                                     <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-bg-secondary">
                                         <svg class="h-8 w-8 text-text-muted/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
