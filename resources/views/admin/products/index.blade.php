@@ -241,7 +241,7 @@
                                                     </svg>
                                                 </div>
                                                 <div>
-                                                    <h3 class="text-lg font-semibold text-text-primary dark:text-white">Konfirmasi Hapus</h3>
+                                                    <h3 class="text-lg font-semibold text-text-primary dark:text-black">Konfirmasi Hapus</h3>
                                                     <p class="text-sm text-text-secondary">Apakah Anda yakin ingin menghapus produk ini?</p>
                                                 </div>
                                             </div>
@@ -251,7 +251,7 @@
                                                     @if ($product->thumbnail)
                                                         <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}" class="h-10 w-10 rounded-lg object-cover">
                                                     @endif
-                                                    <p class="text-sm font-medium text-text-primary dark:text-white">{{ $product->name }}</p>
+                                                    <p class="text-sm font-medium text-black dark:text-black">{{ $product->name }}</p>
                                                 </div>
                                             </div>
 
@@ -285,10 +285,10 @@
                                         </svg>
                                     </div>
                                     @if ($search || $categoryFilter || $statusFilter)
-                                        <p class="text-sm font-medium text-text-primary dark:text-white">Produk tidak ditemukan</p>
+                                        <p class="text-sm font-medium text-text-primary dark:text-black">Produk tidak ditemukan</p>
                                         <p class="mt-1 text-xs text-text-muted">Tidak ada produk yang cocok dengan filter yang dipilih.</p>
                                     @else
-                                        <p class="text-sm font-medium text-text-primary dark:text-white">Belum ada produk</p>
+                                        <p class="text-sm font-medium text-text-primary dark:text-black">Belum ada produk</p>
                                         <p class="mt-1 text-xs text-text-muted">Mulai dengan menambahkan produk baru.</p>
                                     @endif
                                 </div>

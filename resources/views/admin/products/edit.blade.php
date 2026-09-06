@@ -63,85 +63,51 @@
                         @enderror
                     </div>
 
-                    {{-- Slug --}}
+                    {{-- Status --}}
                     <div>
-                        <label for="slug" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                            Slug
+                        <label for="status" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
+                            Status <span class="text-red-500">*</span>
                         </label>
-                        <input type="text"
-                               id="slug"
-                               name="slug"
-                               value="{{ old('slug', $product->slug) }}"
-                               placeholder="Kosongkan untuk generate otomatis"
-                               class="w-full rounded-lg border {{ $errors->has('slug') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors">
-                        @error('slug')
+                        <select id="status"
+                                name="status"
+                                class="w-full rounded-lg border {{ $errors->has('status') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary outline-hidden ring-0 transition-colors">
+                            <option value="active" {{ old('status', $product->status) === 'active' ? 'selected' : '' }}>Tersedia</option>
+                            <option value="pre_order" {{ old('status', $product->status) === 'pre_order' ? 'selected' : '' }}>Pre-Order</option>
+                            <option value="sold_out" {{ old('status', $product->status) === 'sold_out' ? 'selected' : '' }}>Habis</option>
+                        </select>
+                        @error('status')
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                         @enderror
-                        <p class="mt-1 text-xs text-text-muted">Kosongkan untuk menghasilkan slug otomatis dari nama produk.</p>
                     </div>
 
-                    {{-- Status & Urutan --}}
-                    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                        {{-- Status --}}
-                        <div>
-                            <label for="status" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                                Status <span class="text-red-500">*</span>
-                            </label>
-                            <select id="status"
-                                    name="status"
-                                    class="w-full rounded-lg border {{ $errors->has('status') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary outline-hidden ring-0 transition-colors">
-                                <option value="active" selected>Tersedia</option>
-                            </select>
-                            @error('status')
-                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        {{-- Urutan --}}
-                        <div>
-                            <label for="sort_order" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                                Urutan
-                            </label>
-                            <input type="number"
-                                   id="sort_order"
-                                   name="sort_order"
-                                   value="{{ old('sort_order', $product->sort_order ?? 0) }}"
-                                   min="0"
-                                   placeholder="0"
-                                   class="w-full rounded-lg border {{ $errors->has('sort_order') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors">
-                            @error('sort_order')
-                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                            @enderror
-                            <p class="mt-1 text-xs text-text-muted">Semakin kecil angka, semakin awal ditampilkan.</p>
-                        </div>
+                    {{-- Urutan --}}
+                    <div>
+                        <label for="sort_order" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
+                            Urutan
+                        </label>
+                        <input type="number"
+                               id="sort_order"
+                               name="sort_order"
+                               value="{{ old('sort_order', $product->sort_order ?? 0) }}"
+                               min="0"
+                               placeholder="0"
+                               class="w-full rounded-lg border {{ $errors->has('sort_order') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors">
+                        @error('sort_order')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
+                        <p class="mt-1 text-xs text-text-muted">Semakin kecil angka, semakin awal ditampilkan.</p>
                     </div>
                 </div>
 
-                {{-- Deskripsi Singkat --}}
-                <div class="mt-5">
-                    <label for="short_description" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                        Deskripsi Singkat <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text"
-                           id="short_description"
-                           name="short_description"
-                           value="{{ old('short_description', $product->short_description) }}"
-                           placeholder="Deskripsi singkat produk (maks. 500 karakter)"
-                           class="w-full rounded-lg border {{ $errors->has('short_description') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors">
-                    @error('short_description')
-                        <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                {{-- Deskripsi Lengkap --}}
+                {{-- Deskripsi --}}
                 <div class="mt-5">
                     <label for="description" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                        Deskripsi Lengkap <span class="text-red-500">*</span>
+                        Deskripsi <span class="text-red-500">*</span>
                     </label>
                     <textarea id="description"
                               name="description"
                               rows="5"
-                              placeholder="Deskripsi lengkap produk..."
+                              placeholder="Deskripsi produk..."
                               class="w-full rounded-lg border {{ $errors->has('description') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors">{{ old('description', $product->description) }}</textarea>
                     @error('description')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>

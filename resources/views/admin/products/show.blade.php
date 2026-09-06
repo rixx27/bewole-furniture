@@ -139,15 +139,8 @@
             <div class="border-b border-border bg-bg-secondary/50 px-6 py-3">
                 <h4 class="text-sm font-semibold text-text-primary dark:text-black">Deskripsi</h4>
             </div>
-            <div class="p-6 space-y-4">
-                <div>
-                    <p class="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Deskripsi Singkat</p>
-                    <p class="text-sm text-text-secondary">{{ $product->short_description ?? '-' }}</p>
-                </div>
-                <div>
-                    <p class="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Deskripsi Lengkap</p>
-                    <div class="text-sm text-text-secondary leading-relaxed whitespace-pre-line">{{ $product->description ?? '-' }}</div>
-                </div>
+            <div class="p-6">
+                <div class="text-sm text-text-secondary leading-relaxed whitespace-pre-line">{{ $product->description ?? '-' }}</div>
             </div>
         </div>
 

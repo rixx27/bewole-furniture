@@ -219,7 +219,7 @@
                                                     </svg>
                                                 </div>
                                                 <div>
-                                                    <h3 class="text-lg font-semibold text-text-primary dark:text-white">Konfirmasi Hapus</h3>
+                                                    <h3 class="text-lg font-semibold text-text-primary dark:text-black">Konfirmasi Hapus</h3>
                                                     <p class="text-sm text-text-secondary">Apakah Anda yakin ingin menghapus hero banner ini?</p>
                                                 </div>
                                             </div>
@@ -229,7 +229,7 @@
                                                     @if ($hero->image)
                                                         <img src="{{ asset('storage/' . $hero->image) }}" alt="{{ $hero->title }}" class="h-10 w-16 rounded-lg object-cover">
                                                     @endif
-                                                    <p class="text-sm font-medium text-text-primary dark:text-white">{{ $hero->title }}</p>
+                                                    <p class="text-sm font-medium text-black dark:text-black">{{ $hero->title }}</p>
                                                 </div>
                                             </div>
 

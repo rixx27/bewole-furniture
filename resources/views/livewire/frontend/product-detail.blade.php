@@ -83,13 +83,6 @@
                 @endif
             </div>
 
-            {{-- Short Description --}}
-            @if ($product->short_description)
-                <p class="mt-4 text-sm text-wood-muted leading-relaxed">
-                    {{ $product->short_description }}
-                </p>
-            @endif
-
             {{-- Specifications Table --}}
             <div class="mt-6 rounded-2xl border border-wood-border/50 bg-wood-light/20 p-4">
                 <h3 class="text-xs font-bold uppercase tracking-wider text-wood-text border-b border-wood-border/40 pb-2 mb-3">Spesifikasi Produk</h3>
@@ -185,10 +178,10 @@
                 </div>
             </div>
 
-            {{-- Full Description --}}
+            {{-- Product Description --}}
             @if ($product->description)
                 <div class="mt-10 border-t border-wood-border/40 pt-6">
-                    <h3 class="text-base font-bold text-wood-text font-serif mb-3">Deskripsi Lengkap</h3>
+                    <h3 class="text-base font-bold text-wood-text font-serif mb-3">Deskripsi Produk</h3>
                     <div class="prose prose-sm text-wood-muted max-w-none leading-relaxed">
                         {!! nl2br(e($product->description)) !!}
                     </div>

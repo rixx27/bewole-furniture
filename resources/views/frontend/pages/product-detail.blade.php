@@ -34,11 +34,6 @@
             <h1 class="font-serif text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
                 {{ $product->name }}
             </h1>
-            @if ($product->short_description)
-                <p class="mt-3 max-w-2xl text-sm leading-relaxed text-white/85 sm:text-base">
-                    {{ $product->short_description }}
-                </p>
-            @endif
         </div>
     </section>
 

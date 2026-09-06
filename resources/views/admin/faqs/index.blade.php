@@ -197,13 +197,13 @@
                                                     </svg>
                                                 </div>
                                                 <div>
-                                                    <h3 class="text-lg font-semibold text-text-primary dark:text-white">Konfirmasi Hapus</h3>
+                                                    <h3 class="text-lg font-semibold text-text-primary dark:text-black">Konfirmasi Hapus</h3>
                                                     <p class="text-sm text-text-secondary">Apakah Anda yakin ingin menghapus FAQ ini?</p>
                                                 </div>
                                             </div>
 
                                             <div class="mb-5 rounded-lg bg-bg-secondary p-4">
-                                                <p class="text-sm font-medium text-text-primary dark:text-white">{{ $faq->question }}</p>
+                                                <p class="text-sm font-medium text-black dark:text-black">{{ $faq->question }}</p>
                                             </div>
 
                                             <div class="flex items-center justify-end gap-3">

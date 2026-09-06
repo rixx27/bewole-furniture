@@ -100,6 +100,8 @@
 
                         @if ($product->short_description)
                             <p class="mt-1 text-xs text-wood-muted line-clamp-2">{{ $product->short_description }}</p>
+                        @elseif ($product->description)
+                            <p class="mt-1 text-xs text-wood-muted line-clamp-2">{{ Str::limit(strip_tags($product->description), 80) }}</p>
                         @endif
 
                         <div class="mt-auto pt-4 flex items-center justify-between border-t border-wood-border/40">
