@@ -516,3 +516,30 @@ div[id] {
         transition: none !important;
     }
 }
+
+/* ============================================================
+   LIVEWIRE SPA NAVIGATION PROGRESS BAR
+   ============================================================ */
+:root {
+    --livewire-progress-bar-color: #A67C52;
+}
+
+#nprogress {
+    pointer-events: none;
+}
+
+#nprogress .bar {
+    background: linear-gradient(90deg, #5B3A29, #A67C52, #C9A97E) !important;
+    position: fixed;
+    z-index: 99999 !important;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px !important;
+    box-shadow: 0 0 10px rgba(166, 124, 82, 0.8), 0 0 5px rgba(91, 58, 41, 0.6) !important;
+}
+
+#nprogress .peg {
+    box-shadow: 0 0 10px #C9A97E, 0 0 5px #A67C52 !important;
+}
+

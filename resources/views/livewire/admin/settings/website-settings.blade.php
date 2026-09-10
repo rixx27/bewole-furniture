@@ -450,19 +450,111 @@
                             </div>
                         </div>
 
-                        {{-- Metadata Summary Preview --}}
-                        <div class="rounded-xl border border-border bg-bg-secondary/40 p-5 space-y-3">
-                            <h4 class="text-xs font-bold uppercase tracking-wider text-text-muted">Ringkasan Meta SEO</h4>
-                            <div class="space-y-2 text-sm">
-                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-border/50 pb-2">
-                                    <span class="text-xs text-text-muted">Meta Title Utama:</span>
-                                    <span class="font-medium text-text-primary">{{ $site_name ?: 'Bewole Furniture' }} {{ $site_tagline ? '— ' . $site_tagline : '' }}</span>
-                                </div>
-                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                                    <span class="text-xs text-text-muted">Meta Deskripsi:</span>
-                                    <span class="font-medium text-text-primary truncate max-w-md">{{ $address ?: 'Toko Furniture Jepara Furniture ' }}</span>
-                                </div>
+                        {{-- Divider --}}
+                        <div class="border-t border-border pt-6 space-y-5">
+                            <div class="flex items-center gap-2">
+                                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">i</span>
+                                <h4 class="text-sm font-semibold text-text-primary dark:text-black">Konfigurasi Tag Meta SEO Google</h4>
                             </div>
+
+                            {{-- Meta Title --}}
+                            <div>
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label for="meta_title" class="block text-sm font-medium text-text-primary dark:text-black">
+                                        Meta Title (Judul Google)
+                                    </label>
+                                    <span class="text-xs font-mono {{ strlen($meta_title) > 60 ? 'text-amber-600 font-semibold' : 'text-text-muted' }}">
+                                        {{ strlen($meta_title) }}/70 karakter
+                                    </span>
+                                </div>
+                                <input type="text"
+                                       id="meta_title"
+                                       wire:model.live="meta_title"
+                                       placeholder="Contoh: Toko Furniture Jepara Asli &amp; Mebel Jati Kualitas Ekspor"
+                                       class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
+                                <p class="mt-1 text-xs text-text-muted">
+                                    Disarankan 50–60 karakter. Jika dikosongkan, sistem otomatis memakai format: <em>{{ $site_name ?: 'Bewole Furniture' }} {{ $site_tagline ? '— ' . Str::limit($site_tagline, 40) : '' }}</em>.
+                                </p>
+                                @error('meta_title') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                            </div>
+
+                            {{-- Meta Description --}}
+                            <div>
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label for="meta_description" class="block text-sm font-medium text-text-primary dark:text-black">
+                                        Meta Deskripsi (Snippet Google)
+                                    </label>
+                                    <span class="text-xs font-mono {{ strlen($meta_description) > 160 ? 'text-amber-600 font-semibold' : 'text-text-muted' }}">
+                                        {{ strlen($meta_description) }}/320 karakter
+                                    </span>
+                                </div>
+                                <textarea id="meta_description"
+                                          wire:model.live="meta_description"
+                                          rows="3"
+                                          placeholder="Contoh: Bewole Jepara Furniture menghadirkan perabotan kayu jati berkualitas tinggi dengan pengerjaan tangan ahli dan desain timeless khas Jepara."
+                                          class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary resize-none"></textarea>
+                                <p class="mt-1 text-xs text-text-muted">
+                                    Rekomendasi 150–160 karakter agar tidak terpotong di hasil pencarian. Jika dikosongkan, otomatis memakai tagline perusahaan.
+                                </p>
+                                @error('meta_description') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                            </div>
+
+                            {{-- Meta Keywords --}}
+                            <div>
+                                <label for="meta_keywords" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
+                                    Meta Keywords (Kata Kunci Pencarian)
+                                </label>
+                                <input type="text"
+                                       id="meta_keywords"
+                                       wire:model="meta_keywords"
+                                       placeholder="Contoh: furniture jepara, mebel jati, kursi minimalis, meja makan jepara"
+                                       class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
+                                <p class="mt-1 text-xs text-text-muted">
+                                    Pisahkan setiap kata kunci dengan tanda koma (,).
+                                </p>
+                                @error('meta_keywords') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
+
+                        {{-- Live Google Search Snippet Preview --}}
+                        <div class="rounded-xl border border-border bg-bg-secondary/40 p-5 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <h4 class="text-xs font-bold uppercase tracking-wider text-text-muted">
+                                    Pratinjau Hasil Pencarian Google (SERP Preview)
+                                </h4>
+                                <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700 border border-emerald-200">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Live Update
+                                </span>
+                            </div>
+
+                            {{-- Mock Google Card --}}
+                            <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-xs max-w-2xl font-sans">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <div class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 overflow-hidden border border-gray-200">
+                                        @if ($logo_preview)
+                                            <img src="{{ $logo_preview }}" alt="Favicon" class="h-4 w-4 object-contain">
+                                        @elseif ($existing_logo)
+                                            <img src="{{ asset('storage/' . $existing_logo) }}" alt="Favicon" class="h-4 w-4 object-contain">
+                                        @else
+                                            <span class="text-[10px] font-bold text-gray-500">B</span>
+                                        @endif
+                                    </div>
+                                    <div class="text-xs text-gray-700 leading-none">
+                                        <p class="font-medium text-gray-900">{{ $site_name ?: 'Bewole Jepara Furniture' }}</p>
+                                        <p class="text-[11px] text-gray-500 truncate">{{ url('/') }}</p>
+                                    </div>
+                                </div>
+                                <h5 class="text-base font-medium text-[#1a0dab] hover:underline cursor-pointer leading-snug line-clamp-1 mb-1">
+                                    {{ filled($meta_title) ? $meta_title : ($site_name ?: 'Bewole Furniture') . ($site_tagline ? ' — ' . $site_tagline : '') }}
+                                </h5>
+                                <p class="text-xs text-[#4d5156] leading-relaxed line-clamp-2">
+                                    {{ filled($meta_description) ? $meta_description : ($site_tagline ?: ($address ?: 'Toko furniture terpercaya yang menghadirkan produk berkualitas dengan desain timeless khas Jepara.')) }}
+                                </p>
+                            </div>
+
+                            <p class="text-[11px] text-text-muted italic">
+                                * Pratinjau ini mengilustrasikan perkiraan tampilan link website Anda saat muncul di halaman hasil pencarian Google.
+                            </p>
                         </div>
                     </div>
                 </div>

@@ -313,11 +313,11 @@
                             @error('project_done') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                         </div>
 
-                        {{-- Pelanggan --}}
+                        {{-- Kategori Produk --}}
                         <div>
                             <label for="customers" class="mb-1.5 flex items-center gap-2 text-sm font-medium text-text-primary dark:text-black">
-                                <i class="fa-solid fa-users text-primary"></i>
-                                Pelanggan <span class="text-red-500">*</span>
+                                <i class="fa-solid fa-table-list text-primary"></i>
+                                Kategori Produk <span class="text-red-500">*</span>
                             </label>
                             <input type="number" id="customers" wire:model="customers" min="0"
                                    class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">

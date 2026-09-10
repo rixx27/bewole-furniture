@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\UpdateProductRequest;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Services\ImageOptimizerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -28,6 +29,7 @@ class ProductController extends Controller
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
                       ->orWhere('slug', 'like', "%{$search}%")
+                      ->orWhere('description', 'like', "%{$search}%")
                       ->orWhere('short_description', 'like', "%{$search}%");
                 });
             })
@@ -75,9 +77,12 @@ class ProductController extends Controller
         $data['is_featured'] = $request->boolean('is_featured', false);
 
 
-        // Upload thumbnail
+        // Upload thumbnail with auto compression
         if ($request->hasFile('thumbnail')) {
-            $data['thumbnail'] = $request->file('thumbnail')->store('products/thumbnails', 'public');
+            $data['thumbnail'] = ImageOptimizerService::compressAndStore(
+                $request->file('thumbnail'),
+                'products/thumbnails'
+            );
         }
 
         // Create product (final price auto-calculated in model boot)
@@ -97,10 +102,13 @@ class ProductController extends Controller
             }
         }
 
-        // Upload gallery images (optional)
+        // Upload gallery images (optional) with auto compression
         if ($request->hasFile('gallery')) {
             foreach ($request->file('gallery') as $index => $image) {
-                $path = $image->store('products/gallery', 'public');
+                $path = ImageOptimizerService::compressAndStore(
+                    $image,
+                    'products/gallery'
+                );
                 $product->images()->create([
                     'image' => $path,
                     'is_primary' => false,
@@ -151,13 +159,16 @@ class ProductController extends Controller
         // Handle boolean
         $data['is_featured'] = $request->boolean('is_featured', false);
 
-        // Upload new thumbnail if provided
+        // Upload new thumbnail if provided with auto compression
         if ($request->hasFile('thumbnail')) {
             // Delete old thumbnail
             if ($product->thumbnail) {
                 Storage::disk('public')->delete($product->thumbnail);
             }
-            $data['thumbnail'] = $request->file('thumbnail')->store('products/thumbnails', 'public');
+            $data['thumbnail'] = ImageOptimizerService::compressAndStore(
+                $request->file('thumbnail'),
+                'products/thumbnails'
+            );
         } else {
             unset($data['thumbnail']);
         }
@@ -174,11 +185,14 @@ class ProductController extends Controller
             }
         }
 
-        // Upload new gallery images
+        // Upload new gallery images with auto compression
         if ($request->hasFile('gallery')) {
             $lastSortOrder = $product->images()->max('sort_order') ?? 0;
             foreach ($request->file('gallery') as $index => $image) {
-                $path = $image->store('products/gallery', 'public');
+                $path = ImageOptimizerService::compressAndStore(
+                    $image,
+                    'products/gallery'
+                );
                 $product->images()->create([
                     'image' => $path,
                     'is_primary' => false,

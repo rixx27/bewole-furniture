@@ -13,6 +13,10 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
+        if ($request->user()->hasRole('admin')) {
+            return redirect()->route('admin.orders.index');
+        }
+
         $orders = $request->user()
             ->orders()
             ->with(['items.product', 'product'])

@@ -1,12 +1,50 @@
 <div>
     {{-- Search & Filter Section --}}
-    <div class="mb-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-        {{-- Category Pills --}}
-        <div class="flex flex-wrap items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+    <div class="mb-10 flex flex-col gap-6">
+        {{-- Top Bar: Search Input & Sort Selector --}}
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-wood-muted">Kategori:</span>
+                <span class="text-xs font-semibold text-wood-primary">
+                    {{ empty($selectedCategory) ? 'Semua Produk' : ($categories->firstWhere('slug', $selectedCategory)?->name ?? 'Semua Produk') }}
+                </span>
+            </div>
+
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                {{-- Search Input --}}
+                <div class="relative min-w-[260px]">
+                    <input
+                        type="text"
+                        wire:model.live.debounce.300ms="q"
+                        placeholder="Cari produk kayu..."
+                        class="w-full rounded-full border border-wood-border/60 bg-white/80 py-2.5 pl-11 pr-4 text-xs font-medium text-wood-text placeholder-wood-muted shadow-sm transition-colors focus:border-wood-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-wood-primary/20"
+                    />
+                    <svg class="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-wood-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+
+                {{-- Sort Dropdown --}}
+                <div class="shrink-0">
+                    <select
+                        wire:model.live="sort"
+                        class="w-full rounded-full border border-wood-border/60 bg-white/80 py-2.5 px-4 text-xs font-medium text-wood-text shadow-sm transition-colors focus:border-wood-primary focus:bg-white focus:outline-none"
+                    >
+                        <option value="latest">Terbaru</option>
+                        <option value="price_low">Harga: Terendah</option>
+                        <option value="price_high">Harga: Tertinggi</option>
+                        <option value="name">Nama: A - Z</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        {{-- Category Pills (Statis & Rapi: tanpa horizontal scroll, dimensi stabil, tidak bergeser saat dipilih) --}}
+        <div class="flex flex-wrap items-center gap-2">
             <button
                 type="button"
                 wire:click="selectCategory('')"
-                class="rounded-full px-5 py-2.5 text-xs font-semibold uppercase tracking-wider transition-all duration-300 {{ empty($selectedCategory) ? 'bg-wood-primary text-white shadow-md shadow-wood-primary/20' : 'border border-wood-border/60 bg-white/60 text-wood-muted hover:border-wood-primary hover:text-wood-primary' }}"
+                class="rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-colors duration-150 {{ empty($selectedCategory) ? 'border-wood-primary bg-wood-primary text-white shadow-sm' : 'border-wood-border/70 bg-white/80 text-wood-muted hover:border-wood-primary hover:text-wood-primary' }}"
             >
                 Semua Produk
             </button>
@@ -14,40 +52,11 @@
                 <button
                     type="button"
                     wire:click="selectCategory('{{ $cat->slug }}')"
-                    class="rounded-full px-5 py-2.5 text-xs font-semibold uppercase tracking-wider transition-all duration-300 {{ $selectedCategory === $cat->slug ? 'bg-wood-primary text-white shadow-md shadow-wood-primary/20' : 'border border-wood-border/60 bg-white/60 text-wood-muted hover:border-wood-primary hover:text-wood-primary' }}"
+                    class="rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-colors duration-150 {{ $selectedCategory === $cat->slug ? 'border-wood-primary bg-wood-primary text-white shadow-sm' : 'border-wood-border/70 bg-white/80 text-wood-muted hover:border-wood-primary hover:text-wood-primary' }}"
                 >
                     {{ $cat->name }}
                 </button>
             @endforeach
-        </div>
-
-        {{-- Search Input & Sort Selector --}}
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-            {{-- Search Input --}}
-            <div class="relative min-w-[260px]">
-                <input
-                    type="text"
-                    wire:model.live.debounce.300ms="q"
-                    placeholder="Cari produk kayu..."
-                    class="w-full rounded-full border border-wood-border/60 bg-white/80 py-2.5 pl-11 pr-4 text-xs font-medium text-wood-text placeholder-wood-muted shadow-sm transition-all focus:border-wood-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-wood-primary/20"
-                />
-                <svg class="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-wood-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-            </div>
-
-            {{-- Sort Dropdown --}}
-            <div class="shrink-0">
-                <select
-                    wire:model.live="sort"
-                    class="w-full rounded-full border border-wood-border/60 bg-white/80 py-2.5 px-4 text-xs font-medium text-wood-text shadow-sm transition-all focus:border-wood-primary focus:bg-white focus:outline-none"
-                >
-                    <option value="latest">Terbaru</option>
-                    <option value="price_low">Harga: Terendah</option>
-                    <option value="price_high">Harga: Tertinggi</option>
-                    <option value="name">Nama: A - Z</option>
-                </select>
-            </div>
         </div>
     </div>
 

@@ -48,6 +48,11 @@ class WebsiteSetting extends Model
         // Section 6: Branding (Login Page)
         'login_background',
         'login_quote',
+
+        // Section 7: SEO & Metadata
+        'meta_title',
+        'meta_description',
+        'meta_keywords',
     ];
 
     /**

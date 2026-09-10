@@ -48,7 +48,7 @@
                  COLUMN 1 — BRAND
                  ============================================================ --}}
             <div class="sm:col-span-2 lg:col-span-1">
-                <a href="{{ route('home') }}" class="inline-flex items-center gap-3" aria-label="{{ $siteName }}">
+                <a href="{{ route('home') }}" wire:navigate class="inline-flex items-center gap-3" aria-label="{{ $siteName }}">
                     @if ($siteLogo)
                         <img
                             src="{{ $siteLogo }}"
@@ -78,6 +78,7 @@
                         <li>
                             <a
                                 href="{{ isset($link['route']) ? route($link['route']) : url($link['hash']) }}"
+                                wire:navigate
                                 class="group inline-flex items-center gap-2 text-sm text-white/65 transition-colors duration-200 hover:text-wood-secondary-light focus:outline-none focus-visible:text-wood-secondary-light"
                             >
                                 <span class="h-px w-3 bg-white/25 transition-all duration-300 group-hover:w-5 group-hover:bg-wood-secondary-light"></span>

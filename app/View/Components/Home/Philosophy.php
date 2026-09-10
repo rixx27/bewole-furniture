@@ -34,8 +34,8 @@ class Philosophy extends Component
      * Create a new component instance.
      */
     public function __construct(
-        string $badge = 'Our Philosophy',
-        string $heading = 'Crafted with intention.',
+        string $badge = 'Filosofi Kami',
+        string $heading = 'Dibuat dengan penuh kesungguhan',
         string $buttonText = 'Selengkapnya',
     ) {
         $this->profile = app(CompanyProfileService::class)->get();

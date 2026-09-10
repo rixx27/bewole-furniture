@@ -106,6 +106,11 @@ class WebsiteSettingService
             // Section 6: Branding
             'login_background' => $settings->login_background,
             'login_quote' => $settings->login_quote,
+
+            // Section 7: SEO & Metadata
+            'meta_title' => $settings->meta_title,
+            'meta_description' => $settings->meta_description,
+            'meta_keywords' => $settings->meta_keywords,
         ];
     }
 
@@ -134,6 +139,9 @@ class WebsiteSettingService
             'maintenance_message' => null,
             'login_background' => null,
             'login_quote' => null,
+            'meta_title' => null,
+            'meta_description' => null,
+            'meta_keywords' => null,
         ];
     }
 }

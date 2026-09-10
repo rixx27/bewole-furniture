@@ -48,7 +48,7 @@
         style="backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%);"
     >
         {{-- Logo --}}
-        <a href="{{ route('home') }}" class="flex shrink-0 items-center gap-2.5" aria-label="{{ $siteName }}">
+        <a href="{{ route('home') }}" wire:navigate class="flex shrink-0 items-center gap-2.5" aria-label="{{ $siteName }}">
             @if ($siteLogo)
                 <img src="{{ $siteLogo }}" alt="Logo {{ $siteName }}" class="h-9 w-9 rounded-full object-contain">
             @else
@@ -65,6 +65,7 @@
             @foreach ($navItems as $item)
                 <a
                     href="{{ $item['href'] }}"
+                    wire:navigate
                     class="group relative rounded-full px-4 py-2 text-sm font-medium transition-colors duration-300"
                     :class="scrolled
                         ? ({{ $item['active'] ? 'true' : 'false' }} ? 'text-wood-primary font-semibold' : 'text-wood-muted hover:text-wood-primary')
@@ -146,17 +147,18 @@
                                 </svg>
                                 Dashboard Admin
                             </a>
+                        @else
+                            <a
+                                href="{{ route('orders.index') }}"
+                                wire:navigate
+                                class="flex items-center gap-2 px-4 py-2 text-xs font-medium text-wood-text hover:bg-wood-primary/5 hover:text-wood-primary transition-colors"
+                            >
+                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                                Pesanan Saya
+                            </a>
                         @endif
-
-                        <a
-                            href="{{ route('orders.index') }}"
-                            class="flex items-center gap-2 px-4 py-2 text-xs font-medium text-wood-text hover:bg-wood-primary/5 hover:text-wood-primary transition-colors"
-                        >
-                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                            </svg>
-                            Pesanan Saya
-                        </a>
 
                         <div class="border-t border-wood-border/40 mt-1 pt-1">
                             <form method="POST" action="{{ route('logout') }}">
@@ -212,6 +214,7 @@
             @foreach ($navItems as $item)
                 <a
                     href="{{ $item['href'] }}"
+                    wire:navigate
                     @click="mobileOpen = false"
                     class="rounded-2xl px-4 py-3 text-sm font-medium transition-colors duration-200"
                     :class="{{ $item['active'] ? 'true' : 'false' }} ? 'bg-wood-primary/10 text-wood-primary font-semibold' : 'text-wood-text hover:bg-wood-primary/5'"
@@ -223,6 +226,7 @@
             {{-- Cart (Mobile) --}}
             <a
                 href="{{ route('cart.index') }}"
+                wire:navigate
                 @click="mobileOpen = false"
                 class="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium text-wood-text hover:bg-wood-primary/5 transition-colors duration-200"
                 x-data="{ 
@@ -276,21 +280,21 @@
             @endguest
 
             @auth
-                <a
-                    href="{{ route('orders.index') }}"
-                    @click="mobileOpen = false"
-                    class="mt-2 inline-flex items-center justify-center rounded-full bg-wood-primary px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-wood-primary/20 transition-all duration-300 hover:bg-wood-primary-dark"
-                >
-                    Pesanan Saya
-                </a>
-
                 @if (auth()->user()->hasRole('admin'))
                     <a
                         href="{{ route('admin.dashboard') }}"
                         @click="mobileOpen = false"
-                        class="mt-2 inline-flex items-center justify-center rounded-full border border-wood-primary/30 bg-white px-5 py-2.5 text-sm font-semibold text-wood-primary transition-all hover:bg-wood-primary/5"
+                        class="mt-2 inline-flex items-center justify-center rounded-full bg-wood-primary px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-wood-primary/20 transition-all duration-300 hover:bg-wood-primary-dark"
                     >
                         Dashboard Admin
+                    </a>
+                @else
+                    <a
+                        href="{{ route('orders.index') }}"
+                        @click="mobileOpen = false"
+                        class="mt-2 inline-flex items-center justify-center rounded-full bg-wood-primary px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-wood-primary/20 transition-all duration-300 hover:bg-wood-primary-dark"
+                    >
+                        Pesanan Saya
                     </a>
                 @endif
 

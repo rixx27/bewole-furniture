@@ -21,6 +21,11 @@ function initBewoleAlpine(AlpineInstance) {
             };
 
             window.addEventListener('scroll', onScroll, { passive: true });
+            if (typeof this.$cleanup === 'function') {
+                this.$cleanup(() => {
+                    window.removeEventListener('scroll', onScroll);
+                });
+            }
             onScroll();
         },
     }));
@@ -135,7 +140,7 @@ if (window.Alpine) {
 // ============================================================
 // Reveal on scroll (IntersectionObserver, tanpa AOS)
 // ============================================================
-(function initRevealOnScroll() {
+function initRevealOnScroll() {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const revealSelector = '[data-reveal], [data-reveal-side], [data-reveal-blur]';
 
@@ -144,7 +149,7 @@ if (window.Alpine) {
         return;
     }
 
-    const revealElements = document.querySelectorAll(revealSelector);
+    const revealElements = document.querySelectorAll(`${revealSelector}:not(.is-revealed)`);
     if (revealElements.length === 0) return;
 
     if (!('IntersectionObserver' in window)) {
@@ -172,7 +177,14 @@ if (window.Alpine) {
     });
 
     revealElements.forEach((el) => observer.observe(el));
-})();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initRevealOnScroll);
+} else {
+    initRevealOnScroll();
+}
+document.addEventListener('livewire:navigated', initRevealOnScroll);
 
 // ============================================================
 // Smooth Scroll (semua anchor menuju section dalam halaman)

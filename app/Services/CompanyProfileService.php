@@ -27,8 +27,8 @@ class CompanyProfileService
         ],
         [
             'key' => 'customers',
-            'icon' => 'fa-solid fa-users',
-            'title' => 'Pelanggan',
+            'icon' => 'fa-solid fa-table-list',
+            'title' => 'Kategori Produk',
         ],
         [
             'key' => 'years_established',

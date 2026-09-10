@@ -87,7 +87,7 @@ class CompanyProfile extends Component
         $stats = $this->profile->statistics->keyBy('title');
 
         $this->project_done = (string) $this->statValue($stats, 'Project Selesai');
-        $this->customers = (string) $this->statValue($stats, 'Pelanggan');
+        $this->customers = (string) ($this->statValue($stats, 'Kategori Produk') ?: $this->statValue($stats, 'Pelanggan'));
         $this->years_established = (string) $this->statValue($stats, 'Tahun Berdiri');
         $this->cities_served = (string) $this->statValue($stats, 'Kota Terlayani');
     }

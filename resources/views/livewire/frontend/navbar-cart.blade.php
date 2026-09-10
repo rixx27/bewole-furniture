@@ -17,6 +17,7 @@
 >
     <a
         href="{{ route('cart.index') }}"
+        wire:navigate
         class="relative flex h-9 w-9 items-center justify-center rounded-full transition-all duration-300 hover:bg-white/15 active:scale-95"
         title="Keranjang Belanja"
         aria-label="Keranjang Belanja"

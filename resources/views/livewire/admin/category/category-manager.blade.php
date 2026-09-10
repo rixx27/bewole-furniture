@@ -347,13 +347,13 @@
                                                         </svg>
                                                     </div>
                                                     <div>
-                                                        <h3 class="text-lg font-semibold text-text-primary dark:text-white">Konfirmasi Hapus</h3>
+                                                        <h3 class="text-lg font-semibold text-text-primary dark:text-black">Konfirmasi Hapus</h3>
                                                         <p class="text-sm text-text-secondary">Apakah Anda yakin ingin menghapus kategori ini?</p>
                                                     </div>
                                                 </div>
 
                                                 <div class="mb-5 rounded-lg bg-bg-secondary p-4">
-                                                    <p class="text-sm font-medium text-text-primary dark:text-white">{{ $category['name'] }}</p>
+                                                    <p class="text-sm font-medium text-text-primary dark:text-black">{{ $category['name'] }}</p>
                                                     @if ($category['products_count'] > 0)
                                                         <p class="mt-1 text-xs text-amber-600 dark:text-amber-400">
                                                             * Kategori ini memiliki {{ $category['products_count'] }} produk terkait.

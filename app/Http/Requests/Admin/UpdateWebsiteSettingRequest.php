@@ -50,6 +50,11 @@ class UpdateWebsiteSettingRequest extends FormRequest
             // Section 6: Branding
             'login_background' => ['nullable', 'string', 'max:255'],
             'login_quote' => ['nullable', 'string'],
+
+            // Section 7: SEO & Metadata
+            'meta_title' => ['nullable', 'string', 'max:70'],
+            'meta_description' => ['nullable', 'string', 'max:320'],
+            'meta_keywords' => ['nullable', 'string', 'max:500'],
         ];
     }
 
@@ -70,6 +75,9 @@ class UpdateWebsiteSettingRequest extends FormRequest
             'email.max' => 'Email maksimal 255 karakter.',
             'whatsapp.regex' => 'Format nomor WhatsApp tidak valid.',
             'whatsapp.max' => 'Nomor WhatsApp maksimal 50 karakter.',
+            'meta_title.max' => 'Meta title maksimal 70 karakter.',
+            'meta_description.max' => 'Meta deskripsi maksimal 320 karakter.',
+            'meta_keywords.max' => 'Meta keywords maksimal 500 karakter.',
         ];
     }
 }

@@ -129,5 +129,29 @@ class WebsiteSettings
 
         return $embed;
     }
+
+    /**
+     * Get the SEO meta title with fallback.
+     */
+    public static function metaTitle(?string $default = null): string
+    {
+        return static::get('meta_title') ?: ($default ?: static::siteName() . (static::get('site_tagline') ? ' — ' . static::get('site_tagline') : ''));
+    }
+
+    /**
+     * Get the SEO meta description with fallback.
+     */
+    public static function metaDescription(?string $default = null): string
+    {
+        return static::get('meta_description') ?: ($default ?: (static::get('site_tagline') ?: static::siteName()));
+    }
+
+    /**
+     * Get the SEO meta keywords.
+     */
+    public static function metaKeywords(): ?string
+    {
+        return static::get('meta_keywords');
+    }
 }
 

@@ -26,6 +26,7 @@ class SearchController extends Controller
                     $search = '%' . $term . '%';
                     $q->where(function ($subQ) use ($search) {
                         $subQ->where('name', 'like', $search)
+                            ->orWhere('description', 'like', $search)
                             ->orWhere('short_description', 'like', $search)
                             ->orWhere('material', 'like', $search)
                             ->orWhere('sku', 'like', $search)

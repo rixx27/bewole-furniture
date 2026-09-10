@@ -60,6 +60,7 @@
                 <div class="mt-8">
                     <a
                         href="{{ route('frontend.about') }}"
+                        wire:navigate
                         class="group inline-flex items-center gap-2 rounded-full bg-wood-primary px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-wood-primary/20 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-wood-primary-dark focus:outline-none focus-visible:ring-2 focus-visible:ring-wood-secondary focus-visible:ring-offset-2"
                     >
                         {{ $buttonText }}

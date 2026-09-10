@@ -59,6 +59,11 @@ class WebsiteSettings extends Component
     public string $login_background = '';
     public string $login_quote = '';
 
+    // Section 7: SEO & Metadata
+    public string $meta_title = '';
+    public string $meta_description = '';
+    public string $meta_keywords = '';
+
     /**
      * Loading state.
      */
@@ -126,6 +131,10 @@ class WebsiteSettings extends Component
 
         $this->login_background = $this->settings->login_background ?? '';
         $this->login_quote = $this->settings->login_quote ?? '';
+
+        $this->meta_title = $this->settings->meta_title ?? '';
+        $this->meta_description = $this->settings->meta_description ?? '';
+        $this->meta_keywords = $this->settings->meta_keywords ?? '';
     }
 
     /**
@@ -228,6 +237,7 @@ class WebsiteSettings extends Component
                 'working_days', 'working_hours',
                 'is_maintenance', 'maintenance_message',
                 'login_background', 'login_quote',
+                'meta_title', 'meta_description', 'meta_keywords',
             ]);
         }
 
@@ -260,6 +270,9 @@ class WebsiteSettings extends Component
             'maintenance_message' => $this->maintenance_message,
             'login_background' => $this->login_background,
             'login_quote' => $this->login_quote,
+            'meta_title' => $this->meta_title,
+            'meta_description' => $this->meta_description,
+            'meta_keywords' => $this->meta_keywords,
         ];
     }
 

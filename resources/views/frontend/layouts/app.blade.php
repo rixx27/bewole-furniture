@@ -1,6 +1,9 @@
 @php
     $siteName = App\Helpers\WebsiteSettings::siteName();
     $siteLogo = App\Helpers\WebsiteSettings::logoUrl();
+    $metaTitle = App\Helpers\WebsiteSettings::metaTitle();
+    $metaDescription = App\Helpers\WebsiteSettings::metaDescription();
+    $metaKeywords = App\Helpers\WebsiteSettings::metaKeywords();
 @endphp
 
 <!DOCTYPE html>
@@ -9,14 +12,21 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>
-        @hasSection('title')
-            @yield('title') — {{ $siteName }}
-        @else
-            {{ $siteName }}
-        @endif
-    </title>
-    <meta name="description" content="{{ App\Helpers\WebsiteSettings::get('site_tagline') ?? $siteName }}">
+    <title>@hasSection('title')@yield('title') — {{ $siteName }}@else{{ $metaTitle }}@endif</title>
+    <meta name="description" content="@hasSection('meta_description')@yield('meta_description')@else{{ $metaDescription }}@endif">
+    @if ($metaKeywords)
+        <meta name="keywords" content="{{ $metaKeywords }}">
+    @endif
+    <meta name="author" content="{{ $siteName }}">
+
+    {{-- Open Graph / Social Sharing --}}
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:title" content="@hasSection('title')@yield('title') — {{ $siteName }}@else{{ $metaTitle }}@endif">
+    <meta property="og:description" content="@hasSection('meta_description')@yield('meta_description')@else{{ $metaDescription }}@endif">
+    @if ($siteLogo)
+        <meta property="og:image" content="{{ asset($siteLogo) }}">
+    @endif
 
     @if ($siteLogo)
         <link rel="icon" href="{{ $siteLogo }}">
@@ -135,6 +145,7 @@
                 <div class="mt-2.5 flex items-center gap-2">
                     <a
                         href="{{ route('cart.index') }}"
+                        wire:navigate
                         class="inline-flex items-center gap-1.5 rounded-full bg-white px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wider text-wood-primary shadow-sm transition-all duration-200 hover:bg-amber-100 hover:scale-105 active:scale-95"
                     >
                         <svg class="h-3.5 w-3.5 text-wood-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">

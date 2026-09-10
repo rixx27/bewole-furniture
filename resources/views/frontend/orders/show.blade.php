@@ -166,7 +166,7 @@
                         @endif
                         <div class="flex justify-between text-wood-muted">
                             <span>Ongkos Kirim</span>
-                            <span class="font-semibold text-emerald-700">Rp 0 (Termasuk / Sesuai Kesepakatan WA)</span>
+                            <span class="font-semibold text-danger">Belum Termasuk Biaya Ongkir</span>
                         </div>
                         <div class="flex justify-between items-center text-sm font-bold text-wood-text pt-2 border-t border-wood-border/30">
                             <span>Grand Total</span>
@@ -378,30 +378,44 @@
                     <p class="mt-1 text-xs text-wood-muted">{{ $order->city }}{{ $order->postal_code ? ', ' . $order->postal_code : '' }}</p>
                 </div>
 
-                {{-- Shipping Info --}}
-                @if ($order->shipping_method)
-                    <div class="rounded-3xl border border-wood-border/60 bg-white p-5 shadow-sm">
-                        <h2 class="text-sm font-bold text-wood-text border-b border-wood-border/40 pb-3 mb-3">Info Pengiriman</h2>
-                        <div class="space-y-2 text-xs">
-                            <div class="flex justify-between">
-                                <span class="text-wood-muted">Metode</span>
-                                <span class="font-semibold text-wood-text">{{ $order->shipping_method_label }}</span>
-                            </div>
-                            @if ($order->courier)
-                                <div class="flex justify-between">
-                                    <span class="text-wood-muted">Kurir</span>
-                                    <span class="font-semibold text-wood-text">{{ $order->courier }}</span>
-                                </div>
-                            @endif
-                            @if ($order->tracking_number)
-                                <div class="flex justify-between">
-                                    <span class="text-wood-muted">No. Resi</span>
-                                    <span class="font-bold font-mono text-wood-primary">{{ $order->tracking_number }}</span>
-                                </div>
-                            @endif
-                        </div>
+                {{-- Info Pengiriman & Ongkir --}}
+                <div class="rounded-3xl border border-wood-border/60 bg-white p-5 shadow-sm space-y-3 text-xs">
+                    <div class="flex items-center justify-between border-b border-wood-border/40 pb-3">
+                        <h2 class="text-sm font-bold text-wood-text flex items-center gap-2">
+                            <svg class="h-4 w-4 text-wood-primary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                            </svg>
+                            <span>Pengiriman & Ongkir</span>
+                        </h2>
+                        <span class="inline-flex items-center rounded-full bg-wood-light/40 px-2.5 py-0.5 text-[10px] font-bold text-wood-text border border-wood-border/60">
+                            Ekspedisi Truk Jepara
+                        </span>
                     </div>
-                @endif
+
+                    <div class="rounded-2xl border border-amber-200 bg-amber-50/70 p-3 text-[11px] text-amber-800 leading-relaxed">
+                        Pengiriman meubel diproses via truk ekspedisi lokal. Biaya ongkir dan jadwal pengantaran dikoordinasikan langsung melalui WhatsApp.
+                    </div>
+
+                    @php
+                        $rawWa = App\Helpers\WebsiteSettings::whatsapp();
+                        $cleanWa = $rawWa ? preg_replace('/[^0-9]/', '', (string) $rawWa) : '';
+                        if (str_starts_with($cleanWa, '0')) {
+                            $cleanWa = '62' . substr($cleanWa, 1);
+                        }
+                    @endphp
+                    @if ($cleanWa)
+                        <a
+                            href="https://wa.me/{{ $cleanWa }}?text=Halo%20Bewole%20Furniture%2C%20saya%20ingin%20koordinasi%20ongkir%20dan%20pengiriman%20untuk%20pesanan%20%23{{ $order->order_code }}"
+                            target="_blank"
+                            class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-bold text-white hover:bg-emerald-700 transition-colors shadow-xs"
+                        >
+                            <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                            </svg>
+                            <span>Koordinasi Pengiriman via WhatsApp</span>
+                        </a>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
