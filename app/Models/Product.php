@@ -101,6 +101,8 @@ class Product extends Model
             $product->calculateFinalPrice();
             // Auto-set status based on stock on creation
             $product->autoAdjustStatus();
+            // Auto-shift sort order if set
+            app(\App\Services\ProductSortOrderService::class)->adjustOnCreating($product);
         });
 
         static::updating(function (Product $product) {
@@ -113,6 +115,10 @@ class Product extends Model
             if ($product->isDirty('stock') && !$product->isDirty('status')) {
                 $product->autoAdjustStatus();
             }
+            // Auto-shift sort order if changed
+            if ($product->isDirty('sort_order') || $product->isDirty('category_id')) {
+                app(\App\Services\ProductSortOrderService::class)->adjustOnUpdating($product);
+            }
         });
 
         static::deleted(function (Product $product) {
@@ -120,6 +126,8 @@ class Product extends Model
             if ($product->thumbnail) {
                 Storage::disk('public')->delete($product->thumbnail);
             }
+            // Reorder remaining products in the same category
+            app(\App\Services\ProductSortOrderService::class)->adjustOnDeleted($product);
         });
     }
 
@@ -338,11 +346,16 @@ class Product extends Model
     }
 
     /**
-     * Scope a query to order by sort order.
+     * Scope a query to order by sort order then name.
+     * Products with specified order (1, 2, 3...) appear first,
+     * while unprioritized products (sort_order = 0 or null) appear after.
      */
     public function scopeSorted($query)
     {
-        return $query->orderBy('sort_order')->orderBy('name');
+        return $query
+            ->orderByRaw('CASE WHEN sort_order = 0 OR sort_order IS NULL THEN 1 ELSE 0 END ASC')
+            ->orderBy('sort_order', 'asc')
+            ->orderBy('name', 'asc');
     }
 
     /**

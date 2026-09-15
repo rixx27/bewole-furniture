@@ -169,10 +169,85 @@
                                     {{ $product->status_label }}
                                 </span>
                             </td>
-                            <td class="px-4 py-4 text-center">
-                                <span class="inline-flex items-center justify-center rounded-md bg-bg-secondary px-2.5 py-1 text-xs font-medium text-text-primary dark:text-black">
-                                    {{ $product->sort_order }}
-                                </span>
+                            <td class="px-4 py-4 text-center" x-data="{
+                                editing: false,
+                                order: {{ $product->sort_order }},
+                                savedOrder: {{ $product->sort_order }},
+                                loading: false,
+                                async saveOrder() {
+                                    if (this.order == this.savedOrder) {
+                                        this.editing = false;
+                                        return;
+                                    }
+                                    this.loading = true;
+                                    try {
+                                        const res = await fetch('{{ route('admin.products.update-sort-order', $product) }}', {
+                                            method: 'PATCH',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                                'Accept': 'application/json'
+                                            },
+                                            body: JSON.stringify({ sort_order: parseInt(this.order) || 0 })
+                                        });
+                                        const data = await res.json();
+                                        if (data.success) {
+                                            this.savedOrder = data.sort_order;
+                                            this.order = data.sort_order;
+                                            this.editing = false;
+                                            window.location.reload();
+                                        }
+                                    } catch (e) {
+                                        alert('Gagal memperbarui urutan.');
+                                    } finally {
+                                        this.loading = false;
+                                    }
+                                }
+                            }">
+                                <div x-show="!editing" class="inline-flex items-center justify-center">
+                                    <button type="button"
+                                            x-on:click="editing = true; $nextTick(() => $refs.orderInput.focus())"
+                                            class="group inline-flex items-center gap-1.5 rounded-md bg-bg-secondary px-2.5 py-1 text-xs font-medium text-text-primary dark:text-black hover:bg-primary/10 hover:text-primary transition-all cursor-pointer"
+                                            title="Klik untuk ubah urutan per kategori">
+                                        <span x-text="savedOrder"></span>
+                                        <svg class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div x-show="editing" x-cloak class="inline-flex items-center justify-center gap-1">
+                                    <input type="number"
+                                           x-ref="orderInput"
+                                           x-model="order"
+                                           min="0"
+                                           max="9999"
+                                           x-on:keydown.enter.prevent="saveOrder()"
+                                           x-on:keydown.escape="order = savedOrder; editing = false"
+                                           :disabled="loading"
+                                           class="w-16 rounded-md border border-primary bg-card px-2 py-0.5 text-center text-xs font-semibold text-text-primary outline-hidden ring-1 ring-primary shadow-xs">
+                                    <button type="button"
+                                            x-on:click="saveOrder()"
+                                            :disabled="loading"
+                                            class="rounded-md bg-primary p-1 text-white hover:bg-primary-dark transition-colors disabled:opacity-50 cursor-pointer"
+                                            title="Simpan (Enter)">
+                                        <svg x-show="!loading" class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                        <svg x-show="loading" class="h-3.5 w-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                        </svg>
+                                    </button>
+                                    <button type="button"
+                                            x-on:click="order = savedOrder; editing = false"
+                                            :disabled="loading"
+                                            class="rounded-md bg-bg-secondary p-1 text-text-secondary hover:bg-border transition-colors disabled:opacity-50 cursor-pointer"
+                                            title="Batal (Esc)">
+                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                        </svg>
+                                    </button>
+                                </div>
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center justify-end gap-2">

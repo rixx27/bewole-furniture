@@ -39,6 +39,7 @@ class ProductController extends Controller
             ->when($statusFilter, function ($query, $statusFilter) {
                 $query->where('status', $statusFilter);
             })
+            ->orderByRaw('CASE WHEN sort_order = 0 OR sort_order IS NULL THEN 1 ELSE 0 END ASC')
             ->orderBy('sort_order', 'asc')
             ->orderBy('created_at', 'desc')
             ->paginate(10)
@@ -279,6 +280,35 @@ class ProductController extends Controller
         }
 
         return $slug;
+    }
+
+    /**
+     * Quick update sort order from product list table.
+     */
+    public function updateSortOrder(Request $request, Product $product)
+    {
+        $validated = $request->validate([
+            'sort_order' => ['required', 'integer', 'min:0', 'max:9999'],
+        ], [
+            'sort_order.required' => 'Urutan wajib diisi.',
+            'sort_order.integer' => 'Urutan harus berupa angka.',
+            'sort_order.min' => 'Urutan minimal 0.',
+            'sort_order.max' => 'Urutan maksimal 9999.',
+        ]);
+
+        $product->update([
+            'sort_order' => (int) $validated['sort_order'],
+        ]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Urutan produk "' . $product->name . '" berhasil diperbarui ke ' . $product->sort_order . '.',
+                'sort_order' => $product->sort_order,
+            ]);
+        }
+
+        return back()->with('success', 'Urutan produk "' . $product->name . '" berhasil diperbarui.');
     }
 }
 
