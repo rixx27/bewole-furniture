@@ -247,6 +247,143 @@
                         </div>
                     </div>
                 </div>
+
+                {{-- Logo Website --}}
+                <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+                    <div class="border-b border-border bg-bg-secondary/50 px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-semibold text-text-primary dark:text-black">Logo Website</h3>
+                                <p class="text-xs text-text-muted">Logo utama yang ditampilkan pada navbar dan footer website.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex flex-col sm:flex-row items-start gap-6">
+                            <div class="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-border bg-bg-secondary/50 flex items-center justify-center shadow-xs">
+                                @if ($logo_preview)
+                                    <img src="{{ $logo_preview }}" alt="Preview Logo" class="h-full w-full object-contain p-2">
+                                    <button type="button" wire:click="removeLogo" class="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-white hover:bg-red-600 transition-colors cursor-pointer" title="Hapus">
+                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    </button>
+                                @elseif ($existing_logo)
+                                    <img src="{{ asset('storage/' . $existing_logo) }}" alt="Logo" class="h-full w-full object-contain p-2">
+                                    <button type="button" wire:click="removeLogo" class="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-white hover:bg-red-600 transition-colors cursor-pointer" title="Hapus Logo">
+                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    </button>
+                                @else
+                                    <span class="text-xs text-text-muted">No Logo</span>
+                                @endif
+                            </div>
+                            <div class="flex-1">
+                                <label for="logo_input" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">Unggah Logo</label>
+                                <input type="file" id="logo_input" accept="image/*" wire:model="logo" class="block w-full text-sm text-text-secondary file:mr-4 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-primary-dark transition-all cursor-pointer">
+                                <p class="mt-2 text-xs text-text-muted">Format: PNG, JPG, JPEG, SVG, WEBP. Maksimal 2 MB.</p>
+                                @error('logo') <p class="mt-1 text-xs text-red-500 font-medium">{{ $message }}</p> @enderror
+                                <div wire:loading wire:target="logo" class="mt-2 text-xs text-primary font-medium">Mengunggah logo...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Foto Card Custom Furniture --}}
+                <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+                    <div class="border-b border-border bg-bg-secondary/50 px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-semibold text-text-primary dark:text-black">Foto Card Custom Furniture (Halaman Home)</h3>
+                                <p class="text-xs text-text-muted">Kelola foto furniture yang tampil pada card section "Custom Furniture" (Punya desain furniture sendiri?) di beranda.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex flex-col sm:flex-row items-start gap-6">
+                            {{-- Preview Box --}}
+                            <div class="relative w-48 h-36 shrink-0 overflow-hidden rounded-2xl border-2 border-dashed border-border bg-bg-secondary/50 flex items-center justify-center shadow-xs">
+                                @if ($custom_furniture_image_preview)
+                                    <img src="{{ $custom_furniture_image_preview }}" alt="Preview Custom Furniture" class="h-full w-full object-cover">
+                                    <button type="button"
+                                            wire:click="removeCustomFurnitureImage"
+                                            class="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/70 text-white hover:bg-red-600 transition-colors shadow-sm cursor-pointer"
+                                            title="Batalkan Pilihan">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                        </svg>
+                                    </button>
+                                    <span class="absolute bottom-1.5 left-2 rounded-md bg-black/60 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur-xs">Preview Baru</span>
+                                @elseif ($existing_custom_furniture_image)
+                                    <img src="{{ asset('storage/' . $existing_custom_furniture_image) }}" alt="Custom Furniture" class="h-full w-full object-cover">
+                                    <button type="button"
+                                            wire:click="removeCustomFurnitureImage"
+                                            class="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/70 text-white hover:bg-red-600 transition-colors shadow-sm cursor-pointer"
+                                            title="Hapus foto custom">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                        </svg>
+                                    </button>
+                                    <span class="absolute bottom-1.5 left-2 rounded-md bg-emerald-600/80 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur-xs">Foto Khusus Aktif</span>
+                                @else
+                                    <div class="flex flex-col items-center justify-center p-3 text-center text-text-muted">
+                                        <svg class="h-8 w-8 mb-1 text-text-muted/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                                        </svg>
+                                        <span class="text-[11px] font-semibold text-text-secondary">Foto Default</span>
+                                        <span class="text-[10px] text-text-muted mt-0.5 leading-tight">Mengikuti produk terbaru</span>
+                                    </div>
+                                @endif
+                            </div>
+
+                            {{-- Upload Input --}}
+                            <div class="flex-1 space-y-3">
+                                <div>
+                                    <label for="custom_furniture_image_input" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
+                                        Ganti Foto Card
+                                    </label>
+                                    <input type="file"
+                                           id="custom_furniture_image_input"
+                                           accept="image/jpeg,image/png,image/webp"
+                                           wire:model="custom_furniture_image"
+                                           class="block w-full text-sm text-text-secondary file:mr-4 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2.5 file:text-sm file:font-semibold file:text-white hover:file:bg-primary-dark transition-all cursor-pointer">
+                                    <p class="mt-2 text-xs text-text-muted">
+                                        Format: JPG, JPEG, PNG, atau WEBP. Rekomendasi rasio 4:3 (Maksimal 5 MB).
+                                    </p>
+                                    @error('custom_furniture_image')
+                                        <p class="mt-1 text-xs text-red-500 font-medium">{{ $message }}</p>
+                                    @enderror
+                                    <div wire:loading wire:target="custom_furniture_image" class="mt-2 flex items-center gap-2 text-xs text-primary font-medium">
+                                        <svg class="h-4 w-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                        </svg>
+                                        Mengunggah foto...
+                                    </div>
+                                </div>
+
+                                @if ($existing_custom_furniture_image || $custom_furniture_image_preview)
+                                    <div class="pt-1">
+                                        <button type="button"
+                                                wire:click="removeCustomFurnitureImage"
+                                                class="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50/70 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400 transition-colors cursor-pointer">
+                                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                            </svg>
+                                            <span>Kembalikan ke Default (Gunakan Foto Produk Terbaru)</span>
+                                        </button>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
             @endif
 
             {{-- ============================================ --}}

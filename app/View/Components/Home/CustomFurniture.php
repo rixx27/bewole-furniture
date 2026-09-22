@@ -55,13 +55,18 @@ class CustomFurniture extends Component
         $this->description = $description;
         $this->buttonText = $buttonText;
 
-        // Fetch image URL from existing product thumbnail or company profile image
-        $productThumbnail = Product::query()->whereNotNull('thumbnail')->latest()->value('thumbnail');
-        if ($productThumbnail) {
-            $this->imageUrl = asset('storage/' . $productThumbnail);
+        // Fetch image URL: from website settings, or fallback to latest product thumbnail / company profile
+        $customSettingImage = WebsiteSettings::customFurnitureImageUrl();
+        if ($customSettingImage) {
+            $this->imageUrl = $customSettingImage;
         } else {
-            $companyImage = CompanyProfile::first()?->company_image;
-            $this->imageUrl = $companyImage ? asset('storage/' . $companyImage) : null;
+            $productThumbnail = Product::query()->whereNotNull('thumbnail')->latest()->value('thumbnail');
+            if ($productThumbnail) {
+                $this->imageUrl = asset('storage/' . $productThumbnail);
+            } else {
+                $companyImage = CompanyProfile::first()?->company_image;
+                $this->imageUrl = $companyImage ? asset('storage/' . $companyImage) : null;
+            }
         }
 
         // Fetch admin whatsapp / phone number from website settings

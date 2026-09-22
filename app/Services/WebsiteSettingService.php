@@ -58,6 +58,19 @@ class WebsiteSettingService
             unset($data['logo']);
         }
 
+        // Handle Custom Furniture Image Upload / Removal
+        if (isset($data['custom_furniture_image']) && $data['custom_furniture_image'] instanceof UploadedFile) {
+            $this->repository->deleteOldFile($settings->custom_furniture_image);
+            $data['custom_furniture_image'] = $data['custom_furniture_image']->store('website/custom-furniture', 'public');
+        } elseif (!empty($data['remove_custom_furniture_image'])) {
+            $this->repository->deleteOldFile($settings->custom_furniture_image);
+            $data['custom_furniture_image'] = null;
+            unset($data['remove_custom_furniture_image']);
+        } else {
+            unset($data['custom_furniture_image']);
+            unset($data['remove_custom_furniture_image']);
+        }
+
         // Ensure is_maintenance is boolean
         $data['is_maintenance'] = isset($data['is_maintenance']) && $data['is_maintenance'] ? true : false;
 
@@ -81,6 +94,8 @@ class WebsiteSettingService
             'logo_url' => $settings->logo_url,
             'site_name' => $settings->site_name ?? config('app.name', 'Bewole Furniture'),
             'site_tagline' => $settings->site_tagline,
+            'custom_furniture_image' => $settings->custom_furniture_image,
+            'custom_furniture_image_url' => $settings->custom_furniture_image_url,
 
             // Section 2: Informasi Kontak
             'email' => $settings->email,
@@ -124,6 +139,8 @@ class WebsiteSettingService
             'logo_url' => null,
             'site_name' => config('app.name', 'Bewole Furniture'),
             'site_tagline' => null,
+            'custom_furniture_image' => null,
+            'custom_furniture_image_url' => null,
             'email' => null,
             'phone' => null,
             'whatsapp' => null,

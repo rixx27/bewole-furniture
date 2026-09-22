@@ -24,6 +24,7 @@ class WebsiteSetting extends Model
         'logo',
         'site_name',
         'site_tagline',
+        'custom_furniture_image',
 
         // Section 2: Informasi Kontak
         'email',
@@ -95,6 +96,18 @@ class WebsiteSetting extends Model
         }
 
         return 'https://wa.me/' . $number;
+    }
+
+    /**
+     * Get the full URL of the custom furniture image.
+     */
+    public function getCustomFurnitureImageUrlAttribute(): ?string
+    {
+        if (!$this->custom_furniture_image) {
+            return null;
+        }
+
+        return Storage::url($this->custom_furniture_image);
     }
 }
 

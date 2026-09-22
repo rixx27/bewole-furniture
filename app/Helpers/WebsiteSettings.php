@@ -66,6 +66,22 @@ class WebsiteSettings
     }
 
     /**
+     * Get the custom furniture image URL.
+     */
+    public static function customFurnitureImageUrl(): ?string
+    {
+        return static::get('custom_furniture_image_url');
+    }
+
+    /**
+     * Get the custom furniture image storage path.
+     */
+    public static function customFurnitureImagePath(): ?string
+    {
+        return static::get('custom_furniture_image');
+    }
+
+    /**
      * Check if maintenance mode is active.
      */
     public static function isMaintenance(): bool

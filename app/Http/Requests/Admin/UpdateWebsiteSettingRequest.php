@@ -26,6 +26,7 @@ class UpdateWebsiteSettingRequest extends FormRequest
             'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'site_name' => ['nullable', 'string', 'max:255'],
             'site_tagline' => ['nullable', 'string', 'max:255'],
+            'custom_furniture_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
 
             // Section 2: Informasi Kontak
             'email' => ['nullable', 'email', 'max:255'],
@@ -71,6 +72,9 @@ class UpdateWebsiteSettingRequest extends FormRequest
             'logo.image' => 'Logo harus berupa gambar.',
             'logo.mimes' => 'Logo harus berformat: jpg, jpeg, png, atau webp.',
             'logo.max' => 'Logo maksimal 2 MB.',
+            'custom_furniture_image.image' => 'Foto custom furniture harus berupa gambar.',
+            'custom_furniture_image.mimes' => 'Foto custom furniture harus berformat: jpg, jpeg, png, atau webp.',
+            'custom_furniture_image.max' => 'Foto custom furniture maksimal 5 MB.',
             'email.email' => 'Format email tidak valid.',
             'email.max' => 'Email maksimal 255 karakter.',
             'whatsapp.regex' => 'Format nomor WhatsApp tidak valid.',

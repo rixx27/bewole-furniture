@@ -35,6 +35,12 @@ class WebsiteSettings extends Component
     public string $site_name = '';
     public string $site_tagline = '';
 
+    // Section 1b: Custom Furniture (Halaman Home)
+    public $custom_furniture_image = null;
+    public ?string $existing_custom_furniture_image = null;
+    public ?string $custom_furniture_image_preview = null;
+    public bool $remove_custom_furniture_image = false;
+
     // Section 2: Informasi Kontak
     public string $email = '';
     public string $phone = '';
@@ -112,6 +118,10 @@ class WebsiteSettings extends Component
         $this->existing_logo = $this->settings->logo;
         $this->site_name = $this->settings->site_name ?? '';
         $this->site_tagline = $this->settings->site_tagline ?? '';
+        $this->existing_custom_furniture_image = $this->settings->custom_furniture_image;
+        $this->custom_furniture_image = null;
+        $this->custom_furniture_image_preview = null;
+        $this->remove_custom_furniture_image = false;
 
         $this->email = $this->settings->email ?? '';
         $this->phone = $this->settings->phone ?? '';
@@ -163,6 +173,30 @@ class WebsiteSettings extends Component
     }
 
     /**
+     * Updated hook for custom furniture image preview.
+     */
+    public function updatedCustomFurnitureImage(): void
+    {
+        $this->validateOnly('custom_furniture_image', [
+            'custom_furniture_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+        ]);
+
+        $this->custom_furniture_image_preview = $this->custom_furniture_image->temporaryUrl();
+        $this->remove_custom_furniture_image = false;
+    }
+
+    /**
+     * Remove custom furniture image.
+     */
+    public function removeCustomFurnitureImage(): void
+    {
+        $this->custom_furniture_image = null;
+        $this->custom_furniture_image_preview = null;
+        $this->existing_custom_furniture_image = null;
+        $this->remove_custom_furniture_image = true;
+    }
+
+    /**
      * Create initial settings.
      */
     public function createSettings(): void
@@ -194,6 +228,10 @@ class WebsiteSettings extends Component
             $request = new UpdateWebsiteSettingRequest();
             $validated = $this->validate($request->rules(), $request->messages());
 
+            if ($this->remove_custom_furniture_image) {
+                $validated['remove_custom_furniture_image'] = true;
+            }
+
             if ($this->settings) {
                 // Update existing
                 $this->settingService->update($this->settings, $validated);
@@ -211,6 +249,9 @@ class WebsiteSettings extends Component
             // Reset previews
             $this->logo_preview = null;
             $this->logo = null;
+            $this->custom_furniture_image_preview = null;
+            $this->custom_furniture_image = null;
+            $this->remove_custom_furniture_image = false;
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             $this->dispatch('settings-saved', type: 'error', message: 'Validasi gagal. Periksa kembali input Anda.');
@@ -231,7 +272,7 @@ class WebsiteSettings extends Component
             $this->loadSettings();
         } else {
             $this->reset([
-                'site_name', 'site_tagline', 'logo',
+                'site_name', 'site_tagline', 'logo', 'custom_furniture_image',
                 'email', 'phone', 'whatsapp', 'address', 'google_maps_embed',
                 'facebook', 'instagram', 'tiktok',
                 'working_days', 'working_hours',
@@ -243,6 +284,9 @@ class WebsiteSettings extends Component
 
         $this->logo_preview = null;
         $this->logo = null;
+        $this->custom_furniture_image_preview = null;
+        $this->custom_furniture_image = null;
+        $this->remove_custom_furniture_image = false;
 
         $this->dispatch('settings-saved', type: 'info', message: 'Form telah direset.');
     }
@@ -256,6 +300,7 @@ class WebsiteSettings extends Component
             'logo' => $this->logo,
             'site_name' => $this->site_name,
             'site_tagline' => $this->site_tagline,
+            'custom_furniture_image' => $this->custom_furniture_image,
             'email' => $this->email,
             'phone' => $this->phone,
             'whatsapp' => $this->whatsapp,

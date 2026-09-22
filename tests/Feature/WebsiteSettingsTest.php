@@ -27,3 +27,47 @@ it('extracts src url when full iframe HTML tag is pasted into google_maps_embed'
 
     expect($result)->toBe('https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d12345');
 });
+
+it('resolves custom_furniture_image URL via helper when configured', function () {
+    $setting = WebsiteSetting::first() ?? new WebsiteSetting();
+    $setting->custom_furniture_image = 'website/custom-furniture/test.webp';
+    $setting->save();
+
+    expect(WebsiteSettings::customFurnitureImageUrl())->toContain('website/custom-furniture/test.webp');
+    expect(WebsiteSettings::customFurnitureImagePath())->toBe('website/custom-furniture/test.webp');
+
+    // Reset back
+    $setting->custom_furniture_image = null;
+    $setting->save();
+
+    expect(WebsiteSettings::customFurnitureImageUrl())->toBeNull();
+});
+
+it('custom furniture component uses custom image when set in website settings', function () {
+    $setting = WebsiteSetting::first() ?? new WebsiteSetting();
+    $setting->custom_furniture_image = 'website/custom-furniture/custom-card.webp';
+    $setting->save();
+
+    $component = new \App\View\Components\Home\CustomFurniture();
+    expect($component->imageUrl)->toContain('website/custom-furniture/custom-card.webp');
+
+    // Reset back
+    $setting->custom_furniture_image = null;
+    $setting->save();
+});
+
+it('can update all settings including seo fields without database errors', function () {
+    $service = app(\App\Services\WebsiteSettingService::class);
+    $setting = $service->get() ?? WebsiteSetting::create(['site_name' => 'Bewole']);
+
+    $updated = $service->update($setting, [
+        'site_name' => 'Bewole Furniture Test',
+        'meta_title' => 'Bewole Meta Title',
+        'meta_description' => 'Bewole Description',
+        'meta_keywords' => 'furniture, jepara',
+    ]);
+
+    expect($updated->meta_title)->toBe('Bewole Meta Title');
+    expect($updated->meta_description)->toBe('Bewole Description');
+    expect($updated->meta_keywords)->toBe('furniture, jepara');
+});
