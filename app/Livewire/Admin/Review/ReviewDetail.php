@@ -11,6 +11,13 @@ class ReviewDetail extends Component
     public ?ProductReview $review = null;
     public bool $show = false;
 
+    public function mount(?int $reviewId = null): void
+    {
+        if ($reviewId) {
+            $this->loadReview($reviewId);
+        }
+    }
+
     #[On('openDetail')]
     public function loadReview(int $reviewId): void
     {
@@ -23,6 +30,14 @@ class ReviewDetail extends Component
         ])->find($reviewId);
 
         $this->show = true;
+    }
+
+    #[On('reviewUpdated')]
+    public function onReviewUpdated(): void
+    {
+        if ($this->review) {
+            $this->review->refresh();
+        }
     }
 
     #[On('closeModal')]

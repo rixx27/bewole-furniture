@@ -327,7 +327,7 @@
 
     {{-- Detail Modal --}}
     @if ($showDetailModal && $selectedReviewId)
-        <livewire:admin.review.review-detail :key="'detail-' . $selectedReviewId" />
+        <livewire:admin.review.review-detail :review-id="$selectedReviewId" :key="'detail-' . $selectedReviewId" />
     @endif
 </div>
 

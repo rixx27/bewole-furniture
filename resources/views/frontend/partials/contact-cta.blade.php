@@ -44,7 +44,7 @@
             data-reveal-delay="100"
             class="font-serif text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl xl:text-6xl"
         >
-            Wujudkan Furniture Impian<br class="hidden sm:block">
+            Wujudkan Furniture Impianmu<br class="hidden sm:block">
             Bersama Kami.
         </h2>
 
