@@ -232,13 +232,85 @@
                         >
                     </div>
 
+                    {{-- Upload Foto / Gambar Desain Contoh --}}
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-wood-text sm:text-sm">
+                            Foto / Gambar Contoh Desain <span class="text-xs font-normal text-wood-muted">(Opsional)</span>
+                        </label>
+                        <div class="mt-1.5">
+                            <input
+                                type="file"
+                                id="custom-image-input"
+                                x-ref="imageInput"
+                                @change="handleFileChange($event)"
+                                accept="image/png,image/jpeg,image/webp,image/jpg"
+                                class="hidden"
+                            >
+
+                            <!-- Area Dropzone / Button Pilih File -->
+                            <div
+                                x-show="!imagePreview"
+                                @click="$refs.imageInput.click()"
+                                class="group flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-wood-border/80 bg-wood-bg/60 p-5 text-center transition-all duration-200 hover:border-wood-secondary hover:bg-wood-bg"
+                            >
+                                <div class="flex h-11 w-11 items-center justify-center rounded-full bg-wood-surface text-wood-secondary shadow-sm transition-transform duration-200 group-hover:scale-110">
+                                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <p class="mt-2.5 text-xs font-semibold text-wood-text sm:text-sm">
+                                    Klik untuk upload gambar referensi / sketsa
+                                </p>
+                                <p class="mt-1 text-[11px] text-wood-muted">
+                                    Format: JPG, PNG, WEBP (Maksimal 5MB)
+                                </p>
+                            </div>
+
+                            <!-- Preview Gambar Jika Sudah Dipilih -->
+                            <div x-show="imagePreview" x-cloak class="relative overflow-hidden rounded-2xl border border-wood-border bg-wood-bg p-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-wood-border/60 bg-wood-surface">
+                                        <img :src="imagePreview" alt="Preview Gambar Desain" class="h-full w-full object-cover">
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <p class="truncate text-xs font-semibold text-wood-text sm:text-sm" x-text="imageFile?.name"></p>
+                                        <p class="mt-0.5 text-[11px] text-wood-muted" x-text="formatFileSize(imageFile?.size)"></p>
+                                        <span class="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600">
+                                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            Gambar siap dikirim
+                                        </span>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        @click="removeFile()"
+                                        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600 transition-colors hover:bg-red-100 focus:outline-none"
+                                        title="Hapus gambar"
+                                    >
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <p x-show="errors.image" x-text="errors.image" class="mt-1.5 text-xs text-red-500" x-cloak></p>
+                        </div>
+                    </div>
+
                     {{-- Buttons --}}
                     <div class="pt-3">
                         <button
                             type="submit"
-                            class="group flex w-full items-center justify-center gap-2.5 rounded-full bg-wood-primary px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-wood-primary/20 transition-all duration-300 hover:bg-wood-primary-dark focus:outline-none focus:ring-2 focus:ring-wood-secondary focus:ring-offset-2 cursor-pointer"
+                            :disabled="isSubmitting"
+                            class="group flex w-full items-center justify-center gap-2.5 rounded-full bg-wood-primary px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-wood-primary/20 transition-all duration-300 hover:bg-wood-primary-dark focus:outline-none focus:ring-2 focus:ring-wood-secondary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70 cursor-pointer"
                         >
-                            <span>Kirim Request →</span>
+                            <svg x-show="isSubmitting" class="h-4 w-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg>
+                            <span x-text="isSubmitting ? 'Mengunggah & Memproses...' : 'Kirim Request →'"></span>
                         </button>
                     </div>
                 </form>
@@ -253,7 +325,10 @@
             document.addEventListener('alpine:init', () => {
                 Alpine.data('customFurnitureModal', (adminNumber) => ({
                     isOpen: false,
+                    isSubmitting: false,
                     adminNumber: adminNumber || '',
+                    imageFile: null,
+                    imagePreview: null,
                     form: {
                         name: '',
                         whatsapp: '',
@@ -279,7 +354,42 @@
                         this.errors = {};
                     },
 
-                    submitForm() {
+                    handleFileChange(event) {
+                        const file = event.target.files[0];
+                        this.errors.image = null;
+
+                        if (!file) return;
+
+                        if (!['image/jpeg', 'image/png', 'image/webp', 'image/jpg'].includes(file.type)) {
+                            this.errors.image = 'Format file tidak didukung. Harap upload gambar JPG, PNG, atau WEBP.';
+                            return;
+                        }
+
+                        if (file.size > 5 * 1024 * 1024) {
+                            this.errors.image = 'Ukuran gambar maksimal adalah 5MB.';
+                            return;
+                        }
+
+                        this.imageFile = file;
+                        this.imagePreview = URL.createObjectURL(file);
+                    },
+
+                    removeFile() {
+                        this.imageFile = null;
+                        this.imagePreview = null;
+                        if (this.$refs.imageInput) {
+                            this.$refs.imageInput.value = '';
+                        }
+                    },
+
+                    formatFileSize(bytes) {
+                        if (!bytes) return '';
+                        if (bytes < 1024) return bytes + ' B';
+                        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+                        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+                    },
+
+                    async submitForm() {
                         this.errors = {};
 
                         if (!this.form.name.trim()) {
@@ -299,6 +409,43 @@
                             return;
                         }
 
+                        this.isSubmitting = true;
+                        let uploadedImageUrl = null;
+
+                        // Jika ada gambar contoh desain yang dipilih, upload ke server
+                        if (this.imageFile) {
+                            try {
+                                const formData = new FormData();
+                                formData.append('image', this.imageFile);
+
+                                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+
+                                const response = await fetch('{{ route("custom-furniture.upload") }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'X-CSRF-TOKEN': csrfToken,
+                                        'Accept': 'application/json',
+                                    },
+                                    body: formData
+                                });
+
+                                const result = await response.json();
+
+                                if (!response.ok || !result.success) {
+                                    this.errors.image = result.message || 'Gagal mengunggah gambar. Silakan coba lagi.';
+                                    this.isSubmitting = false;
+                                    return;
+                                }
+
+                                uploadedImageUrl = result.url;
+                            } catch (err) {
+                                console.error('Upload error:', err);
+                                this.errors.image = 'Terjadi kesalahan saat mengunggah gambar. Silakan coba lagi.';
+                                this.isSubmitting = false;
+                                return;
+                            }
+                        }
+
                         // Format pesan WhatsApp
                         const messageLines = [
                             'Halo Admin Bewole Jepara Furniture, saya ingin request custom furniture.',
@@ -308,15 +455,21 @@
                             `Jenis Furniture: ${this.form.furniture_type.trim()}`,
                             `Deskripsi: ${this.form.description.trim()}`,
                             `Ukuran / Detail: ${this.form.dimensions.trim() || '-'}`,
-                            '',
-                            'Mohon informasi lebih lanjut mengenai request saya.'
                         ];
+
+                        if (uploadedImageUrl) {
+                            messageLines.push(`Link Contoh Desain: ${uploadedImageUrl}`);
+                        }
+
+                        messageLines.push('');
+                        messageLines.push('Mohon informasi lebih lanjut mengenai request saya.');
 
                         const messageText = messageLines.join('\n');
                         const targetNumber = this.adminNumber || '6281234567890';
                         const waUrl = `https://wa.me/${targetNumber}?text=${encodeURIComponent(messageText)}`;
 
                         // Reset form state & tutup modal
+                        this.removeFile();
                         this.closeModal();
                         this.form = {
                             name: '',
@@ -325,6 +478,7 @@
                             description: '',
                             dimensions: '',
                         };
+                        this.isSubmitting = false;
 
                         // Buka WhatsApp di tab baru
                         window.open(waUrl, '_blank', 'noopener,noreferrer');

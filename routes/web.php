@@ -33,6 +33,10 @@ Route::middleware(['maintenance'])->group(function () {
 
     // Cart — public (session-based, no login required to view/add)
     Route::view('/keranjang', 'frontend.pages.cart')->name('cart.index');
+
+    // Custom Furniture Upload Design
+    Route::post('/custom-furniture/upload', [App\Http\Controllers\Frontend\CustomFurnitureController::class, 'uploadDesign'])
+        ->name('custom-furniture.upload');
 });
 
 /*
