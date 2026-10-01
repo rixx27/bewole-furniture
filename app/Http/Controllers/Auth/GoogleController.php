@@ -31,6 +31,10 @@ class GoogleController extends Controller
             }
         }
 
+        if (empty(config('services.google.client_id')) || empty(config('services.google.client_secret'))) {
+            return redirect()->route('login')->with('error', 'Login dengan Google belum dapat digunakan karena Google Client ID & Secret belum dikonfigurasi di file .env.');
+        }
+
         try {
             /** @var \Laravel\Socialite\Two\GoogleProvider $driver */
             $driver = Socialite::driver('google');
