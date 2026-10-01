@@ -9,9 +9,10 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
 
     // Master Data
     Route::get('categories', App\Livewire\Admin\Category\CategoryManager::class)->name('categories.index');
+    Route::get('products/next-sort-order', [App\Http\Controllers\Admin\ProductController::class, 'getNextSortOrder'])->name('products.next-sort-order');
     Route::resource('products', App\Http\Controllers\Admin\ProductController::class)->names('products');
     Route::patch('products/{product}/sort-order', [App\Http\Controllers\Admin\ProductController::class, 'updateSortOrder'])->name('products.update-sort-order');
-    Route::resource('product-images', App\Http\Controllers\Admin\ProductImageController::class)->only(['index'])->names('product-images');
+    Route::resource('product-images', App\Http\Controllers\Admin\ProductImageController::class)->only(['index', 'destroy'])->names('product-images');
 
     // Content
     Route::resource('hero-banners', App\Http\Controllers\Admin\HeroBannerController::class)->names('hero-banners');

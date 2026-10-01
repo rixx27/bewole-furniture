@@ -132,15 +132,37 @@ class Product extends Model
     }
 
     /**
-     * Calculate the final price based on discount percentage.
+     * Calculate the final price based on discount percentage or discount price.
      */
     public function calculateFinalPrice(): void
     {
-        if ($this->discount_percentage && $this->discount_percentage > 0) {
-            $this->discount_price = (int) round($this->price - ($this->price * $this->discount_percentage / 100));
+        $price = (int) ($this->attributes['price'] ?? 0);
+
+        // Check if discount_percentage was explicitly set in attributes
+        if (array_key_exists('discount_percentage', $this->attributes)) {
+            $percentage = $this->attributes['discount_percentage'];
+
+            if ($percentage !== null && is_numeric($percentage) && (int) $percentage > 0 && $price > 0) {
+                $validPercentage = min(100, max(0, (int) $percentage));
+                $this->attributes['discount_percentage'] = $validPercentage;
+                $this->attributes['discount_price'] = (int) round($price - ($price * $validPercentage / 100));
+            } else {
+                $this->attributes['discount_percentage'] = null;
+                $this->attributes['discount_price'] = null;
+            }
+        } elseif (!empty($this->attributes['discount_price']) && $price > 0) {
+            // Fallback: if discount_price was explicitly provided (e.g. in test seeders) without discount_percentage
+            $discountPrice = (int) $this->attributes['discount_price'];
+            if ($discountPrice > 0 && $discountPrice < $price) {
+                $this->attributes['discount_price'] = $discountPrice;
+                $this->attributes['discount_percentage'] = (int) round((1 - $discountPrice / $price) * 100);
+            } else {
+                $this->attributes['discount_price'] = null;
+                $this->attributes['discount_percentage'] = null;
+            }
         } else {
-            $this->discount_price = $this->price;
-            $this->discount_percentage = null;
+            $this->attributes['discount_percentage'] = null;
+            $this->attributes['discount_price'] = null;
         }
     }
 
@@ -284,7 +306,11 @@ class Product extends Model
      */
     public function getFormattedDiscountPriceAttribute(): string
     {
-        return $this->discount_price ? 'Rp ' . number_format($this->discount_price, 0, ',', '.') : '';
+        if ($this->has_discount && !empty($this->discount_price)) {
+            return 'Rp ' . number_format($this->discount_price, 0, ',', '.');
+        }
+
+        return '';
     }
 
     /**
@@ -292,11 +318,20 @@ class Product extends Model
      */
     public function getDiscountPercentageAttribute(): ?int
     {
-        if ($this->discount_price && $this->price > 0 && $this->price != $this->discount_price) {
-            return (int) round((1 - $this->discount_price / $this->price) * 100);
+        if (array_key_exists('discount_percentage', $this->attributes)) {
+            $val = $this->attributes['discount_percentage'];
+            return ($val !== null && is_numeric($val) && (int) $val > 0) ? (int) $val : null;
         }
 
-        return $this->attributes['discount_percentage'] ?? null;
+        if (!empty($this->attributes['discount_price']) && !empty($this->attributes['price'])) {
+            $price = (int) $this->attributes['price'];
+            $discountPrice = (int) $this->attributes['discount_price'];
+            if ($price > 0 && $discountPrice > 0 && $discountPrice < $price) {
+                return (int) round((1 - $discountPrice / $price) * 100);
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -304,7 +339,7 @@ class Product extends Model
      */
     public function getHasDiscountAttribute(): bool
     {
-        return $this->discount_percentage && $this->discount_percentage > 0;
+        return $this->discount_percentage !== null && $this->discount_percentage > 0;
     }
 
     /**

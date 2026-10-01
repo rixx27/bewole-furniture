@@ -28,25 +28,38 @@
                      categoryNextOrders: {{ Js::from($categoryNextOrders ?? []) }},
                      selectedCategory: '{{ old('category_id', '') }}',
                      sortOrder: '{{ old('sort_order', '') }}',
-                     userCustomized: {{ old('sort_order') !== null && old('sort_order') !== '' ? 'true' : 'false' }},
-                     updateSortOrder() {
-                         if (!this.userCustomized || !this.sortOrder || this.sortOrder == 0) {
-                             if (this.selectedCategory && this.categoryNextOrders && this.categoryNextOrders[this.selectedCategory] !== undefined) {
-                                 this.sortOrder = this.categoryNextOrders[this.selectedCategory];
-                             } else if (this.selectedCategory && this.categoryNextOrders && this.categoryNextOrders[parseInt(this.selectedCategory)] !== undefined) {
-                                 this.sortOrder = this.categoryNextOrders[parseInt(this.selectedCategory)];
-                             } else {
-                                 this.sortOrder = 1;
-                             }
+                     init() {
+                         if (!this.sortOrder || this.sortOrder == 0) {
+                             this.applyNextSortOrder();
+                         }
+                         this.$watch('selectedCategory', () => {
+                             this.applyNextSortOrder();
+                         });
+                     },
+                     applyNextSortOrder() {
+                         if (!this.selectedCategory) {
+                             this.sortOrder = 1;
+                             return;
+                         }
+                         const catId = String(this.selectedCategory);
+                         if (this.categoryNextOrders && this.categoryNextOrders[catId] !== undefined) {
+                             this.sortOrder = this.categoryNextOrders[catId];
+                         } else {
+                             fetch(`{{ route('admin.products.next-sort-order') }}?category_id=${catId}`)
+                                 .then(res => res.json())
+                                 .then(data => {
+                                     if (data && data.next_sort_order) {
+                                         this.sortOrder = data.next_sort_order;
+                                         if (!this.categoryNextOrders) this.categoryNextOrders = {};
+                                         this.categoryNextOrders[catId] = data.next_sort_order;
+                                     }
+                                 })
+                                 .catch(() => {
+                                     this.sortOrder = 1;
+                                 });
                          }
                      }
-                 }"
-                 x-init="
-                     $watch('selectedCategory', () => updateSortOrder());
-                     if (!sortOrder || sortOrder == 0) {
-                         updateSortOrder();
-                     }
-                 ">
+                 }">
                 <h3 class="text-base font-semibold text-text-primary dark:text-white mb-1">Informasi Dasar</h3>
                 <p class="text-xs text-text-muted mb-5">Data utama produk furniture.</p>
 
@@ -112,7 +125,6 @@
                                id="sort_order"
                                name="sort_order"
                                x-model="sortOrder"
-                               x-on:input="userCustomized = true"
                                min="1"
                                placeholder="1"
                                class="w-full rounded-lg border {{ $errors->has('sort_order') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors">

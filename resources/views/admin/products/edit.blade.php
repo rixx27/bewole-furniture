@@ -22,7 +22,32 @@
             @method('PUT')
 
             {{-- Panel Informasi Dasar --}}
-            <div class="rounded-xl border border-border bg-card p-6 shadow-sm mb-6">
+            <div class="rounded-xl border border-border bg-card p-6 shadow-sm mb-6"
+                 x-data="{
+                     categoryNextOrders: {{ Js::from($categoryNextOrders ?? []) }},
+                     initialCategoryId: '{{ (string) $product->category_id }}',
+                     initialSortOrder: '{{ (string) ($product->sort_order ?? 1) }}',
+                     selectedCategory: '{{ old('category_id', (string) $product->category_id) }}',
+                     sortOrder: '{{ old('sort_order', (string) ($product->sort_order ?? 1)) }}',
+                     init() {
+                         this.$watch('selectedCategory', (newVal) => {
+                             if (newVal === this.initialCategoryId) {
+                                 this.sortOrder = this.initialSortOrder;
+                             } else if (newVal && this.categoryNextOrders && this.categoryNextOrders[String(newVal)] !== undefined) {
+                                 this.sortOrder = this.categoryNextOrders[String(newVal)];
+                             } else if (newVal) {
+                                 fetch(`{{ route('admin.products.next-sort-order') }}?category_id=${newVal}`)
+                                     .then(res => res.json())
+                                     .then(data => {
+                                         if (data && data.next_sort_order) {
+                                             this.sortOrder = data.next_sort_order;
+                                         }
+                                     })
+                                     .catch(() => {});
+                             }
+                         });
+                     }
+                 }">
                 <h3 class="text-base font-semibold text-text-primary dark:text-white mb-1">Informasi Dasar</h3>
                 <p class="text-xs text-text-muted mb-5">Data utama produk furniture.</p>
 
@@ -34,6 +59,7 @@
                         </label>
                         <select id="category_id"
                                 name="category_id"
+                                x-model="selectedCategory"
                                 class="w-full rounded-lg border {{ $errors->has('category_id') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary outline-hidden ring-0 transition-colors">
                             <option value="">-- Pilih Kategori --</option>
                             @foreach ($categories as $category)
@@ -88,14 +114,14 @@
                         <input type="number"
                                id="sort_order"
                                name="sort_order"
-                               value="{{ old('sort_order', $product->sort_order ?? 0) }}"
-                               min="0"
-                               placeholder="0"
+                               x-model="sortOrder"
+                               min="1"
+                               placeholder="1"
                                class="w-full rounded-lg border {{ $errors->has('sort_order') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors">
                         @error('sort_order')
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                         @enderror
-                        <p class="mt-1 text-xs text-text-muted">Semakin kecil angka, semakin awal ditampilkan.</p>
+                        <p class="mt-1 text-xs text-text-muted">Urutan produk dalam kategorinya. Jika diubah ke nomor yang sudah ada, urutan produk lain otomatis bergeser.</p>
                     </div>
                 </div>
 
@@ -326,11 +352,54 @@
 
                 {{-- Existing Gallery --}}
                 @if ($product->images->count() > 0)
-                    <div class="mb-5 pb-5 border-b border-border">
-                        <p class="mb-2.5 text-xs font-bold uppercase tracking-wider text-text-muted">Galeri Saat Ini ({{ $product->images->count() }} foto)</p>
+                    <div class="mb-5 pb-5 border-b border-border"
+                         x-data="{ existingCount: {{ $product->images->count() }} }"
+                         x-show="existingCount > 0"
+                         x-transition>
+                        <p class="mb-2.5 text-xs font-bold uppercase tracking-wider text-text-muted">
+                            Galeri Saat Ini (<span x-text="existingCount"></span> foto)
+                        </p>
                         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
                             @foreach ($product->images as $image)
-                                <div class="relative group rounded-lg border border-border overflow-hidden bg-bg-secondary/40 aspect-square" x-data="{ confirmDelete: false }">
+                                <div class="relative group rounded-lg border border-border overflow-hidden bg-bg-secondary/40 aspect-square"
+                                     x-data="{
+                                         confirmDelete: false,
+                                         isDeleting: false,
+                                         deleted: false,
+                                         async deleteImage() {
+                                             this.isDeleting = true;
+                                             try {
+                                                 const res = await fetch('{{ route('admin.product-images.destroy', $image->id) }}', {
+                                                     method: 'DELETE',
+                                                     headers: {
+                                                         'X-CSRF-TOKEN': document.querySelector('meta[name=\'csrf-token\']')?.getAttribute('content') || '{{ csrf_token() }}',
+                                                         'Accept': 'application/json',
+                                                         'Content-Type': 'application/json'
+                                                     }
+                                                 });
+                                                 const data = await res.json();
+                                                 if (res.ok && data.success) {
+                                                     this.deleted = true;
+                                                     existingCount--;
+                                                     window.dispatchEvent(new CustomEvent('notify', {
+                                                         detail: { message: 'Foto galeri berhasil dihapus.', type: 'success' }
+                                                     }));
+                                                 } else {
+                                                     alert(data.message || 'Gagal menghapus gambar.');
+                                                     this.confirmDelete = false;
+                                                 }
+                                             } catch (e) {
+                                                 alert('Terjadi kesalahan saat menghapus gambar.');
+                                                 this.confirmDelete = false;
+                                             } finally {
+                                                 this.isDeleting = false;
+                                             }
+                                         }
+                                     }"
+                                     x-show="!deleted"
+                                     x-transition:leave="transition ease-in duration-200"
+                                     x-transition:leave-start="opacity-100 scale-100"
+                                     x-transition:leave-end="opacity-0 scale-75">
                                     <img src="{{ asset('storage/' . $image->image) }}"
                                          alt="Galeri {{ $loop->iteration }}"
                                          class="h-full w-full object-cover">
@@ -339,7 +408,7 @@
                                     <button type="button"
                                             x-on:click="confirmDelete = true"
                                             title="Hapus foto dari galeri"
-                                            class="absolute top-1.5 right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white opacity-0 shadow-xs transition-opacity group-hover:opacity-100 hover:bg-red-600">
+                                            class="absolute top-1.5 right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white opacity-0 shadow-xs transition-opacity group-hover:opacity-100 hover:bg-red-600 cursor-pointer">
                                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                         </svg>
@@ -353,20 +422,25 @@
                                          x-transition:leave="transition ease-in duration-100"
                                          x-transition:leave-start="opacity-100 scale-100"
                                          x-transition:leave-end="opacity-0 scale-95"
-                                         class="absolute inset-0 flex flex-col items-center justify-center p-2 rounded-lg bg-black/75 backdrop-blur-xs text-center z-10">
+                                         class="absolute inset-0 flex flex-col items-center justify-center p-2 rounded-lg bg-black/80 backdrop-blur-xs text-center z-10">
                                         <p class="mb-2 text-[11px] font-medium text-white leading-tight">Hapus foto ini?</p>
                                         <div class="flex items-center gap-1.5">
                                             <button type="button"
+                                                    :disabled="isDeleting"
                                                     x-on:click="confirmDelete = false"
-                                                    class="rounded bg-gray-600 px-2 py-0.5 text-[10px] text-white hover:bg-gray-700">Batal</button>
-                                            <label class="flex cursor-pointer items-center gap-1 rounded bg-red-600 px-2 py-0.5 text-[10px] font-semibold text-white hover:bg-red-700">
-                                                <input type="checkbox"
-                                                       name="deleted_images[]"
-                                                       value="{{ $image->id }}"
-                                                       x-on:change="confirmDelete = false"
-                                                       class="hidden">
-                                                Hapus
-                                            </label>
+                                                    class="rounded bg-gray-600 px-2 py-1 text-[10px] text-white hover:bg-gray-700 cursor-pointer disabled:opacity-50">
+                                                Batal
+                                            </button>
+                                            <button type="button"
+                                                    :disabled="isDeleting"
+                                                    x-on:click="deleteImage()"
+                                                    class="flex items-center gap-1 rounded bg-red-600 px-2 py-1 text-[10px] font-semibold text-white hover:bg-red-700 cursor-pointer disabled:opacity-50">
+                                                <svg x-show="isDeleting" class="animate-spin h-2.5 w-2.5 text-white" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                <span x-text="isDeleting ? 'Menghapus...' : 'Hapus'"></span>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>

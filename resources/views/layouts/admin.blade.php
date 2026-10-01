@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
 
 @php
         $siteName = App\Helpers\WebsiteSettings::siteName();
@@ -212,6 +213,38 @@
                     <p class="shrink-0 font-medium">Panel Admin v1.0</p>
                 </div>
             </footer>
+        </div>
+    </div>
+
+    {{-- Global Toast Notification --}}
+    <div x-data="{ show: false, type: 'success', message: '' }"
+         x-on:notify.window="show = true; type = $event.detail.type || 'success'; message = $event.detail.message; setTimeout(() => show = false, 4000)"
+         x-show="show"
+         x-cloak
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 translate-y-3"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 translate-y-0"
+         x-transition:leave-end="opacity-0 translate-y-3"
+         class="fixed right-4 top-4 z-[9999] max-w-sm pointer-events-auto"
+         role="alert">
+        <div class="flex items-center gap-3 rounded-xl border p-3.5 shadow-xl backdrop-blur-md transition-colors"
+             :class="{
+                 'bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-300': type === 'success',
+                 'bg-red-50 border-red-200 text-red-800 dark:bg-red-950 dark:border-red-800 dark:text-red-300': type === 'error',
+                 'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-300': type === 'info'
+             }">
+            <svg x-show="type === 'success'" class="h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <svg x-show="type === 'error'" class="h-5 w-5 shrink-0 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span class="text-xs font-medium leading-normal flex-1" x-text="message"></span>
+            <button type="button" x-on:click="show = false" class="text-current opacity-60 hover:opacity-100 p-0.5">
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
         </div>
     </div>
 

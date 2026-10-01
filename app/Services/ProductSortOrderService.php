@@ -8,19 +8,94 @@ use Illuminate\Support\Facades\DB;
 class ProductSortOrderService
 {
     /**
+     * Get the next available sort order for a category.
+     */
+    public function getNextSortOrder(?int $categoryId): int
+    {
+        if (!$categoryId) {
+            return 1;
+        }
+
+        $this->ensureNormalized($categoryId);
+
+        $count = Product::where('category_id', $categoryId)->count();
+        $maxOrder = Product::where('category_id', $categoryId)->max('sort_order') ?? 0;
+
+        return max($count + 1, $maxOrder + 1);
+    }
+
+    /**
+     * Ensure all products in a category have valid, sequential sort orders (1, 2, 3...)
+     */
+    public function ensureNormalized(?int $categoryId): void
+    {
+        if (!$categoryId) {
+            return;
+        }
+
+        $hasInvalid = Product::where('category_id', $categoryId)
+            ->where(function ($q) {
+                $q->whereNull('sort_order')
+                  ->orWhere('sort_order', '<=', 0);
+            })->exists();
+
+        $hasDuplicates = Product::where('category_id', $categoryId)
+            ->where('sort_order', '>', 0)
+            ->groupBy('sort_order')
+            ->havingRaw('COUNT(*) > 1')
+            ->exists();
+
+        if ($hasInvalid || $hasDuplicates) {
+            $this->normalizeCategoryOrders($categoryId);
+        }
+    }
+
+    /**
+     * Resequence all products in a category sequentially from 1..N.
+     */
+    public function normalizeCategoryOrders(int $categoryId): void
+    {
+        DB::transaction(function () use ($categoryId) {
+            $products = Product::where('category_id', $categoryId)
+                ->orderByRaw('CASE WHEN sort_order = 0 OR sort_order IS NULL THEN 1 ELSE 0 END ASC')
+                ->orderBy('sort_order', 'asc')
+                ->orderBy('created_at', 'asc')
+                ->orderBy('id', 'asc')
+                ->get();
+
+            $order = 1;
+            foreach ($products as $p) {
+                if ((int) $p->sort_order !== $order) {
+                    Product::where('id', $p->id)->update(['sort_order' => $order]);
+                }
+                $order++;
+            }
+        });
+    }
+
+    /**
      * Adjust sort orders in category when a new product is being created.
      */
     public function adjustOnCreating(Product $product): void
     {
-        $newOrder = (int) ($product->sort_order ?? 0);
         $categoryId = $product->category_id;
 
-        if (!$categoryId || $newOrder <= 0) {
+        if (!$categoryId) {
             return;
         }
 
+        $this->ensureNormalized($categoryId);
+
+        $newOrder = (int) ($product->sort_order ?? 0);
+
+        // If no sort order is provided (or <= 0), automatically assign the next available rank
+        if ($newOrder <= 0) {
+            $product->sort_order = $this->getNextSortOrder($categoryId);
+            return;
+        }
+
+        // If an explicit sort order is given, shift all products with sort_order >= $newOrder up by 1
         DB::transaction(function () use ($categoryId, $newOrder) {
-            // Shift all products in the same category with sort_order >= $newOrder up by 1
             Product::where('category_id', $categoryId)
                 ->where('sort_order', '>=', $newOrder)
                 ->increment('sort_order');
@@ -36,6 +111,13 @@ class ProductSortOrderService
         $newOrder = (int) ($product->sort_order ?? 0);
         $oldCategoryId = $product->getOriginal('category_id');
         $newCategoryId = $product->category_id;
+
+        if ($oldCategoryId) {
+            $this->ensureNormalized($oldCategoryId);
+        }
+        if ($newCategoryId && $newCategoryId != $oldCategoryId) {
+            $this->ensureNormalized($newCategoryId);
+        }
 
         $this->adjustSortOrder(
             categoryId: $newCategoryId,

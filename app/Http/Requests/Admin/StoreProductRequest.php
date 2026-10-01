@@ -55,9 +55,28 @@ class StoreProductRequest extends FormRequest
             $this->merge(['materials' => $materials]);
         }
 
+        if ($this->has('discount_percentage')) {
+            $discount = $this->input('discount_percentage');
+            if ($discount === '' || $discount === null || (int) $discount <= 0) {
+                $this->merge(['discount_percentage' => null]);
+            } else {
+                $this->merge(['discount_percentage' => (int) $discount]);
+            }
+        }
+
         if ($this->has('sort_order')) {
             $val = $this->input('sort_order');
-            $this->merge(['sort_order' => $val !== null && $val !== '' ? (int) $val : 0]);
+            if ($val === null || $val === '' || (int) $val <= 0) {
+                $categoryId = $this->input('category_id');
+                $next = $categoryId ? app(\App\Services\ProductSortOrderService::class)->getNextSortOrder((int) $categoryId) : 1;
+                $this->merge(['sort_order' => $next]);
+            } else {
+                $this->merge(['sort_order' => (int) $val]);
+            }
+        } else {
+            $categoryId = $this->input('category_id');
+            $next = $categoryId ? app(\App\Services\ProductSortOrderService::class)->getNextSortOrder((int) $categoryId) : 1;
+            $this->merge(['sort_order' => $next]);
         }
     }
 

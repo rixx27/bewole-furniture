@@ -55,6 +55,15 @@ class UpdateProductRequest extends FormRequest
             $this->merge(['materials' => $materials]);
         }
 
+        if ($this->has('discount_percentage')) {
+            $discount = $this->input('discount_percentage');
+            if ($discount === '' || $discount === null || (int) $discount <= 0) {
+                $this->merge(['discount_percentage' => null]);
+            } else {
+                $this->merge(['discount_percentage' => (int) $discount]);
+            }
+        }
+
         if ($this->has('sort_order')) {
             $val = $this->input('sort_order');
             $this->merge(['sort_order' => $val !== null && $val !== '' ? (int) $val : 0]);
@@ -98,7 +107,7 @@ class UpdateProductRequest extends FormRequest
             'gallery' => ['nullable', 'array'],
             'gallery.*' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'deleted_images' => ['nullable', 'array'],
-            'deleted_images.*' => ['integer', 'exists:product_images,id'],
+            'deleted_images.*' => ['integer'],
             'materials' => ['nullable', 'array'],
             'materials.*.type' => ['required', 'in:seat_material,packing_material'],
             'materials.*.name' => ['required', 'string', 'max:255'],

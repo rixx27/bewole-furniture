@@ -56,7 +56,12 @@ class ProductController extends Controller
     public function create()
     {
         $categories = Category::orderBy('name')->get();
-        return view('admin.products.create', compact('categories'));
+        $sortOrderService = app(\App\Services\ProductSortOrderService::class);
+        $categoryNextOrders = $categories->mapWithKeys(function ($category) use ($sortOrderService) {
+            return [$category->id => $sortOrderService->getNextSortOrder($category->id)];
+        });
+
+        return view('admin.products.create', compact('categories', 'categoryNextOrders'));
     }
 
     /**
@@ -84,6 +89,19 @@ class ProductController extends Controller
                 $request->file('thumbnail'),
                 'products/thumbnails'
             );
+        }
+
+        // Handle discount percentage and price
+        if (array_key_exists('discount_percentage', $data)) {
+            if ($data['discount_percentage'] === null || (int) $data['discount_percentage'] <= 0) {
+                $data['discount_percentage'] = null;
+                $data['discount_price'] = null;
+            } else {
+                $price = (int) ($data['price'] ?? 0);
+                $percentage = min(100, max(0, (int) $data['discount_percentage']));
+                $data['discount_percentage'] = $percentage;
+                $data['discount_price'] = (int) round($price - ($price * $percentage / 100));
+            }
         }
 
         // Create product (final price auto-calculated in model boot)
@@ -138,8 +156,28 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $categories = Category::orderBy('name')->get();
+        $sortOrderService = app(\App\Services\ProductSortOrderService::class);
+        $categoryNextOrders = $categories->mapWithKeys(function ($category) use ($sortOrderService) {
+            return [(string) $category->id => $sortOrderService->getNextSortOrder($category->id)];
+        });
         $product->load(['images', 'materials']);
-        return view('admin.products.edit', compact('product', 'categories'));
+
+        return view('admin.products.edit', compact('product', 'categories', 'categoryNextOrders'));
+    }
+
+    /**
+     * Get the next sort order for a given category (JSON API).
+     */
+    public function getNextSortOrder(Request $request)
+    {
+        $categoryId = $request->query('category_id');
+        $sortOrderService = app(\App\Services\ProductSortOrderService::class);
+        $nextOrder = $sortOrderService->getNextSortOrder($categoryId ? (int) $categoryId : null);
+
+        return response()->json([
+            'category_id' => $categoryId,
+            'next_sort_order' => $nextOrder,
+        ]);
     }
 
     /**
@@ -175,13 +213,15 @@ class ProductController extends Controller
         }
 
         // Delete images marked for deletion
-        if ($request->has('deleted_images')) {
-            $imagesToDelete = ProductImage::whereIn('id', $data['deleted_images'])
+        if ($request->has('deleted_images') && !empty($data['deleted_images'])) {
+            $imagesToDelete = ProductImage::whereIn('id', (array) $data['deleted_images'])
                 ->where('product_id', $product->id)
                 ->get();
 
             foreach ($imagesToDelete as $image) {
-                Storage::disk('public')->delete($image->image);
+                if ($image->image && Storage::disk('public')->exists($image->image)) {
+                    Storage::disk('public')->delete($image->image);
+                }
                 $image->delete();
             }
         }
@@ -199,6 +239,19 @@ class ProductController extends Controller
                     'is_primary' => false,
                     'sort_order' => $lastSortOrder + $index + 1,
                 ]);
+            }
+        }
+
+        // Handle discount percentage and price
+        if (array_key_exists('discount_percentage', $data)) {
+            if ($data['discount_percentage'] === null || (int) $data['discount_percentage'] <= 0) {
+                $data['discount_percentage'] = null;
+                $data['discount_price'] = null;
+            } else {
+                $price = (int) ($data['price'] ?? $product->price);
+                $percentage = min(100, max(0, (int) $data['discount_percentage']));
+                $data['discount_percentage'] = $percentage;
+                $data['discount_price'] = (int) round($price - ($price * $percentage / 100));
             }
         }
 
