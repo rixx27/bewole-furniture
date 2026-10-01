@@ -195,8 +195,7 @@
                         <span>ID: {{ $product->id }}</span>
                     </div>
                     <form method="POST" action="{{ route('admin.products.destroy', $product) }}" class="inline"
-                          x-data
-                          x-on:submit.prevent="if (confirm('Apakah Anda yakin ingin menghapus produk "{{ $product->name }}"?')) $el.submit()">
+                          onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk ini?')">
                         @csrf
                         @method('DELETE')
                         <button type="submit"
