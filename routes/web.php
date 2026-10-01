@@ -17,6 +17,7 @@ Route::middleware(['maintenance'])->group(function () {
     Route::prefix('/')->name('frontend.')->group(function () {
         Route::view('/tentang-kami', 'frontend.about')->name('about');
         Route::view('/contact', 'frontend.contact')->name('contact');
+        Route::view('/privacy-policy', 'frontend.privacy')->name('privacy');
         Route::get('/tracking/{order_code?}', function ($order_code = null) {
             return view('frontend.tracking', ['order_code' => $order_code]);
         })->name('tracking');
