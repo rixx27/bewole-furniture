@@ -23,7 +23,30 @@
             {{-- ======================== --}}
             {{-- Panel Informasi Dasar --}}
             {{-- ======================== --}}
-            <div class="rounded-xl border border-border bg-card p-6 shadow-sm mb-6">
+            <div class="rounded-xl border border-border bg-card p-6 shadow-sm mb-6"
+                 x-data="{
+                     categoryNextOrders: {{ Js::from($categoryNextOrders ?? []) }},
+                     selectedCategory: '{{ old('category_id', '') }}',
+                     sortOrder: '{{ old('sort_order', '') }}',
+                     userCustomized: {{ old('sort_order') !== null && old('sort_order') !== '' ? 'true' : 'false' }},
+                     updateSortOrder() {
+                         if (!this.userCustomized || !this.sortOrder || this.sortOrder == 0) {
+                             if (this.selectedCategory && this.categoryNextOrders && this.categoryNextOrders[this.selectedCategory] !== undefined) {
+                                 this.sortOrder = this.categoryNextOrders[this.selectedCategory];
+                             } else if (this.selectedCategory && this.categoryNextOrders && this.categoryNextOrders[parseInt(this.selectedCategory)] !== undefined) {
+                                 this.sortOrder = this.categoryNextOrders[parseInt(this.selectedCategory)];
+                             } else {
+                                 this.sortOrder = 1;
+                             }
+                         }
+                     }
+                 }"
+                 x-init="
+                     $watch('selectedCategory', () => updateSortOrder());
+                     if (!sortOrder || sortOrder == 0) {
+                         updateSortOrder();
+                     }
+                 ">
                 <h3 class="text-base font-semibold text-text-primary dark:text-white mb-1">Informasi Dasar</h3>
                 <p class="text-xs text-text-muted mb-5">Data utama produk furniture.</p>
 
@@ -35,6 +58,7 @@
                         </label>
                         <select id="category_id"
                                 name="category_id"
+                                x-model="selectedCategory"
                                 class="w-full rounded-lg border {{ $errors->has('category_id') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary outline-hidden ring-0 transition-colors">
                             <option value="">-- Pilih Kategori --</option>
                             @foreach ($categories as $category)
@@ -87,14 +111,15 @@
                         <input type="number"
                                id="sort_order"
                                name="sort_order"
-                               value="{{ old('sort_order', 0) }}"
-                               min="0"
-                               placeholder="0"
+                               x-model="sortOrder"
+                               x-on:input="userCustomized = true"
+                               min="1"
+                               placeholder="1"
                                class="w-full rounded-lg border {{ $errors->has('sort_order') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors">
                         @error('sort_order')
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                         @enderror
-                        <p class="mt-1 text-xs text-text-muted">Semakin kecil angka, semakin awal ditampilkan.</p>
+                        <p class="mt-1 text-xs text-text-muted">Otomatis diisi urutan berikutnya. Jika diubah ke nomor yang sudah ada, urutan produk lain otomatis bergeser.</p>
                     </div>
                 </div>
                 {{-- END grid --}}
