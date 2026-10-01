@@ -124,6 +124,7 @@
             </button>
         </form>
 
+        @if (config('services.google.client_id'))
         {{-- Divider --}}
         <div class="relative flex items-center justify-center animate-fade-in">
             <div class="w-full border-t border-[#5B3A29]/15"></div>
@@ -146,6 +147,7 @@
             </svg>
             <span>{{ __('Lanjutkan dengan Google') }}</span>
         </a>
+        @endif
 
         {{-- Register --}}
         <div class="mt-1 flex items-center justify-center gap-1.5 text-sm text-[#2D2D2D]/60 animate-fade-in">
