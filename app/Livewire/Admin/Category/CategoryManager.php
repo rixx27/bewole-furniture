@@ -161,7 +161,11 @@ class CategoryManager extends Component
             'cover_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
-        $this->cover_preview = $this->cover_image->temporaryUrl();
+        try {
+            $this->cover_preview = $this->cover_image->temporaryUrl();
+        } catch (\Throwable $e) {
+            $this->cover_preview = null;
+        }
     }
 
     /**

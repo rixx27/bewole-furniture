@@ -72,33 +72,53 @@
                     <label class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
                         Cover Image <span class="text-red-500">*</span>
                     </label>
-                    <div class="flex items-start gap-4">
+                    <div class="flex items-start gap-4" x-data="{ localCoverPreview: null }">
                         {{-- Preview --}}
                         <div class="relative h-28 w-28 shrink-0 overflow-hidden rounded-xl border border-border bg-bg-secondary">
-                            @if ($cover_preview)
-                                <img src="{{ $cover_preview }}" alt="Preview" class="h-full w-full object-cover">
-                                <button type="button"
-                                        wire:click="removeCover"
-                                        class="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
-                                        title="Hapus cover">
-                                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                    </svg>
-                                </button>
-                            @else
-                                <div class="flex h-full w-full items-center justify-center text-text-muted">
-                                    <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                                    </svg>
+                            <template x-if="localCoverPreview">
+                                <div class="h-full w-full">
+                                    <img :src="localCoverPreview" alt="Preview Cover" class="h-full w-full object-cover">
+                                    <button type="button"
+                                            @click="localCoverPreview = null; if ($refs.coverInput) $refs.coverInput.value = '';"
+                                            wire:click="removeCover"
+                                            class="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 cursor-pointer z-10"
+                                            title="Hapus cover">
+                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                        </svg>
+                                    </button>
                                 </div>
-                            @endif
+                            </template>
+                            <template x-if="!localCoverPreview">
+                                <div class="h-full w-full">
+                                    @if ($cover_preview)
+                                        <img src="{{ $cover_preview }}" alt="Preview" class="h-full w-full object-cover">
+                                        <button type="button"
+                                                wire:click="removeCover"
+                                                class="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 cursor-pointer"
+                                                title="Hapus cover">
+                                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    @else
+                                        <div class="flex h-full w-full items-center justify-center text-text-muted">
+                                            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                                            </svg>
+                                        </div>
+                                    @endif
+                                </div>
+                            </template>
                         </div>
 
                         <div class="flex-1">
                             <input type="file"
+                                   x-ref="coverInput"
                                    accept="image/jpeg,image/png,image/webp"
+                                   x-on:change="localCoverPreview = $event.target.files[0] ? URL.createObjectURL($event.target.files[0]) : null"
                                    wire:model="cover_image"
-                                   class="block w-full text-sm text-text-secondary file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-primary-dark">
+                                   class="block w-full text-sm text-text-secondary file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-primary-dark cursor-pointer">
                             <p class="mt-2 text-xs text-text-muted">Format: JPG, JPEG, PNG, atau WEBP. Maksimal 2 MB.</p>
                             @error('cover_image')
                                 <p class="mt-1 text-xs text-red-500">{{ $message }}</p>

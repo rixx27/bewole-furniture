@@ -160,7 +160,11 @@ class WebsiteSettings extends Component
             'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,svg,webp', 'max:2048'],
         ]);
 
-        $this->logo_preview = $this->logo->temporaryUrl();
+        try {
+            $this->logo_preview = $this->logo->temporaryUrl();
+        } catch (\Throwable $e) {
+            $this->logo_preview = null;
+        }
     }
 
     /**
@@ -185,7 +189,11 @@ class WebsiteSettings extends Component
             'custom_furniture_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ]);
 
-        $this->custom_furniture_image_preview = $this->custom_furniture_image->temporaryUrl();
+        try {
+            $this->custom_furniture_image_preview = $this->custom_furniture_image->temporaryUrl();
+        } catch (\Throwable $e) {
+            $this->custom_furniture_image_preview = null;
+        }
         $this->remove_custom_furniture_image = false;
     }
 

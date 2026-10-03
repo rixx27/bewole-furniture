@@ -243,20 +243,30 @@
                     </div>
                 </div>
                 <div class="p-6">
-                    <div class="flex flex-col gap-4 sm:flex-row sm:items-start">
-                        <div class="flex h-40 w-full sm:w-56 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-bg-secondary">
-                            @if ($company_image_preview)
-                                <img src="{{ $company_image_preview }}" alt="Preview" class="h-full w-full object-cover">
-                            @elseif ($existing_company_image)
-                                <img src="{{ asset('storage/' . $existing_company_image) }}" alt="Foto Perusahaan" class="h-full w-full object-cover">
-                            @else
-                                <div class="flex flex-col items-center justify-center text-center px-4">
-                                    <svg class="h-12 w-12 text-text-muted/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"/>
-                                    </svg>
-                                    <p class="mt-2 text-xs text-text-muted">Belum ada foto</p>
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-start" x-data="{ localCompanyPreview: null }">
+                        <div class="flex h-40 w-full sm:w-56 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-bg-secondary relative">
+                            <template x-if="localCompanyPreview">
+                                <div class="h-full w-full">
+                                    <img :src="localCompanyPreview" alt="Preview Foto" class="h-full w-full object-cover">
+                                    <span class="absolute bottom-1.5 left-2 rounded-md bg-black/60 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur-xs">Preview Baru</span>
                                 </div>
-                            @endif
+                            </template>
+                            <template x-if="!localCompanyPreview">
+                                <div class="h-full w-full flex items-center justify-center">
+                                    @if ($company_image_preview)
+                                        <img src="{{ $company_image_preview }}" alt="Preview" class="h-full w-full object-cover">
+                                    @elseif ($existing_company_image)
+                                        <img src="{{ asset('storage/' . $existing_company_image) }}" alt="Foto Perusahaan" class="h-full w-full object-cover">
+                                    @else
+                                        <div class="flex flex-col items-center justify-center text-center px-4">
+                                            <svg class="h-12 w-12 text-text-muted/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"/>
+                                            </svg>
+                                            <p class="mt-2 text-xs text-text-muted">Belum ada foto</p>
+                                        </div>
+                                    @endif
+                                </div>
+                            </template>
                         </div>
                         <div class="flex-1">
                             <label class="relative inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-text-secondary hover:bg-bg-secondary transition-colors">
@@ -264,19 +274,25 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
                                 </svg>
                                 <span>{{ $existing_company_image || $company_image_preview ? 'Ganti Foto' : 'Pilih Foto' }}</span>
-                                <input type="file" wire:model="company_image" accept="image/jpg,image/jpeg,image/png,image/webp" class="sr-only">
+                                <input type="file"
+                                       x-ref="compFileInput"
+                                       wire:model="company_image"
+                                       accept="image/jpg,image/jpeg,image/png,image/webp"
+                                       x-on:change="localCompanyPreview = $event.target.files[0] ? URL.createObjectURL($event.target.files[0]) : null"
+                                       class="sr-only">
                             </label>
                             <p class="mt-2 text-xs text-text-muted">Kosongkan jika tidak ingin menampilkan foto di halaman "Tentang Kami".</p>
-                            @if ($existing_company_image || $company_image_preview)
+                            <div x-show="localCompanyPreview || @js(boolval($existing_company_image || $company_image_preview))">
                                 <button type="button"
+                                        @click="localCompanyPreview = null; if ($refs.compFileInput) $refs.compFileInput.value = '';"
                                         wire:click="removeCompanyImage"
-                                        class="mt-2 inline-flex items-center gap-1.5 text-xs text-red-500 hover:text-red-700 transition-colors">
+                                        class="mt-2 inline-flex items-center gap-1.5 text-xs text-red-500 hover:text-red-700 transition-colors cursor-pointer">
                                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                     </svg>
                                     Hapus Foto
                                 </button>
-                            @endif
+                            </div>
                             @error('company_image') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                         </div>
                     </div>

@@ -111,7 +111,11 @@ class CompanyProfile extends Component
             'company_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
-        $this->company_image_preview = $this->company_image->temporaryUrl();
+        try {
+            $this->company_image_preview = $this->company_image->temporaryUrl();
+        } catch (\Throwable $e) {
+            $this->company_image_preview = null;
+        }
     }
 
     /**

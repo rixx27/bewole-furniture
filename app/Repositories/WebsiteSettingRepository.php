@@ -46,8 +46,8 @@ class WebsiteSettingRepository implements WebsiteSettingRepositoryInterface
      */
     public function deleteOldFile(?string $path): void
     {
-        if ($path && Storage::exists($path)) {
-            Storage::delete($path);
+        if ($path && Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->delete($path);
         }
     }
 }
