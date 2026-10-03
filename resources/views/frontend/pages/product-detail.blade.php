@@ -1,6 +1,12 @@
 @extends('frontend.layouts.app')
 
 @section('title', $product->name)
+@section('meta_description', !empty($product->short_description) ? strip_tags($product->short_description) : \Illuminate\Support\Str::limit(strip_tags($product->description ?? ''), 160))
+@if ($product->primaryImage?->image_path)
+    @section('og_image', asset('storage/' . $product->primaryImage->image_path))
+@elseif ($product->thumbnail)
+    @section('og_image', asset('storage/' . $product->thumbnail))
+@endif
 
 @section('content')
     {{-- ============================================================

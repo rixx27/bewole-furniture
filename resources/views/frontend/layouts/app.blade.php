@@ -13,29 +13,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@hasSection('title')@yield('title') — {{ $siteName }}@else{{ $metaTitle }}@endif</title>
-    <meta name="description" content="@hasSection('meta_description')@yield('meta_description')@else{{ $metaDescription }}@endif">
+    @php
+        $pageTitle = request()->routeIs('home')
+            ? ($metaTitle ?: $siteName)
+            : ($__env->yieldContent('title') ? trim($__env->yieldContent('title')) . ' — ' . $siteName : $metaTitle);
+        $pageDescription = $__env->yieldContent('meta_description') ? trim($__env->yieldContent('meta_description')) : $metaDescription;
+        $pageImage = $__env->yieldContent('og_image') ? trim($__env->yieldContent('og_image')) : ($siteLogo ? asset($siteLogo) : null);
+    @endphp
+
+    <title>{{ $pageTitle }}</title>
+    <meta name="description" content="{{ $pageDescription }}">
     @if ($metaKeywords)
         <meta name="keywords" content="{{ $metaKeywords }}">
     @endif
     <meta name="author" content="{{ $siteName }}">
+    <link rel="canonical" href="{{ url()->current() }}">
 
     {{-- Open Graph / Social Sharing --}}
-    <meta property="og:type" content="website">
+    <meta property="og:type" content="{{ request()->routeIs('products.show') ? 'product' : 'website' }}">
     <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:title" content="@hasSection('title')@yield('title') — {{ $siteName }}@else{{ $metaTitle }}@endif">
-    <meta property="og:description" content="@hasSection('meta_description')@yield('meta_description')@else{{ $metaDescription }}@endif">
-    @if ($siteLogo)
-        <meta property="og:image" content="{{ asset($siteLogo) }}">
+    <meta property="og:title" content="{{ $pageTitle }}">
+    <meta property="og:description" content="{{ $pageDescription }}">
+    @if ($pageImage)
+        <meta property="og:image" content="{{ $pageImage }}">
     @endif
 
-    @if ($siteLogo)
-        <link rel="icon" href="{{ $siteLogo }}">
-    @else
-        <link rel="icon" href="/favicon.ico" sizes="any">
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    {{-- Twitter Card --}}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $pageTitle }}">
+    <meta name="twitter:description" content="{{ $pageDescription }}">
+    @if ($pageImage)
+        <meta name="twitter:image" content="{{ $pageImage }}">
     @endif
+
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
     @fonts
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/frontend.js'])

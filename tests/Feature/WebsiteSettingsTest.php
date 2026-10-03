@@ -71,3 +71,29 @@ it('can update all settings including seo fields without database errors', funct
     expect($updated->meta_description)->toBe('Bewole Description');
     expect($updated->meta_keywords)->toBe('furniture, jepara');
 });
+
+it('homepage renders configured meta_title and meta_description in html head', function () {
+    $service = app(\App\Services\WebsiteSettingService::class);
+    $setting = $service->get() ?? WebsiteSetting::create(['site_name' => 'Bewole']);
+
+    $service->update($setting, [
+        'site_name' => 'Bewole Furniture Test',
+        'meta_title' => 'Mebel Jepara Terbaik & Terlengkap',
+        'meta_description' => 'Toko mebel jati Jepara kualitas ekspor terpercaya.',
+        'meta_keywords' => 'furniture, jepara, jati',
+    ]);
+
+    $response = $this->get(route('home'));
+    $response->assertSuccessful();
+    $response->assertSee('<title>Mebel Jepara Terbaik &amp; Terlengkap</title>', false);
+    $response->assertSee('<meta name="description" content="Toko mebel jati Jepara kualitas ekspor terpercaya.">', false);
+    $response->assertSee('<meta name="keywords" content="furniture, jepara, jati">', false);
+});
+
+it('sitemap endpoint returns valid xml response', function () {
+    $response = $this->get(route('sitemap'));
+    $response->assertSuccessful();
+    $response->assertHeader('Content-Type', 'application/xml');
+    $response->assertSee('urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"', false);
+});
+

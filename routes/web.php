@@ -12,6 +12,10 @@ Route::get('/', [App\Http\Controllers\Frontend\HomeController::class, 'index'])
     ->name('home')
     ->middleware('maintenance');
 
+// SEO Sitemap
+Route::get('/sitemap.xml', [App\Http\Controllers\Frontend\SitemapController::class, 'index'])->name('sitemap');
+
+
 // Public frontend routes
 Route::middleware(['maintenance'])->group(function () {
     Route::prefix('/')->name('frontend.')->group(function () {

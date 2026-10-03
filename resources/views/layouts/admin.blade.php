@@ -14,13 +14,9 @@
         {{ filled($title ?? null) ? $title . ' — ' . $siteName : $siteName . ' — Admin' }}
     </title>
 
-    @if ($siteLogo)
-        <link rel="icon" href="{{ $siteLogo }}">
-    @else
-        <link rel="icon" href="/favicon.ico" sizes="any">
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    @endif
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
 @fonts
     @vite(['resources/css/app.css', 'resources/js/app.js'])
