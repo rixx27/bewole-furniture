@@ -262,6 +262,15 @@ class WebsiteSettingService
             $svgContent = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\" width=\"100%\" height=\"100%\">\n  <image width=\"512\" height=\"512\" href=\"data:image/png;base64,{$base64}\" />\n</svg>";
             file_put_contents(public_path('favicon.svg'), $svgContent);
 
+            // Also copy to base_path if index.php exists (typical for Hostinger public_html document roots)
+            if (file_exists(base_path('index.php')) && base_path() !== public_path()) {
+                @copy(public_path('favicon.ico'), base_path('favicon.ico'));
+                @copy(public_path('favicon.svg'), base_path('favicon.svg'));
+                @copy(public_path('favicon-32x32.png'), base_path('favicon-32x32.png'));
+                @copy(public_path('favicon-16x16.png'), base_path('favicon-16x16.png'));
+                @copy(public_path('apple-touch-icon.png'), base_path('apple-touch-icon.png'));
+            }
+
             imagedestroy($master);
             imagedestroy($src);
         } catch (\Throwable $e) {

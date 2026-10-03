@@ -50,7 +50,6 @@
             <span class="font-medium text-primary uppercase tracking-wider text-[11px]">
                 @if ($activeTab === 'info') Informasi Perusahaan
                 @elseif ($activeTab === 'contact') Kontak & Sosial Media
-                @elseif ($activeTab === 'seo') SEO & Metadata
                 @elseif ($activeTab === 'system') Sistem
                 @endif
             </span>
@@ -128,18 +127,6 @@
                     <span>Kontak & Sosial Media</span>
                 </button>
 
-                <button type="button"
-                        wire:click="setTab('seo')"
-                        @class([
-                            'flex items-center gap-2 border-b-2 py-3 px-4 text-sm font-medium whitespace-nowrap transition-colors cursor-pointer',
-                            'border-primary text-primary font-semibold' => $activeTab === 'seo',
-                            'border-transparent text-text-secondary hover:border-border hover:text-text-primary' => $activeTab !== 'seo',
-                        ])>
-                    <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                    </svg>
-                    <span>SEO & Metadata</span>
-                </button>
 
                 <button type="button"
                         wire:click="setTab('system')"
@@ -258,8 +245,8 @@
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="text-base font-semibold text-text-primary dark:text-black">Logo Website</h3>
-                                <p class="text-xs text-text-muted">Logo utama yang ditampilkan pada navbar dan footer website.</p>
+                                <h3 class="text-base font-semibold text-text-primary dark:text-black">Logo Website &amp; Favicon</h3>
+                                <p class="text-xs text-text-muted">Logo utama yang ditampilkan pada navbar dan footer website, serta otomatis disinkronkan sebagai favicon browser.</p>
                             </div>
                         </div>
                     </div>
@@ -281,9 +268,9 @@
                                 @endif
                             </div>
                             <div class="flex-1">
-                                <label for="logo_input" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">Unggah Logo</label>
+                                <label for="logo_input" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">Unggah Logo &amp; Favicon</label>
                                 <input type="file" id="logo_input" accept="image/*" wire:model="logo" class="block w-full text-sm text-text-secondary file:mr-4 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-primary-dark transition-all cursor-pointer">
-                                <p class="mt-2 text-xs text-text-muted">Format: PNG, JPG, JPEG, SVG, WEBP. Maksimal 2 MB.</p>
+                                <p class="mt-2 text-xs text-text-muted">Format: PNG, JPG, JPEG, SVG, WEBP. Maksimal 2 MB. Logo otomatis disinkronkan menjadi favicon browser.</p>
                                 @error('logo') <p class="mt-1 text-xs text-red-500 font-medium">{{ $message }}</p> @enderror
                                 <div wire:loading wire:target="logo" class="mt-2 text-xs text-primary font-medium">Mengunggah logo...</div>
                             </div>
@@ -535,167 +522,7 @@
                 </div>
             @endif
 
-            {{-- ============================================ --}}
-            {{-- TAB C: SEO & METADATA --}}
-            {{-- ============================================ --}}
-            @if ($activeTab === 'seo')
-                <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-                    <div class="border-b border-border bg-bg-secondary/50 px-6 py-4">
-                        <div class="flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="text-base font-semibold text-text-primary dark:text-black">SEO &amp; Metadata</h3>
-                                <p class="text-xs text-text-muted">Logo, favicon browser, dan informasi SEO dasar.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-6 space-y-6">
-                        {{-- Logo Website --}}
-                        <div>
-                            <label class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                                Logo Website &amp; Favicon
-                            </label>
-                            <div class="flex items-center gap-4">
-                                <div class="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-bg-secondary">
-                                    @if ($logo_preview)
-                                        <img src="{{ $logo_preview }}" alt="Logo Preview" class="h-full w-full object-contain">
-                                    @elseif ($existing_logo)
-                                        <img src="{{ asset('storage/' . $existing_logo) }}" alt="Logo" class="h-full w-full object-contain">
-                                    @else
-                                        <svg class="h-8 w-8 text-text-muted/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"/>
-                                        </svg>
-                                    @endif
-                                </div>
-                                <div class="flex-1">
-                                    <label class="relative inline-block cursor-pointer rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-text-secondary hover:bg-bg-secondary transition-colors">
-                                        <span>Pilih Logo</span>
-                                        <input type="file" wire:model="logo" accept="image/jpg,image/jpeg,image/png,image/svg+xml,image/webp" class="sr-only">
-                                    </label>
-                                    <p class="mt-1 text-xs text-text-muted">Logo otomatis digunakan sebagai favicon browser. Format: JPG, PNG, SVG, WebP. Maksimal 2 MB.</p>
-                                    @if ($existing_logo || $logo_preview)
-                                        <button type="button" wire:click="removeLogo" class="mt-1 text-xs text-red-500 hover:text-red-700 transition-colors cursor-pointer block">
-                                            Hapus Logo
-                                        </button>
-                                    @endif
-                                    @error('logo') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
-                                </div>
-                            </div>
-                        </div>
 
-                        {{-- Divider --}}
-                        <div class="border-t border-border pt-6 space-y-5">
-                            <div class="flex items-center gap-2">
-                                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">i</span>
-                                <h4 class="text-sm font-semibold text-text-primary dark:text-black">Konfigurasi Tag Meta SEO Google</h4>
-                            </div>
-
-                            {{-- Meta Title --}}
-                            <div>
-                                <div class="flex items-center justify-between mb-1.5">
-                                    <label for="meta_title" class="block text-sm font-medium text-text-primary dark:text-black">
-                                        Meta Title (Judul Google)
-                                    </label>
-                                    <span class="text-xs font-mono {{ strlen($meta_title) > 60 ? 'text-amber-600 font-semibold' : 'text-text-muted' }}">
-                                        {{ strlen($meta_title) }}/70 karakter
-                                    </span>
-                                </div>
-                                <input type="text"
-                                       id="meta_title"
-                                       wire:model.live="meta_title"
-                                       placeholder="Contoh: Toko Furniture Jepara Asli &amp; Mebel Jati Kualitas Ekspor"
-                                       class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
-                                <p class="mt-1 text-xs text-text-muted">
-                                    Disarankan 50–60 karakter. Jika dikosongkan, sistem otomatis memakai format: <em>{{ $site_name ?: 'Bewole Furniture' }} {{ $site_tagline ? '— ' . Str::limit($site_tagline, 40) : '' }}</em>.
-                                </p>
-                                @error('meta_title') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
-                            </div>
-
-                            {{-- Meta Description --}}
-                            <div>
-                                <div class="flex items-center justify-between mb-1.5">
-                                    <label for="meta_description" class="block text-sm font-medium text-text-primary dark:text-black">
-                                        Meta Deskripsi (Snippet Google)
-                                    </label>
-                                    <span class="text-xs font-mono {{ strlen($meta_description) > 160 ? 'text-amber-600 font-semibold' : 'text-text-muted' }}">
-                                        {{ strlen($meta_description) }}/320 karakter
-                                    </span>
-                                </div>
-                                <textarea id="meta_description"
-                                          wire:model.live="meta_description"
-                                          rows="3"
-                                          placeholder="Contoh: Bewole Jepara Furniture menghadirkan perabotan kayu jati berkualitas tinggi dengan pengerjaan tangan ahli dan desain timeless khas Jepara."
-                                          class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary resize-none"></textarea>
-                                <p class="mt-1 text-xs text-text-muted">
-                                    Rekomendasi 150–160 karakter agar tidak terpotong di hasil pencarian. Jika dikosongkan, otomatis memakai tagline perusahaan.
-                                </p>
-                                @error('meta_description') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
-                            </div>
-
-                            {{-- Meta Keywords --}}
-                            <div>
-                                <label for="meta_keywords" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                                    Meta Keywords (Kata Kunci Pencarian)
-                                </label>
-                                <input type="text"
-                                       id="meta_keywords"
-                                       wire:model="meta_keywords"
-                                       placeholder="Contoh: furniture jepara, mebel jati, kursi minimalis, meja makan jepara"
-                                       class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
-                                <p class="mt-1 text-xs text-text-muted">
-                                    Pisahkan setiap kata kunci dengan tanda koma (,).
-                                </p>
-                                @error('meta_keywords') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
-                            </div>
-                        </div>
-
-                        {{-- Live Google Search Snippet Preview --}}
-                        <div class="rounded-xl border border-border bg-bg-secondary/40 p-5 space-y-3">
-                            <div class="flex items-center justify-between">
-                                <h4 class="text-xs font-bold uppercase tracking-wider text-text-muted">
-                                    Pratinjau Hasil Pencarian Google (SERP Preview)
-                                </h4>
-                                <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700 border border-emerald-200">
-                                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Live Update
-                                </span>
-                            </div>
-
-                            {{-- Mock Google Card --}}
-                            <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-xs max-w-2xl font-sans">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <div class="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 overflow-hidden border border-gray-200">
-                                        @if ($logo_preview)
-                                            <img src="{{ $logo_preview }}" alt="Favicon" class="h-4 w-4 object-contain">
-                                        @elseif ($existing_logo)
-                                            <img src="{{ asset('storage/' . $existing_logo) }}" alt="Favicon" class="h-4 w-4 object-contain">
-                                        @else
-                                            <span class="text-[10px] font-bold text-gray-500">B</span>
-                                        @endif
-                                    </div>
-                                    <div class="text-xs text-gray-700 leading-none">
-                                        <p class="font-medium text-gray-900">{{ $site_name ?: 'Bewole Jepara Furniture' }}</p>
-                                        <p class="text-[11px] text-gray-500 truncate">{{ url('/') }}</p>
-                                    </div>
-                                </div>
-                                <h5 class="text-base font-medium text-[#1a0dab] hover:underline cursor-pointer leading-snug line-clamp-1 mb-1">
-                                    {{ filled($meta_title) ? $meta_title : ($site_name ?: 'Bewole Furniture') . ($site_tagline ? ' — ' . $site_tagline : '') }}
-                                </h5>
-                                <p class="text-xs text-[#4d5156] leading-relaxed line-clamp-2">
-                                    {{ filled($meta_description) ? $meta_description : ($site_tagline ?: ($address ?: 'Toko furniture terpercaya yang menghadirkan produk berkualitas dengan desain timeless khas Jepara.')) }}
-                                </p>
-                            </div>
-
-                            <p class="text-[11px] text-text-muted italic">
-                                * Pratinjau ini mengilustrasikan perkiraan tampilan link website Anda saat muncul di halaman hasil pencarian Google.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            @endif
 
             {{-- ============================================ --}}
             {{-- TAB D: SISTEM --}}

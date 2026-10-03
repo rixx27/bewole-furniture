@@ -93,6 +93,10 @@ class WebsiteSettings extends Component
      */
     public function mount(): void
     {
+        if ($this->activeTab === 'seo' || !in_array($this->activeTab, ['info', 'contact', 'system'])) {
+            $this->activeTab = 'info';
+        }
+
         $this->settings = $this->settingService->get();
 
         if ($this->settings) {
@@ -105,7 +109,7 @@ class WebsiteSettings extends Component
      */
     public function setTab(string $tab): void
     {
-        if (in_array($tab, ['info', 'contact', 'seo', 'system'])) {
+        if (in_array($tab, ['info', 'contact', 'system'])) {
             $this->activeTab = $tab;
         }
     }
