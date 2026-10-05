@@ -14,9 +14,9 @@
         {{ filled($title ?? null) ? $title . ' — ' . $siteName : $siteName . ' — Admin' }}
     </title>
 
-    <link rel="icon" href="/favicon.ico?v=2" sizes="any">
-    <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
+    <link rel="icon" href="{{ asset('favicon.ico') }}?v=4" sizes="any">
+    <link rel="icon" href="{{ asset('favicon.svg') }}?v=4" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}?v=4">
 
 @fonts
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -51,10 +51,10 @@
              class="fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col bg-sidebar shadow-2xl">
             <div class="flex h-[72px] items-center justify-between border-b border-white/10 px-6">
                 <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
-                    <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10">
-                        <span class="text-sm font-bold text-white">B</span>
+                    <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10 overflow-hidden p-1">
+                        <img src="{{ $siteLogo }}" alt="{{ $siteName }}" class="h-full w-full object-contain">
                     </div>
-                    <span class="text-base font-semibold tracking-tight text-sidebar-text">Bewole Jepara Furniture</span>
+                    <span class="text-base font-semibold tracking-tight text-sidebar-text">{{ $siteName }}</span>
                 </a>
                 <button x-on:click="mobileOpen = false" class="rounded-lg p-1.5 text-sidebar-text hover:bg-white/10">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -78,11 +78,11 @@
             <div class="flex h-full flex-col bg-sidebar shadow-2xl">
                 <div class="flex h-[72px] items-center border-b border-white/10 px-6">
                     <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-lg">
-                            <span class="text-lg font-bold text-white">B</span>
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 shadow-lg overflow-hidden p-1">
+                            <img src="{{ $siteLogo }}" alt="{{ $siteName }}" class="h-full w-full object-contain">
                         </div>
                         <div>
-                            <span class="text-base font-bold tracking-tight text-white">Bewole Jepara Furniture</span>
+                            <span class="text-base font-bold tracking-tight text-white">{{ $siteName }}</span>
                             <span class="block text-[10px] font-medium uppercase tracking-[0.2em] text-sidebar-text">Administrator</span>
                         </div>
                     </a>

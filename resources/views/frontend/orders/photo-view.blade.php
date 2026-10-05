@@ -6,9 +6,9 @@
     <title>Foto Progres: {{ $history->status_label }} — #{{ $order?->order_code ?? '' }} | Bewole Jepara</title>
 
     {{-- Favicon Bewole Jepara (Cache-busted) --}}
-    <link rel="icon" href="/favicon.ico?v=3" sizes="any">
-    <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+    <link rel="icon" href="{{ asset('favicon.ico') }}?v=4" sizes="any">
+    <link rel="icon" href="{{ asset('favicon.svg') }}?v=4" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}?v=4">
 
     <style>
         * {
@@ -175,7 +175,7 @@
 
     <header>
         <div class="header-left">
-            <img src="/favicon.ico?v=3" alt="Bewole Logo" class="brand-logo">
+            <img src="{{ \App\Helpers\WebsiteSettings::logoUrl() ?: asset('apple-touch-icon.png') }}" alt="Bewole Logo" class="brand-logo">
             <div class="header-info">
                 <h1>
                     Foto Progres: {{ $history->status_label }}

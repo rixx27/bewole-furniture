@@ -8,13 +8,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title }} - {{ App\Helpers\WebsiteSettings::siteName() }}</title>
-    @if (App\Helpers\WebsiteSettings::logoUrl())
-        <link rel="icon" href="{{ App\Helpers\WebsiteSettings::logoUrl() }}">
-    @else
-        <link rel="icon" href="/favicon.ico?v=2" sizes="any">
-        <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml">
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
-    @endif
+    <link rel="icon" href="{{ asset('favicon.ico') }}?v=4" sizes="any">
+    <link rel="icon" href="{{ asset('favicon.svg') }}?v=4" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}?v=4">
     @fonts
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @fluxAppearance

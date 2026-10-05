@@ -54,7 +54,7 @@ class WebsiteSettings
      */
     public static function logoUrl(): ?string
     {
-        return static::get('logo_url');
+        return static::get('logo_url') ?: asset('apple-touch-icon.png');
     }
 
     /**
