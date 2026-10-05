@@ -48,6 +48,11 @@ class WebsiteSettings extends Component
     public string $address = '';
     public string $google_maps_embed = '';
 
+    // Section 2b: Rekening Pembayaran Toko
+    public string $bank_name = '';
+    public string $bank_account_number = '';
+    public string $bank_account_holder = '';
+
     // Section 3: Media Sosial
     public string $facebook = '';
     public string $instagram = '';
@@ -130,6 +135,9 @@ class WebsiteSettings extends Component
         $this->email = $this->settings->email ?? '';
         $this->phone = $this->settings->phone ?? '';
         $this->whatsapp = $this->settings->whatsapp ?? '';
+        $this->bank_name = $this->settings->bank_name ?? '';
+        $this->bank_account_number = $this->settings->bank_account_number ?? '';
+        $this->bank_account_holder = $this->settings->bank_account_holder ?? '';
         $this->address = $this->settings->address ?? '';
         $this->google_maps_embed = $this->settings->google_maps_embed ?? '';
 
@@ -286,6 +294,7 @@ class WebsiteSettings extends Component
             $this->reset([
                 'site_name', 'site_tagline', 'logo', 'custom_furniture_image',
                 'email', 'phone', 'whatsapp', 'address', 'google_maps_embed',
+                'bank_name', 'bank_account_number', 'bank_account_holder',
                 'facebook', 'instagram', 'tiktok',
                 'working_days', 'working_hours',
                 'is_maintenance', 'maintenance_message',
@@ -316,6 +325,9 @@ class WebsiteSettings extends Component
             'email' => $this->email,
             'phone' => $this->phone,
             'whatsapp' => $this->whatsapp,
+            'bank_name' => $this->bank_name,
+            'bank_account_number' => $this->bank_account_number,
+            'bank_account_holder' => $this->bank_account_holder,
             'address' => $this->address,
             'google_maps_embed' => $this->google_maps_embed,
             'facebook' => $this->facebook,

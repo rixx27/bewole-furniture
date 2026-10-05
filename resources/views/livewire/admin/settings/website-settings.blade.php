@@ -235,6 +235,117 @@
                     </div>
                 </div>
 
+                {{-- Rekening Pembayaran Toko --}}
+                <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+                    <div class="border-b border-border bg-bg-secondary/50 px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-500">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-6 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-semibold text-text-primary dark:text-black">Rekening Pembayaran Toko</h3>
+                                <p class="text-xs text-text-muted">Nomor rekening dan pilihan bank yang otomatis ditampilkan pada kartu rekening menu Informasi & Bukti Pembayaran (Tracking).</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6 space-y-5">
+                        <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
+                            {{-- Pilihan Bank --}}
+                            <div>
+                                <label for="bank_name" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
+                                    Pilihan Bank / Nama Bank <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text"
+                                       id="bank_name"
+                                       list="bank_options"
+                                       wire:model.live="bank_name"
+                                       placeholder="Pilih atau ketik bank (misal: BCA)"
+                                       class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
+                                <datalist id="bank_options">
+                                    <option value="BCA (Bank Central Asia)"></option>
+                                    <option value="Mandiri (Bank Mandiri)"></option>
+                                    <option value="BRI (Bank Rakyat Indonesia)"></option>
+                                    <option value="BNI (Bank Negara Indonesia)"></option>
+                                    <option value="BSI (Bank Syariah Indonesia)"></option>
+                                    <option value="Bank Jateng"></option>
+                                    <option value="CIMB Niaga"></option>
+                                    <option value="Permata Bank"></option>
+                                    <option value="Bank Danamon"></option>
+                                </datalist>
+                                @error('bank_name') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+
+                                {{-- Quick Bank Select Buttons --}}
+                                <div class="mt-2 flex flex-wrap items-center gap-1.5">
+                                    <span class="text-[11px] text-text-muted">Pilih cepat:</span>
+                                    @foreach (['BCA (Bank Central Asia)', 'Mandiri (Bank Mandiri)', 'BRI (Bank Rakyat Indonesia)', 'BNI (Bank Negara Indonesia)', 'BSI (Bank Syariah Indonesia)', 'Bank Jateng'] as $b)
+                                        <button
+                                            type="button"
+                                            wire:click="$set('bank_name', '{{ $b }}')"
+                                            class="rounded-md border border-border bg-bg-secondary/40 px-2 py-0.5 text-[10px] font-semibold text-text-secondary hover:border-primary hover:text-primary transition-colors cursor-pointer"
+                                        >
+                                            {{ explode(' ', $b)[0] }}
+                                        </button>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            {{-- Nomor Rekening --}}
+                            <div>
+                                <label for="bank_account_number" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
+                                    Nomor Rekening <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text"
+                                       id="bank_account_number"
+                                       wire:model.live="bank_account_number"
+                                       placeholder="8910-2345-6789"
+                                       class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-mono text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
+                                @error('bank_account_number') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                                <p class="mt-1 text-[11px] text-text-muted">Nomor rekening transfer yang dapat disalin langsung oleh pembeli.</p>
+                            </div>
+
+                            {{-- Nama Pemilik Rekening --}}
+                            <div>
+                                <label for="bank_account_holder" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
+                                    Nama Pemilik Rekening (a.n.) <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text"
+                                       id="bank_account_holder"
+                                       wire:model.live="bank_account_holder"
+                                       placeholder="CV BEWOLE JEPARA FURNITURE"
+                                       class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors focus:border-primary focus:ring-1 focus:ring-primary">
+                                @error('bank_account_holder') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                                <p class="mt-1 text-[11px] text-text-muted">Nama resmi pemilik rekening sesuai buku tabungan.</p>
+                            </div>
+                        </div>
+
+                        {{-- Preview Card seperti di Halaman Pembeli --}}
+                        <div class="rounded-xl border border-amber-200/90 bg-amber-50/50 p-4 space-y-2">
+                            <span class="text-[11px] font-bold text-amber-900 uppercase tracking-wider block">
+                                Pratinjau Tampilan Rekening Pembayaran Toko (di Sisi Pembeli):
+                            </span>
+                            <div class="rounded-lg border border-amber-200 bg-white p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                                <div>
+                                    <span class="text-xs font-extrabold text-gray-900 block">{{ $bank_name ?: 'BCA (Bank Central Asia)' }}</span>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <span class="text-sm font-mono font-bold text-amber-900 tracking-wider">{{ $bank_account_number ?: '8910-2345-6789' }}</span>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded bg-amber-50 text-[10px] font-semibold text-amber-800 border border-amber-200">
+                                            Salin No. Rek
+                                        </span>
+                                    </div>
+                                    <span class="text-[11px] text-gray-500 block mt-0.5">a.n. {{ $bank_account_holder ?: 'CV BEWOLE JEPARA FURNITURE' }}</span>
+                                </div>
+                                <div class="text-left sm:text-right">
+                                    <span class="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 inline-block">
+                                        ✓ Otomatis Tersinkron ke Menu Pembayaran Pelanggan
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {{-- Logo Website --}}
                 <div x-data="{ logoLocalPreview: null }" class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
                     <div class="border-b border-border bg-bg-secondary/50 px-6 py-4">

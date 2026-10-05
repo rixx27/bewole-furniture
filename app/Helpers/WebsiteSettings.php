@@ -122,6 +122,30 @@ class WebsiteSettings
     }
 
     /**
+     * Get the bank name.
+     */
+    public static function bankName(): string
+    {
+        return static::get('bank_name') ?: 'BCA (Bank Central Asia)';
+    }
+
+    /**
+     * Get the bank account number.
+     */
+    public static function bankAccountNumber(): string
+    {
+        return static::get('bank_account_number') ?: '8910-2345-6789';
+    }
+
+    /**
+     * Get the bank account holder name.
+     */
+    public static function bankAccountHolder(): string
+    {
+        return static::get('bank_account_holder') ?: 'CV BEWOLE JEPARA FURNITURE';
+    }
+
+    /**
      * Get clean Google Maps Embed URL for iframe src attribute.
      */
     public static function googleMapsEmbedUrl(): ?string

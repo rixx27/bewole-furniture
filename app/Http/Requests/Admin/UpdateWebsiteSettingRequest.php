@@ -28,10 +28,13 @@ class UpdateWebsiteSettingRequest extends FormRequest
             'site_tagline' => ['nullable', 'string', 'max:255'],
             'custom_furniture_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
 
-            // Section 2: Informasi Kontak
+            // Section 2: Informasi Kontak & Rekening
             'email' => ['nullable', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],
             'whatsapp' => ['nullable', 'string', 'max:50', 'regex:/^([0-9\s\-\+\(\)]*)$/'],
+            'bank_name' => ['nullable', 'string', 'max:100'],
+            'bank_account_number' => ['nullable', 'string', 'max:100'],
+            'bank_account_holder' => ['nullable', 'string', 'max:150'],
             'address' => ['nullable', 'string'],
             'google_maps_embed' => ['nullable', 'string'],
 

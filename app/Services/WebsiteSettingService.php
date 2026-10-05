@@ -98,11 +98,14 @@ class WebsiteSettingService
             'custom_furniture_image' => $settings->custom_furniture_image,
             'custom_furniture_image_url' => $settings->custom_furniture_image_url,
 
-            // Section 2: Informasi Kontak
+            // Section 2: Informasi Kontak & Rekening
             'email' => $settings->email,
             'phone' => $settings->phone,
             'whatsapp' => $settings->whatsapp,
             'whatsapp_url' => $settings->whatsapp_url,
+            'bank_name' => $settings->bank_name ?: 'BCA (Bank Central Asia)',
+            'bank_account_number' => $settings->bank_account_number ?: '8910-2345-6789',
+            'bank_account_holder' => $settings->bank_account_holder ?: 'CV BEWOLE JEPARA FURNITURE',
             'address' => $settings->address,
             'google_maps_embed' => $settings->google_maps_embed,
 
@@ -146,6 +149,9 @@ class WebsiteSettingService
             'phone' => null,
             'whatsapp' => null,
             'whatsapp_url' => null,
+            'bank_name' => 'BCA (Bank Central Asia)',
+            'bank_account_number' => '8910-2345-6789',
+            'bank_account_holder' => 'CV BEWOLE JEPARA FURNITURE',
             'address' => null,
             'google_maps_embed' => null,
             'facebook' => null,

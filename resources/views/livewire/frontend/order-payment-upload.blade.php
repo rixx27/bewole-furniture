@@ -1,7 +1,7 @@
 @php
-    $bankName = App\Helpers\WebsiteSettings::get('bank_name') ?: 'BCA (Bank Central Asia)';
-    $bankNumber = App\Helpers\WebsiteSettings::get('bank_account_number') ?: '8910-2345-6789';
-    $bankHolder = App\Helpers\WebsiteSettings::get('bank_account_holder') ?: 'CV BEWOLE JEPARA FURNITURE';
+    $bankName = App\Helpers\WebsiteSettings::bankName();
+    $bankNumber = App\Helpers\WebsiteSettings::bankAccountNumber();
+    $bankHolder = App\Helpers\WebsiteSettings::bankAccountHolder();
     $isFullyPaid = $order->payment_status === 'paid' || $order->remaining_payment <= 0;
     $hasPending = $payments->where('status', 'pending')->isNotEmpty();
 @endphp

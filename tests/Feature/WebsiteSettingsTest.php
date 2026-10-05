@@ -97,3 +97,18 @@ it('sitemap endpoint returns valid xml response', function () {
     $response->assertSee('urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"', false);
 });
 
+it('can save and retrieve bank account information in website settings', function () {
+    $service = app(\App\Services\WebsiteSettingService::class);
+    $setting = $service->get() ?? WebsiteSetting::create(['site_name' => 'Bewole']);
+
+    $service->update($setting, [
+        'bank_name' => 'Mandiri (Bank Mandiri)',
+        'bank_account_number' => '123-456-7890',
+        'bank_account_holder' => 'CV BEWOLE JEPARA',
+    ]);
+
+    expect(WebsiteSettings::bankName())->toBe('Mandiri (Bank Mandiri)');
+    expect(WebsiteSettings::bankAccountNumber())->toBe('123-456-7890');
+    expect(WebsiteSettings::bankAccountHolder())->toBe('CV BEWOLE JEPARA');
+});
+

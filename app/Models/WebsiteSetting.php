@@ -26,10 +26,13 @@ class WebsiteSetting extends Model
         'site_tagline',
         'custom_furniture_image',
 
-        // Section 2: Informasi Kontak
+        // Section 2: Informasi Kontak & Rekening
         'email',
         'phone',
         'whatsapp',
+        'bank_name',
+        'bank_account_number',
+        'bank_account_holder',
         'address',
         'google_maps_embed',
 
