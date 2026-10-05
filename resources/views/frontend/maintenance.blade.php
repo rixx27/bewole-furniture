@@ -8,9 +8,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title }} - {{ App\Helpers\WebsiteSettings::siteName() }}</title>
-    <link rel="icon" href="{{ asset('favicon.ico') }}?v=4" sizes="any">
-    <link rel="icon" href="{{ asset('favicon.svg') }}?v=4" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}?v=4">
+    @php
+        $siteLogo = App\Helpers\WebsiteSettings::logoUrl();
+    @endphp
+    @if ($siteLogo)
+        <link rel="icon" href="{{ $siteLogo }}">
+    @endif
+    <link rel="icon" href="{{ asset('favicon.ico') }}?v=5" sizes="any">
+    <link rel="icon" href="{{ asset('favicon.svg') }}?v=5" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="{{ $siteLogo ?: asset('apple-touch-icon.png') }}?v=5">
     @fonts
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @fluxAppearance

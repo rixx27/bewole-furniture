@@ -10,9 +10,12 @@
     {{ filled($title ?? null) ? $title . ' - ' . $siteName : $siteName }}
 </title>
 
-    <link rel="icon" href="{{ asset('favicon.ico') }}?v=4" sizes="any">
-    <link rel="icon" href="{{ asset('favicon.svg') }}?v=4" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}?v=4">
+    @if ($siteLogo)
+        <link rel="icon" href="{{ $siteLogo }}">
+    @endif
+    <link rel="icon" href="{{ asset('favicon.ico') }}?v=5" sizes="any">
+    <link rel="icon" href="{{ asset('favicon.svg') }}?v=5" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="{{ $siteLogo ?: asset('apple-touch-icon.png') }}?v=5">
 
 @fonts
 
