@@ -130,7 +130,7 @@
                 @if ($stats->count())
                     <section class="mt-16">
                         <h2 class="text-center font-serif text-2xl font-bold tracking-tight text-wood-text sm:text-3xl">
-                            Angka &amp; Pencapaian Kami
+                           Pencapaian Kami
                         </h2>
                         <div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
                             @foreach ($stats as $stat)

@@ -42,12 +42,12 @@
     <div class="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
         <div
             data-reveal
-            class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4"
+            class="grid gap-10 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8"
         >
             {{-- ============================================================
                  COLUMN 1 — BRAND
                  ============================================================ --}}
-            <div class="sm:col-span-2 lg:col-span-1">
+            <div class="sm:col-span-2 lg:col-span-5">
                 <a href="{{ route('home') }}" wire:navigate class="inline-flex items-center gap-3" aria-label="{{ $siteName }}">
                     @if ($siteLogo)
                         <img
@@ -64,14 +64,32 @@
                 </a>
 
                 @if ($siteTagline)
-                    <p class="mt-4 max-w-xs text-sm leading-relaxed text-white/50">{{ $siteTagline }}</p>
+                    <p class="mt-4 max-w-sm text-sm leading-relaxed text-white/50">{{ $siteTagline }}</p>
+                @endif
+
+                @if ($socials->isNotEmpty())
+                    <div class="mt-6 flex items-center gap-3">
+                        @foreach ($socials as $key => $url)
+                            <a
+                                href="{{ $url }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label="{{ ucfirst($key) }}"
+                                class="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/50 transition-all duration-300 hover:-translate-y-0.5 hover:scale-110 hover:border-wood-secondary/40 hover:bg-wood-secondary/15 hover:text-wood-secondary-light focus:outline-none focus-visible:ring-2 focus-visible:ring-wood-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-[#1C1917]"
+                            >
+                                <svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                    <path d="{{ $socialIcons[$key] ?? '' }}"/>
+                                </svg>
+                            </a>
+                        @endforeach
+                    </div>
                 @endif
             </div>
 
             {{-- ============================================================
                  COLUMN 2 — EXPLORE
                  ============================================================ --}}
-            <div data-reveal data-reveal-delay="100">
+            <div data-reveal data-reveal-delay="100" class="sm:col-span-1 lg:col-span-2 lg:col-start-8">
                 <h4 class="text-xs font-bold uppercase tracking-[0.15em] text-white/40">Explore</h4>
                 <ul class="mt-5 space-y-3.5">
                     @foreach ($exploreLinks as $link)
@@ -92,7 +110,7 @@
             {{-- ============================================================
                  COLUMN 3 — CONTACT
                  ============================================================ --}}
-            <div data-reveal data-reveal-delay="200">
+            <div data-reveal data-reveal-delay="200" class="sm:col-span-1 lg:col-span-3 lg:col-start-10">
                 <h4 class="text-xs font-bold uppercase tracking-[0.15em] text-white/40">Kontak</h4>
                 <ul class="mt-5 space-y-3.5 text-sm text-white/65">
                     @if ($whatsappUrl)
@@ -137,30 +155,6 @@
                     @endif
                 </ul>
             </div>
-
-            {{-- ============================================================
-                 COLUMN 4 — SOCIAL
-                 ============================================================ --}}
-            @if ($socials->isNotEmpty())
-                <div data-reveal data-reveal-delay="300">
-                    <h4 class="text-xs font-bold uppercase tracking-[0.15em] text-white/40">Social</h4>
-                    <div class="mt-5 flex items-center gap-3">
-                        @foreach ($socials as $key => $url)
-                            <a
-                                href="{{ $url }}"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                aria-label="{{ ucfirst($key) }}"
-                                class="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/50 transition-all duration-300 hover:-translate-y-0.5 hover:scale-110 hover:border-wood-secondary/40 hover:bg-wood-secondary/15 hover:text-wood-secondary-light focus:outline-none focus-visible:ring-2 focus-visible:ring-wood-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-[#1C1917]"
-                            >
-                                <svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                    <path d="{{ $socialIcons[$key] ?? '' }}"/>
-                                </svg>
-                            </a>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
         </div>
 
         {{-- ============================================================

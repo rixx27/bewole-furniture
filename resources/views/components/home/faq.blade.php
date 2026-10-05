@@ -133,7 +133,7 @@
                                 @click="limit = totalCount"
                                 class="group inline-flex items-center gap-2 rounded-full border border-wood-primary/30 bg-wood-surface px-6 py-3 text-sm font-semibold text-wood-primary shadow-xs transition-all duration-300 hover:border-wood-primary hover:bg-wood-primary hover:text-white cursor-pointer"
                             >
-                                <span>Tampilkan Semua Pertanyaan ({{ $faqs->count() }})</span>
+                                <span>Tampilkan Semua Pertanyaan</span>
                                 <svg class="h-4 w-4 transition-transform duration-300 group-hover:translate-y-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
                                 </svg>

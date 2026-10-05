@@ -177,23 +177,27 @@
                     </button>
                 </div>
             </div>
-
-            {{-- Product Description --}}
-            @if ($product->description)
-                <div class="mt-10 border-t border-wood-border/40 pt-6">
-                    <h3 class="text-base font-bold text-wood-text font-serif mb-3">Deskripsi Produk</h3>
-                    <div class="prose prose-sm text-wood-muted max-w-none leading-relaxed">
-                        {!! nl2br(e($product->description)) !!}
-                    </div>
-                </div>
-            @endif
         </div>
     </div>
 
     {{-- ============================================================
+         PRODUCT DESCRIPTION (FULL WIDTH)
+         ============================================================ --}}
+    @if ($product->description)
+        <div class="mt-12 sm:mt-16 border-t border-wood-border/60 pt-8 sm:pt-12">
+            <h2 class="text-xl sm:text-2xl font-bold text-wood-text font-serif mb-4 sm:mb-6">
+                Deskripsi Produk
+            </h2>
+            <div class="prose prose-sm sm:prose-base text-wood-muted max-w-none leading-relaxed">
+                {!! nl2br(e($product->description)) !!}
+            </div>
+        </div>
+    @endif
+
+    {{-- ============================================================
          PRODUCT REVIEWS & RATINGS SECTION
          ============================================================ --}}
-    <div id="ulasan" class="mt-20 border-t border-wood-border/60 pt-16">
+    <div id="ulasan" class="mt-12 sm:mt-16 border-t border-wood-border/60 pt-8 sm:pt-12">
         @php
             $visibleReviews = $product->visibleReviews;
             $reviewsCount = $visibleReviews->count();
