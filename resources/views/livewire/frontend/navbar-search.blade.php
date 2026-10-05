@@ -2,7 +2,7 @@
     x-data="{
         open: false,
         searchQuery: '',
-        results: [],
+        results: { categories: [], products: [] },
         loading: false,
         debounceTimer: null,
         searchUrl: '{{ url('/search') }}',
@@ -19,7 +19,7 @@
 
         clearSearch() {
             this.searchQuery = '';
-            this.results = [];
+            this.results = { categories: [], products: [] };
             this.$refs.searchInput.focus();
         },
 
@@ -35,7 +35,7 @@
             const q = this.searchQuery.trim();
 
             if (q.length < 2) {
-                this.results = [];
+                this.results = { categories: [], products: [] };
                 this.loading = false;
                 return;
             }
@@ -47,10 +47,18 @@
                         headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
                     });
                     if (response.ok) {
-                        this.results = await response.json();
+                        const data = await response.json();
+                        if (Array.isArray(data)) {
+                            this.results = { categories: [], products: data };
+                        } else {
+                            this.results = {
+                                categories: data.categories || [],
+                                products: data.products || []
+                            };
+                        }
                     }
                 } catch (e) {
-                    this.results = [];
+                    this.results = { categories: [], products: [] };
                 } finally {
                     this.loading = false;
                 }
@@ -119,52 +127,100 @@
             {{-- Results Area --}}
             <div class="mt-3 max-h-[min(65vh,24rem)] overflow-y-auto overscroll-contain">
 
-                {{-- Has Results --}}
-                <template x-if="searchQuery.trim().length >= 2 && results.length > 0">
+                {{-- Has Results (Categories or Products) --}}
+                <template x-if="searchQuery.trim().length >= 2 && ((results.products && results.products.length > 0) || (results.categories && results.categories.length > 0))">
                     <div>
-                        <div class="space-y-1 max-h-80 overflow-y-auto pr-1">
-                            <template x-for="item in results" :key="item.slug">
-                                <a
-                                    :href="item.url"
-                                    @click="open = false"
-                                    class="group flex items-center gap-4 rounded-2xl p-2 transition-colors hover:bg-wood-light/20 cursor-pointer"
-                                >
-                                    <div class="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-wood-light/40 border border-wood-border/40">
-                                        <template x-if="item.thumbnail">
-                                            <img :src="'/storage/' + item.thumbnail" :alt="item.name" class="h-full w-full object-cover">
-                                        </template>
-                                        <template x-if="!item.thumbnail">
-                                            <div class="flex h-full w-full items-center justify-center text-wood-muted">
-                                                <svg class="h-5 w-5 stroke-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                                                </svg>
+                        {{-- 1. Matching Categories Section --}}
+                        <template x-if="results.categories && results.categories.length > 0">
+                            <div class="mb-3 rounded-2xl bg-wood-light/30 p-2.5 border border-wood-border/50">
+                                <div class="flex items-center justify-between mb-1.5 px-0.5">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-wood-muted flex items-center gap-1.5">
+                                        <svg class="h-3.5 w-3.5 text-wood-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
+                                        Kategori Terkait
+                                    </span>
+                                    <span class="text-[10px] text-wood-muted">Prioritas</span>
+                                </div>
+                                <div class="flex flex-wrap gap-1.5">
+                                    <template x-for="cat in results.categories" :key="cat.slug">
+                                        <a
+                                            :href="cat.url"
+                                            @click="open = false"
+                                            class="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-semibold text-wood-text border border-wood-border/60 shadow-xs hover:border-wood-primary hover:bg-wood-primary hover:text-white transition-all cursor-pointer"
+                                        >
+                                            <span x-text="cat.name"></span>
+                                            <span class="text-[10px] opacity-75 font-normal" x-text="'(' + cat.product_count + ')'"></span>
+                                        </a>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+
+                        {{-- 2. Products List --}}
+                        <template x-if="results.products && results.products.length > 0">
+                            <div>
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-wood-muted block mb-1.5 px-1">Rekomendasi Produk</span>
+                                <div class="space-y-1 max-h-80 overflow-y-auto pr-1">
+                                    <template x-for="item in results.products" :key="item.slug">
+                                        <a
+                                            :href="item.url"
+                                            @click="open = false"
+                                            class="group flex items-center gap-3.5 rounded-2xl p-2 transition-colors hover:bg-wood-light/20 cursor-pointer"
+                                        >
+                                            <div class="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-wood-light/40 border border-wood-border/40">
+                                                <template x-if="item.thumbnail">
+                                                    <img :src="'/storage/' + item.thumbnail" :alt="item.name" class="h-full w-full object-cover">
+                                                </template>
+                                                <template x-if="!item.thumbnail">
+                                                    <div class="flex h-full w-full items-center justify-center text-wood-muted">
+                                                        <svg class="h-5 w-5 stroke-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                                        </svg>
+                                                    </div>
+                                                </template>
                                             </div>
-                                        </template>
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <span class="block text-[10px] font-bold uppercase tracking-wider text-wood-primary truncate" x-text="item.category_name"></span>
-                                        <h4 class="text-xs font-semibold text-wood-text truncate group-hover:text-wood-primary" x-text="item.name"></h4>
-                                        <p class="text-xs text-wood-muted" x-text="item.price"></p>
-                                    </div>
-                                </a>
-                            </template>
-                        </div>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-[10px] font-bold uppercase tracking-wider text-wood-primary truncate" x-text="item.category_name"></span>
+                                                    {{-- Indikator Bahan / Material Badge --}}
+                                                    <template x-if="item.material">
+                                                        <span
+                                                            class="inline-flex items-center gap-1 rounded-full px-2 py-0.2 text-[9px] font-medium"
+                                                            :class="item.is_material_match 
+                                                                ? 'bg-amber-100 text-amber-900 border border-amber-300 font-semibold' 
+                                                                : 'bg-wood-light/40 text-wood-muted border border-wood-border/30'"
+                                                        >
+                                                            <template x-if="item.is_material_match">
+                                                                <span>🪵 Bahan:</span>
+                                                            </template>
+                                                            <span x-text="item.material"></span>
+                                                        </span>
+                                                    </template>
+                                                </div>
+                                                <h4 class="text-xs font-semibold text-wood-text truncate group-hover:text-wood-primary" x-text="item.name"></h4>
+                                                <p class="text-xs text-wood-muted" x-text="item.price"></p>
+                                            </div>
+                                        </a>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+
                         <div class="mt-2 border-t border-wood-border/40 pt-2">
                             <a :href="searchUrl + '?q=' + encodeURIComponent(searchQuery.trim())" class="block w-full rounded-xl p-2 text-center text-xs font-semibold text-wood-primary hover:bg-wood-primary/10 transition-colors">
-                                Lihat semua hasil →
+                                Lihat semua hasil untuk "<span x-text="searchQuery.trim()"></span>" →
                             </a>
                         </div>
                     </div>
                 </template>
 
                 {{-- No Results --}}
-                <template x-if="!loading && searchQuery.trim().length >= 2 && results.length === 0">
+                <template x-if="!loading && searchQuery.trim().length >= 2 && (!results.products || results.products.length === 0) && (!results.categories || results.categories.length === 0)">
                     <div class="py-8 text-center">
                         <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-wood-light/50 text-wood-muted mb-3">
                             <svg class="h-6 w-6 stroke-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                         </div>
                         <p class="text-sm font-medium text-wood-text">Produk tidak ditemukan</p>
-                        <p class="text-xs text-wood-muted mt-1">Maaf, tidak ada produk yang sesuai dengan "<span x-text="searchQuery"></span>".</p>
+                        <p class="text-xs text-wood-muted mt-1">Maaf, tidak ada produk atau kategori yang sesuai dengan "<span x-text="searchQuery"></span>".</p>
                         <a href="{{ route('products.index') }}" class="mt-3 inline-block rounded-full bg-wood-primary/10 px-4 py-2 text-xs font-semibold text-wood-primary hover:bg-wood-primary hover:text-white transition-colors">
                             Lihat Semua Produk
                         </a>

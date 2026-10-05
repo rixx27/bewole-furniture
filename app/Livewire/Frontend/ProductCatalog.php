@@ -5,6 +5,7 @@ namespace App\Livewire\Frontend;
 use App\Models\Category;
 use App\Models\Product;
 use App\Services\CartService;
+use App\Services\ProductSearchService;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -14,11 +15,13 @@ class ProductCatalog extends Component
 
     public string $q = '';
     public string $selectedCategory = '';
+    public string $selectedMaterial = '';
     public string $sort = 'latest';
 
     protected $queryString = [
         'q' => ['except' => ''],
         'selectedCategory' => ['except' => ''],
+        'selectedMaterial' => ['except' => ''],
         'sort' => ['except' => 'latest'],
     ];
 
@@ -26,6 +29,12 @@ class ProductCatalog extends Component
     {
         if (empty($this->selectedCategory)) {
             $this->selectedCategory = (string) (request()->query('selectedCategory') ?: request()->query('category', ''));
+        }
+        if (empty($this->selectedMaterial)) {
+            $this->selectedMaterial = (string) request()->query('material', '');
+        }
+        if (empty($this->q)) {
+            $this->q = (string) request()->query('q', '');
         }
     }
 
@@ -39,6 +48,11 @@ class ProductCatalog extends Component
         $this->resetPage();
     }
 
+    public function updatingSelectedMaterial(): void
+    {
+        $this->resetPage();
+    }
+
     public function updatingSort(): void
     {
         $this->resetPage();
@@ -47,6 +61,12 @@ class ProductCatalog extends Component
     public function selectCategory(string $slug = ''): void
     {
         $this->selectedCategory = $slug;
+        $this->resetPage();
+    }
+
+    public function selectMaterial(string $material = ''): void
+    {
+        $this->selectedMaterial = $material;
         $this->resetPage();
     }
 
@@ -89,25 +109,14 @@ class ProductCatalog extends Component
             ->active()
             ->with(['category']);
 
+        $searchMeta = [
+            'matching_categories' => collect(),
+            'detected_materials' => [],
+        ];
+
         if (!empty($this->q)) {
-            $terms = explode(' ', $this->q);
-            $terms = array_filter($terms, fn($val) => !empty(trim($val)));
-            
-            $query->where(function ($qBuilder) use ($terms) {
-                foreach ($terms as $term) {
-                    $searchStr = '%' . $term . '%';
-                    $qBuilder->where(function ($subQ) use ($searchStr) {
-                        $subQ->where('name', 'like', $searchStr)
-                             ->orWhere('description', 'like', $searchStr)
-                             ->orWhere('short_description', 'like', $searchStr)
-                             ->orWhere('material', 'like', $searchStr)
-                             ->orWhere('sku', 'like', $searchStr)
-                             ->orWhereHas('category', function ($catQ) use ($searchStr) {
-                                 $catQ->where('name', 'like', $searchStr);
-                             });
-                    });
-                }
-            });
+            $searchService = app(ProductSearchService::class);
+            $searchMeta = $searchService->applySearch($query, $this->q, $this->sort);
         }
 
         if (!empty($this->selectedCategory)) {
@@ -116,12 +125,19 @@ class ProductCatalog extends Component
             });
         }
 
-        match ($this->sort) {
-            'price_low' => $query->orderBy('price', 'asc'),
-            'price_high' => $query->orderBy('price', 'desc'),
-            'name' => $query->orderBy('name', 'asc'),
-            default => $query->sorted()->latest(),
-        };
+        if (!empty($this->selectedMaterial)) {
+            $query->where('products.material', 'like', '%' . $this->selectedMaterial . '%');
+        }
+
+        // Apply fallback or user-selected sorting
+        if (empty($this->q) || $this->sort !== 'latest') {
+            match ($this->sort) {
+                'price_low' => $query->orderBy('price', 'asc'),
+                'price_high' => $query->orderBy('price', 'desc'),
+                'name' => $query->orderBy('name', 'asc'),
+                default => $query->sorted()->latest(),
+            };
+        }
 
         $products = $query->paginate(12);
 
@@ -133,6 +149,8 @@ class ProductCatalog extends Component
         return view('livewire.frontend.product-catalog', [
             'products' => $products,
             'categories' => $categories,
+            'matchingCategories' => $searchMeta['matching_categories'] ?? collect(),
+            'detectedMaterials' => $searchMeta['detected_materials'] ?? [],
         ]);
     }
 }
