@@ -137,6 +137,7 @@
 
                                 {{-- 1. Mode Kamera Live Aktif (Hanya muncul saat Buka Kamera diklik) --}}
                                 <div x-show="cameraActive" style="display: none;" class="space-y-3">
+                                    {{-- Video Viewfinder Container --}}
                                     <div class="relative overflow-hidden rounded-2xl bg-black border border-gray-800 shadow-md">
                                         <video x-ref="videoEl" autoplay playsinline muted class="w-full h-56 sm:h-64 object-cover"></video>
 
@@ -146,26 +147,42 @@
                                                 Arahkan Kamera ke Produk
                                             </span>
                                         </div>
+                                    </div>
 
-                                        {{-- Control Buttons on Camera --}}
-                                        <div class="absolute bottom-3 inset-x-0 flex items-center justify-center gap-3 px-4 z-10">
-                                            <button type="button"
-                                                    @click="captureFromCamera()"
-                                                    :disabled="processing"
-                                                    class="inline-flex items-center gap-2 rounded-full bg-amber-600 hover:bg-amber-700 text-white px-5 py-2.5 font-bold text-sm shadow-xl transition-all active:scale-95 cursor-pointer disabled:opacity-50">
-                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                </svg>
-                                                <span>Jepret Foto Sekarang</span>
-                                            </button>
+                                    {{-- Control Buttons on Camera (Di luar dan di bawah video agar tidak pernah tertutup / terpotong) --}}
+                                    <div class="flex items-center gap-2 pt-1" style="display: flex; gap: 8px; width: 100%;">
+                                        {{-- Tombol Jepret Foto --}}
+                                        <button type="button"
+                                                @click="captureFromCamera()"
+                                                :disabled="processing"
+                                                style="background-color: #b45309; color: #ffffff; padding: 12px 18px; border-radius: 12px; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex: 1; border: none; cursor: pointer;"
+                                                class="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-amber-700 hover:bg-amber-800 text-white px-5 py-3 font-bold text-sm shadow-md transition-all active:scale-95 cursor-pointer disabled:opacity-50">
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px;">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            </svg>
+                                            <span x-text="processing ? 'Memproses...' : 'Jepret Foto Sekarang'">Jepret Foto Sekarang</span>
+                                        </button>
 
-                                            <button type="button"
-                                                    @click="stopCamera()"
-                                                    class="rounded-full bg-black/70 hover:bg-black text-white px-4 py-2.5 font-semibold text-xs backdrop-blur-xs transition-colors cursor-pointer">
-                                                Batal
-                                            </button>
-                                        </div>
+                                        {{-- Tombol Putar Kamera Depan / Belakang --}}
+                                        <button type="button"
+                                                @click="switchCamera()"
+                                                :disabled="processing"
+                                                title="Putar Kamera Depan / Belakang"
+                                                style="background-color: #374151; color: #ffffff; padding: 12px 14px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; border: none; cursor: pointer;"
+                                                class="inline-flex items-center justify-center rounded-xl bg-gray-700 hover:bg-gray-800 text-white p-3 font-semibold transition-colors cursor-pointer disabled:opacity-50">
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px;">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            </svg>
+                                        </button>
+
+                                        {{-- Tombol Batal / Tutup Kamera --}}
+                                        <button type="button"
+                                                @click="stopCamera()"
+                                                style="background-color: #f3f4f6; color: #374151; padding: 12px 16px; border-radius: 12px; font-weight: 600; font-size: 13px; border: 1px solid #d1d5db; cursor: pointer;"
+                                                class="rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-3 font-semibold text-xs border border-gray-300 transition-colors cursor-pointer">
+                                            Batal
+                                        </button>
                                     </div>
                                 </div>
 
@@ -224,6 +241,7 @@
                                             {{-- Tombol Buka Kamera --}}
                                             <button type="button"
                                                     @click="startCamera()"
+                                                    style="background-color: #b45309; color: #ffffff; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; border: none; cursor: pointer;"
                                                     class="w-full flex items-center justify-center gap-2.5 rounded-xl bg-amber-700 hover:bg-amber-800 text-white p-3.5 font-bold text-sm shadow-sm transition-all active:scale-[0.99] cursor-pointer">
                                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />

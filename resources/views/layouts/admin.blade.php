@@ -253,11 +253,17 @@
                 videoStream: null,
                 statusMessage: '',
                 orderCode: orderCodeParam || '',
+                facingMode: 'environment',
 
                 init() {},
 
                 destroy() {
                     this.stopCamera();
+                },
+
+                async switchCamera() {
+                    this.facingMode = (this.facingMode === 'environment') ? 'user' : 'environment';
+                    await this.startCamera();
                 },
 
                 async startCamera() {
@@ -281,7 +287,7 @@
                         try {
                             stream = await navigator.mediaDevices.getUserMedia({
                                 video: {
-                                    facingMode: { ideal: 'environment' },
+                                    facingMode: { ideal: this.facingMode },
                                     width: { ideal: 1280 },
                                     height: { ideal: 720 }
                                 },
