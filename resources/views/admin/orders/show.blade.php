@@ -370,8 +370,38 @@
                         </div>
                     @endif
 
-                    {{-- Bukti Transfer Preview --}}
-                    @if ($order->has_payment_proof || $order->has_final_payment_proof)
+                    {{-- Bukti & Riwayat Transfer --}}
+                    @if ($order->payments->isNotEmpty())
+                        <div class="pt-2 border-t border-border space-y-2">
+                            <span class="text-xs font-semibold text-text-muted block">Riwayat Pembayaran ({{ $order->payments->count() }}x):</span>
+                            <div class="space-y-1.5">
+                                @foreach ($order->payments as $pmt)
+                                    <div class="flex items-center justify-between p-2 rounded-lg bg-muted/40 border border-border text-xs">
+                                        <div class="flex items-center gap-1.5 min-w-0">
+                                            <span class="font-bold text-text-primary dark:text-white text-[11px]">#{{ $pmt->payment_number }}</span>
+                                            <span class="text-[11px] text-text-muted truncate max-w-[130px]" title="{{ $pmt->title }}">{{ $pmt->title }}</span>
+                                            <span class="px-1.5 py-0.5 rounded text-[9px] font-bold shrink-0 {{ $pmt->status === 'verified' ? 'bg-emerald-100 text-emerald-800' : ($pmt->status === 'rejected' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800') }}">
+                                                {{ $pmt->status_label }}
+                                            </span>
+                                        </div>
+                                        <div class="flex items-center gap-2 shrink-0">
+                                            <span class="font-mono font-bold text-text-primary dark:text-white text-xs">
+                                                {{ $pmt->status === 'verified' ? $pmt->formatted_amount : ($pmt->status === 'pending' ? 'Pending' : '-') }}
+                                            </span>
+                                            @if ($pmt->proof_file)
+                                                <a href="{{ $pmt->proof_url }}" target="_blank" class="text-primary hover:opacity-80" title="Buka bukti foto">
+                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                    </svg>
+                                                </a>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @elseif ($order->has_payment_proof || $order->has_final_payment_proof)
                         <div class="pt-2 border-t border-border space-y-2">
                             <span class="text-xs font-semibold text-text-muted block">Bukti Transfer:</span>
                             <div class="grid grid-cols-2 gap-2">

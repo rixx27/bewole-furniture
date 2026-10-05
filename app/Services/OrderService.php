@@ -6,6 +6,7 @@ use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\ShippingMethod;
 use App\Models\Order;
+use App\Models\OrderPayment;
 use App\Models\OrderStatusHistory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -144,13 +145,69 @@ class OrderService
                     $order->down_payment_amount = $downPaymentAmount;
                 }
                 $order->payment_rejection_reason = null;
+
+                // Synchronize with order_payments: verify pending payment or create verified record
+                $pendingPayment = $order->payments()->where('status', 'pending')->first();
+                if ($pendingPayment) {
+                    $pendingPayment->update([
+                        'amount' => $downPaymentAmount ?? ($pendingPayment->amount > 0 ? $pendingPayment->amount : (float) $order->down_payment_amount),
+                        'status' => 'verified',
+                        'admin_notes' => $notes,
+                        'verified_by' => Auth::id(),
+                        'verified_at' => now(),
+                    ]);
+                } elseif ($order->payments()->doesntExist()) {
+                    $order->payments()->create([
+                        'payment_number' => 1,
+                        'title' => 'Pembayaran Ke-1 (DP Awal)',
+                        'amount' => (float) $order->down_payment_amount,
+                        'proof_file' => $order->payment_proof,
+                        'payment_method' => $order->payment_method ?: 'bank_transfer',
+                        'status' => 'verified',
+                        'admin_notes' => $notes,
+                        'verified_by' => Auth::id(),
+                        'verified_at' => now(),
+                    ]);
+                }
             } elseif ($paymentStatus === PaymentStatus::Paid) {
                 $order->down_payment_amount = $order->total_price;
                 $order->payment_rejection_reason = null;
+
+                // Synchronize with order_payments: verify any pending payment
+                $pendingPayment = $order->payments()->where('status', 'pending')->first();
+                if ($pendingPayment) {
+                    $rem = max(0, (float) $order->total_price - (float) $order->payments()->where('status', 'verified')->sum('amount'));
+                    $pendingPayment->update([
+                        'amount' => $rem > 0 ? $rem : (float) $order->total_price,
+                        'status' => 'verified',
+                        'admin_notes' => $notes,
+                        'verified_by' => Auth::id(),
+                        'verified_at' => now(),
+                    ]);
+                } elseif ($order->payments()->doesntExist()) {
+                    $order->payments()->create([
+                        'payment_number' => 1,
+                        'title' => 'Pembayaran Ke-1 (Lunas)',
+                        'amount' => (float) $order->total_price,
+                        'proof_file' => $order->payment_proof ?: $order->final_payment_proof,
+                        'payment_method' => $order->payment_method ?: 'bank_transfer',
+                        'status' => 'verified',
+                        'admin_notes' => $notes,
+                        'verified_by' => Auth::id(),
+                        'verified_at' => now(),
+                    ]);
+                }
             } elseif ($paymentStatus === PaymentStatus::Failed) {
                 if ($rejectionReason !== null) {
                     $order->payment_rejection_reason = $rejectionReason;
                 }
+                // Reject pending payments
+                $order->payments()->where('status', 'pending')->update([
+                    'status' => 'rejected',
+                    'rejection_reason' => $rejectionReason,
+                    'verified_by' => Auth::id(),
+                    'verified_at' => now(),
+                ]);
             } elseif ($paymentStatus === PaymentStatus::Unpaid) {
                 $order->down_payment_amount = 0;
             }
@@ -180,24 +237,45 @@ class OrderService
                 $historyNote
             );
 
-            return $order->fresh();
+            return $order->fresh(['payments']);
         });
     }
 
     /**
-     * Attach a payment proof image to an order.
+     * Attach a payment proof image to an order as an installment.
      */
-    public function attachPaymentProof(Order $order, string $filePath, bool $isFinal = false): Order
+    public function attachPaymentProof(Order $order, string $filePath, bool $isFinal = false, ?string $customerNotes = null): Order
     {
-        return DB::transaction(function () use ($order, $filePath, $isFinal) {
-            if ($isFinal) {
-                $order->final_payment_proof = $filePath;
-                $order->final_payment_proof_uploaded_at = now();
-                $note = "Bukti Pelunasan Diunggah oleh Pelanggan";
+        return DB::transaction(function () use ($order, $filePath, $isFinal, $customerNotes) {
+            $nextNumber = (int) ($order->payments()->max('payment_number') ?? 0) + 1;
+
+            if ($nextNumber === 1) {
+                $title = 'Pembayaran Ke-1 (DP Awal)';
+            } elseif ($isFinal || $order->remaining_payment <= 0) {
+                $title = "Pembayaran Ke-{$nextNumber} (Pelunasan)";
             } else {
+                $title = "Pembayaran Ke-{$nextNumber} (Termin Bertahap)";
+            }
+
+            // Create payment installment record
+            $order->payments()->create([
+                'payment_number' => $nextNumber,
+                'title' => $title,
+                'amount' => 0,
+                'proof_file' => $filePath,
+                'payment_method' => $order->payment_method ?: 'bank_transfer',
+                'status' => 'pending',
+                'customer_notes' => $customerNotes,
+            ]);
+
+            // Keep legacy fields in sync for backward compatibility
+            if ($nextNumber === 1 || empty($order->payment_proof)) {
                 $order->payment_proof = $filePath;
                 $order->payment_proof_uploaded_at = now();
-                $note = "Bukti Pembayaran Diunggah oleh Pelanggan";
+            }
+            if ($isFinal || $nextNumber > 1) {
+                $order->final_payment_proof = $filePath;
+                $order->final_payment_proof_uploaded_at = now();
             }
 
             $order->payment_rejection_reason = null;
@@ -206,13 +284,159 @@ class OrderService
             }
             $order->save();
 
+            $note = "Bukti {$title} Diunggah oleh Pelanggan";
             $this->createStatusHistory(
                 $order,
                 OrderStatus::tryFrom($order->status),
                 $note
             );
 
-            return $order->fresh();
+            return $order->fresh(['payments']);
+        });
+    }
+
+    /**
+     * Verify a specific payment installment with the confirmed received amount.
+     */
+    public function verifyPaymentInstallment(
+        OrderPayment $payment,
+        float $amount,
+        ?string $adminNotes = null,
+        ?int $verifiedByUserId = null
+    ): Order {
+        return DB::transaction(function () use ($payment, $amount, $adminNotes, $verifiedByUserId) {
+            $order = $payment->order;
+
+            $payment->update([
+                'amount' => $amount,
+                'status' => 'verified',
+                'admin_notes' => $adminNotes,
+                'rejection_reason' => null,
+                'verified_by' => $verifiedByUserId ?: Auth::id(),
+                'verified_at' => now(),
+            ]);
+
+            // Recalculate total verified payments
+            $totalVerified = (float) $order->payments()->where('status', 'verified')->sum('amount');
+            $order->down_payment_amount = $totalVerified;
+            $order->payment_rejection_reason = null;
+
+            if ($totalVerified >= (float) $order->total_price) {
+                $order->payment_status = PaymentStatus::Paid->value;
+                $historyNote = "Pembayaran #{$payment->payment_number} Diverifikasi: Rp " . number_format($amount, 0, ',', '.') . " — Tagihan Pesanan LUNAS";
+            } else {
+                $order->payment_status = PaymentStatus::DownPayment->value;
+                $remFmt = 'Rp ' . number_format($order->remaining_payment, 0, ',', '.');
+                $historyNote = "Pembayaran #{$payment->payment_number} Diverifikasi: Rp " . number_format($amount, 0, ',', '.') . " (Total Masuk: Rp " . number_format($totalVerified, 0, ',', '.') . ", Sisa: {$remFmt})";
+            }
+
+            $order->save();
+
+            $this->createStatusHistory(
+                $order,
+                OrderStatus::tryFrom($order->status),
+                $historyNote
+            );
+
+            return $order->fresh(['payments']);
+        });
+    }
+
+    /**
+     * Reject a specific payment installment with a reason.
+     */
+    public function rejectPaymentInstallment(
+        OrderPayment $payment,
+        string $reason,
+        ?int $verifiedByUserId = null
+    ): Order {
+        return DB::transaction(function () use ($payment, $reason, $verifiedByUserId) {
+            $order = $payment->order;
+
+            $payment->update([
+                'status' => 'rejected',
+                'rejection_reason' => $reason,
+                'verified_by' => $verifiedByUserId ?: Auth::id(),
+                'verified_at' => now(),
+            ]);
+
+            $order->payment_rejection_reason = $reason;
+
+            // If no verified payments exist on the order, set order status to failed
+            if ($order->payments()->where('status', 'verified')->doesntExist()) {
+                $order->payment_status = PaymentStatus::Failed->value;
+            }
+
+            $order->save();
+
+            $this->createStatusHistory(
+                $order,
+                OrderStatus::tryFrom($order->status),
+                "Bukti {$payment->title} Ditolak: {$reason}"
+            );
+
+            return $order->fresh(['payments']);
+        });
+    }
+
+    /**
+     * Add a manual payment installment (e.g. Cash / WA direct transfer) by Admin.
+     */
+    public function addManualPayment(
+        Order $order,
+        float $amount,
+        string $paymentMethod = 'cash',
+        ?string $adminNotes = null,
+        ?string $proofPath = null,
+        ?int $verifiedByUserId = null
+    ): OrderPayment {
+        return DB::transaction(function () use ($order, $amount, $paymentMethod, $adminNotes, $proofPath, $verifiedByUserId) {
+            $nextNumber = (int) ($order->payments()->max('payment_number') ?? 0) + 1;
+
+            $methodLabel = match ($paymentMethod) {
+                'cash', 'cod' => 'Tunai / Cash',
+                'bank_transfer', 'transfer' => 'Transfer Langsung',
+                'qris' => 'QRIS',
+                default => ucwords(str_replace('_', ' ', $paymentMethod)),
+            };
+
+            $title = "Pembayaran Ke-{$nextNumber} ({$methodLabel})";
+
+            $payment = $order->payments()->create([
+                'payment_number' => $nextNumber,
+                'title' => $title,
+                'amount' => $amount,
+                'proof_file' => $proofPath,
+                'payment_method' => $paymentMethod,
+                'status' => 'verified',
+                'admin_notes' => $adminNotes,
+                'verified_by' => $verifiedByUserId ?: Auth::id(),
+                'verified_at' => now(),
+            ]);
+
+            // Recalculate total verified payments
+            $totalVerified = (float) $order->payments()->where('status', 'verified')->sum('amount');
+            $order->down_payment_amount = $totalVerified;
+            $order->payment_rejection_reason = null;
+
+            if ($totalVerified >= (float) $order->total_price) {
+                $order->payment_status = PaymentStatus::Paid->value;
+                $historyNote = "Pembayaran Manual Ke-{$nextNumber} ({$methodLabel}): Rp " . number_format($amount, 0, ',', '.') . " — Tagihan Pesanan LUNAS";
+            } else {
+                $order->payment_status = PaymentStatus::DownPayment->value;
+                $remFmt = 'Rp ' . number_format($order->remaining_payment, 0, ',', '.');
+                $historyNote = "Pembayaran Manual Ke-{$nextNumber} ({$methodLabel}): Rp " . number_format($amount, 0, ',', '.') . " (Total Masuk: Rp " . number_format($totalVerified, 0, ',', '.') . ", Sisa: {$remFmt})";
+            }
+
+            $order->save();
+
+            $this->createStatusHistory(
+                $order,
+                OrderStatus::tryFrom($order->status),
+                $historyNote
+            );
+
+            return $payment;
         });
     }
 

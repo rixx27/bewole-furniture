@@ -15,16 +15,20 @@ class OrderPaymentUpload extends Component
 
     public int $orderId;
     public $proof;
+    public ?string $customer_notes = null;
     public string $payment_type = 'dp'; // 'dp' or 'full'
     public ?string $dp_amount = null;
     public bool $is_final_payment = false;
     public bool $showForm = false;
+    public ?string $previewModalImage = null;
+    public ?string $previewModalTitle = null;
 
     protected function rules(): array
     {
         return [
             'proof' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120', // Max 5MB
-            'payment_type' => 'required|in:dp,full',
+            'customer_notes' => 'nullable|string|max:500',
+            'payment_type' => 'nullable|in:dp,full',
             'dp_amount' => 'nullable|string',
         ];
     }
@@ -34,6 +38,7 @@ class OrderPaymentUpload extends Component
         'proof.image' => 'File bukti transfer harus berupa gambar.',
         'proof.mimes' => 'Format file yang didukung: JPG, JPEG, PNG, WEBP.',
         'proof.max' => 'Ukuran foto maksimal 5MB.',
+        'customer_notes.max' => 'Catatan maksimal 500 karakter.',
     ];
 
     public function mount(int $orderId, bool $isFinalPayment = false): void
@@ -43,7 +48,6 @@ class OrderPaymentUpload extends Component
 
         $order = Order::find($this->orderId);
         if ($order) {
-            // Default DP suggestion: 50% of total
             $half = round((float) $order->total_price * 0.5);
             $this->dp_amount = number_format($half, 0, ',', '.');
         }
@@ -52,15 +56,27 @@ class OrderPaymentUpload extends Component
     public function toggleForm(): void
     {
         $this->showForm = !$this->showForm;
-        $this->reset(['proof']);
+        $this->reset(['proof', 'customer_notes']);
         $this->resetValidation();
+    }
+
+    public function openImagePreview(string $url, string $title): void
+    {
+        $this->previewModalImage = $url;
+        $this->previewModalTitle = $title;
+    }
+
+    public function closeImagePreview(): void
+    {
+        $this->previewModalImage = null;
+        $this->previewModalTitle = null;
     }
 
     public function uploadPaymentProof(OrderService $orderService)
     {
         $this->validate();
 
-        $order = Order::find($this->orderId);
+        $order = Order::with('payments')->find($this->orderId);
         if (!$order) {
             $this->dispatch('notify', type: 'error', message: 'Pesanan tidak ditemukan.');
             return;
@@ -72,16 +88,16 @@ class OrderPaymentUpload extends Component
         }
 
         try {
-            // Store uploaded proof securely in public storage disk
-            $filename = 'proof_' . $order->order_code . '_' . ($this->is_final_payment ? 'final_' : '') . time() . '.' . $this->proof->getClientOriginalExtension();
+            $nextNumber = $order->next_payment_number;
+            $filename = 'proof_' . $order->order_code . '_termin_' . $nextNumber . '_' . time() . '.' . $this->proof->getClientOriginalExtension();
             $path = $this->proof->storeAs('payment_proofs', $filename, 'public');
 
             // Attach proof via OrderService
-            $orderService->attachPaymentProof($order, $path, $this->is_final_payment);
+            $orderService->attachPaymentProof($order, $path, $this->is_final_payment, $this->customer_notes);
 
-            $this->reset(['proof', 'showForm']);
+            $this->reset(['proof', 'customer_notes', 'showForm']);
             $this->dispatch('paymentProofUploaded');
-            $this->dispatch('notify', type: 'success', message: 'Bukti pembayaran berhasil diunggah!');
+            $this->dispatch('notify', type: 'success', message: "Bukti pembayaran ke-{$nextNumber} berhasil diunggah!");
 
             // Refresh page/component
             return redirect(request()->header('Referer') ?: route('orders.show', $order));
@@ -92,10 +108,13 @@ class OrderPaymentUpload extends Component
 
     public function render()
     {
-        $order = Order::find($this->orderId);
+        $order = Order::with(['payments.verifiedBy'])->find($this->orderId);
+        $payments = $order ? $order->payments : collect();
 
         return view('livewire.frontend.order-payment-upload', [
             'order' => $order,
+            'payments' => $payments,
+            'nextPaymentNumber' => $order ? $order->next_payment_number : 1,
         ]);
     }
 }

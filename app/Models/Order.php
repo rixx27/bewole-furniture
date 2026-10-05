@@ -124,6 +124,30 @@ class Order extends Model
     }
 
     /**
+     * Get all payment installments for the order.
+     */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(OrderPayment::class)->orderBy('payment_number', 'asc');
+    }
+
+    /**
+     * Get verified payment installments for the order.
+     */
+    public function verifiedPayments(): HasMany
+    {
+        return $this->hasMany(OrderPayment::class)->where('status', 'verified')->orderBy('payment_number', 'asc');
+    }
+
+    /**
+     * Get pending payment installments for the order.
+     */
+    public function pendingPayments(): HasMany
+    {
+        return $this->hasMany(OrderPayment::class)->where('status', 'pending')->orderBy('payment_number', 'asc');
+    }
+
+    /**
      * Get all reviews associated with the order.
      */
     public function reviews(): HasMany
@@ -236,6 +260,39 @@ class Order extends Model
     public function getFormattedDownPaymentAmountAttribute(): string
     {
         return 'Rp ' . number_format((float) ($this->down_payment_amount ?? 0), 0, ',', '.');
+    }
+
+    /**
+     * Get total verified payments amount across all installments.
+     */
+    public function getTotalVerifiedPaymentAttribute(): float
+    {
+        $sum = (float) $this->payments()->where('status', 'verified')->sum('amount');
+        return max($sum, (float) ($this->down_payment_amount ?? 0));
+    }
+
+    /**
+     * Get formatted total verified payments.
+     */
+    public function getFormattedTotalVerifiedPaymentAttribute(): string
+    {
+        return 'Rp ' . number_format($this->total_verified_payment, 0, ',', '.');
+    }
+
+    /**
+     * Determine next payment installment sequence number.
+     */
+    public function getNextPaymentNumberAttribute(): int
+    {
+        return (int) ($this->payments()->max('payment_number') ?? 0) + 1;
+    }
+
+    /**
+     * Check if order has any payment waiting for admin verification.
+     */
+    public function getHasPendingPaymentAttribute(): bool
+    {
+        return $this->payments()->where('status', 'pending')->exists();
     }
 
     /**
