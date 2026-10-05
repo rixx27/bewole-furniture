@@ -120,3 +120,38 @@ test('order status manager livewire component respects transition rules', functi
 
     expect($order->fresh()->status)->toBe(OrderStatus::Confirmed->value);
 });
+
+test('only in_production until ready_to_ship statuses require progress photo', function () {
+    // True: Sedang Diproduksi, Quality Control, Siap Dikirim
+    expect(OrderStatus::InProduction->requiresPhoto())->toBeTrue();
+    expect(OrderStatus::QualityControl->requiresPhoto())->toBeTrue();
+    expect(OrderStatus::ReadyToShip->requiresPhoto())->toBeTrue();
+
+    // False: Status lainnya tidak memerlukan foto
+    expect(OrderStatus::Pending->requiresPhoto())->toBeFalse();
+    expect(OrderStatus::Confirmed->requiresPhoto())->toBeFalse();
+    expect(OrderStatus::AwaitingPayment->requiresPhoto())->toBeFalse();
+    expect(OrderStatus::PaymentReceived->requiresPhoto())->toBeFalse();
+    expect(OrderStatus::Shipped->requiresPhoto())->toBeFalse();
+    expect(OrderStatus::Completed->requiresPhoto())->toBeFalse();
+    expect(OrderStatus::Cancelled->requiresPhoto())->toBeFalse();
+});
+
+test('order status manager requires photo when transitioning to in_production, quality_control, or ready_to_ship', function () {
+    $order = createTestOrder(OrderStatus::PaymentReceived->value);
+
+    // Transitioning to InProduction without photo fails
+    Livewire::test(OrderStatusManager::class)
+        ->call('loadOrder', $order->id)
+        ->set('newStatus', OrderStatus::InProduction->value)
+        ->call('updateStatus')
+        ->assertHasErrors(['photoData']);
+
+    // Transitioning to Cancelled (which does not require photo) succeeds without photo
+    Livewire::test(OrderStatusManager::class)
+        ->call('loadOrder', $order->id)
+        ->set('newStatus', OrderStatus::Cancelled->value)
+        ->call('updateStatus')
+        ->assertHasNoErrors();
+});
+

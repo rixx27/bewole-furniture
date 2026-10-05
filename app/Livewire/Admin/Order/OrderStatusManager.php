@@ -56,6 +56,10 @@ class OrderStatusManager extends Component
     public function updatedNewStatus(): void
     {
         $this->resetValidation('photoData');
+
+        if (!$this->requiresPhoto) {
+            $this->clearPhoto();
+        }
     }
 
     #[On('openStatus')]
@@ -132,7 +136,7 @@ class OrderStatusManager extends Component
             }
 
             $photoPath = null;
-            if ($this->photoData) {
+            if ($targetStatus->requiresPhoto() && $this->photoData) {
                 $photoPath = ImageOptimizerService::compressBinaryAndStore(
                     $this->photoData,
                     'orders/progress'
