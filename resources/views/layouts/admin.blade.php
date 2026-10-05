@@ -395,7 +395,6 @@
                 async stampCanvasAndSave(canvas, targetW, targetH) {
                     let lat = -6.58912;
                     let lng = 110.66782;
-                    let locationSource = 'Workshop Jepara';
 
                     try {
                         if (navigator.geolocation) {
@@ -408,7 +407,6 @@
                             });
                             lat = parseFloat(pos.coords.latitude.toFixed(6));
                             lng = parseFloat(pos.coords.longitude.toFixed(6));
-                            locationSource = 'GPS Aktif';
                         }
                     } catch (err) {
                         console.warn('GPS fallback:', err);
@@ -457,7 +455,7 @@
                     currY += Math.round(bannerHeight * 0.25);
                     ctx.font = `normal ${smallFontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
                     ctx.fillStyle = '#cbd5e1';
-                    ctx.fillText(`🕒 ${timeStr}  |  📍 Lat: ${lat}, Long: ${lng} (${locationSource})`, padX, currY);
+                    ctx.fillText(`🕒 ${timeStr}  |  📍 Lat: ${lat}, Long: ${lng}`, padX, currY);
 
                     const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
 
