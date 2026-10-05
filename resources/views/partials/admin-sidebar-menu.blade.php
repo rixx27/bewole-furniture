@@ -162,15 +162,6 @@
             <span class="h-1.5 w-1.5 rounded-full bg-current opacity-70"></span>
             Kontak & Sosial Media
         </a>
-        <a href="{{ route('admin.settings.index', ['tab' => 'seo']) }}"
-           @class([
-               'flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200',
-               'bg-primary text-white font-semibold shadow-xs' => request()->routeIs('admin.settings.*') && request()->get('tab') === 'seo',
-               'text-sidebar-text/80 hover:bg-sidebar-hover hover:text-white' => !(request()->routeIs('admin.settings.*') && request()->get('tab') === 'seo'),
-           ])>
-            <span class="h-1.5 w-1.5 rounded-full bg-current opacity-70"></span>
-            SEO & Metadata
-        </a>
         <a href="{{ route('admin.settings.index', ['tab' => 'system']) }}"
            @class([
                'flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200',

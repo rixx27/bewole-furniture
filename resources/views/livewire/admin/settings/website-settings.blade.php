@@ -57,7 +57,7 @@
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h2 class="text-2xl font-bold tracking-tight text-text-primary dark:text-black">Pengaturan Website</h2>
-                <p class="mt-1 text-sm text-text-secondary">Kelola identitas, kontak, lokasi Google Maps, SEO, dan sistem global.</p>
+                <p class="mt-1 text-sm text-text-secondary">Kelola identitas, kontak, lokasi Google Maps, dan sistem global.</p>
             </div>
             <div class="flex items-center gap-3">
                 <button type="button"

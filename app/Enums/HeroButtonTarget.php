@@ -15,8 +15,7 @@ enum HeroButtonTarget: string
 {
     case About = 'about';
     case Products = 'products';
-    case WhyUs = 'why-us';
-    case Reviews = 'reviews';
+    case CustomFurniture = 'custom-furniture';
     case Faq = 'faq';
     case Contact = 'contact';
     case Tracking = 'tracking';
@@ -30,14 +29,13 @@ enum HeroButtonTarget: string
     public function label(): string
     {
         return match ($this) {
-            self::About => 'Tentang Kami',
-            self::Products => 'Produk',
-            self::WhyUs => 'Keunggulan',
-            self::Reviews => 'Testimoni',
-            self::Faq => 'FAQ',
-            self::Contact => 'Kontak',
+            self::About => 'Tentang Kami (Beranda)',
+            self::Products => 'Produk Unggulan (Beranda)',
+            self::CustomFurniture => 'Custom Furniture (Beranda)',
+            self::Faq => 'FAQ (Beranda)',
+            self::Contact => 'Halaman Kontak',
             self::Tracking => 'Tracking Pesanan',
-            self::ProductPage => 'Halaman Produk',
+            self::ProductPage => 'Katalog Produk (Semua Produk)',
             self::Login => 'Login',
             self::Register => 'Register',
         };
@@ -54,10 +52,9 @@ enum HeroButtonTarget: string
         return match ($this) {
             self::About => '#about',
             self::Products => '#products',
-            self::WhyUs => '#why-us',
-            self::Reviews => '#reviews',
+            self::CustomFurniture => '#custom-furniture',
             self::Faq => '#faq',
-            self::Contact => '#contact',
+            self::Contact => route('frontend.contact'),
             self::Tracking => route('frontend.tracking'),
             self::ProductPage => route('products.index'),
             self::Login => route('login'),
@@ -67,7 +64,7 @@ enum HeroButtonTarget: string
 
     /**
      * All available options keyed by value, convenient for dropdowns:
-     * ['about' => 'Tentang Kami', ...]
+     * ['about' => 'Tentang Kami (Beranda)', ...]
      *
      * @return array<string, string>
      */
@@ -99,14 +96,27 @@ enum HeroButtonTarget: string
             return $direct;
         }
 
-// Try matching a leading-slash path (legacy format like "/products").
+        // Map obsolete/dummy targets to safe fallbacks
+        if ($value === 'why-us' || $value === 'reviews') {
+            return self::About;
+        }
+
+        // Try matching a leading-slash path (legacy format like "/products").
         if (Str::startsWith($value, '/')) {
             $slug = trim($value, '/');
             $segment = Str::before($slug, '/');
 
-            // Legacy "/catalog" historically pointed to the product catalog page.
-            if ($segment === 'catalog') {
+            // Legacy paths
+            if ($segment === 'catalog' || $segment === 'produk') {
                 return self::ProductPage;
+            }
+
+            if ($segment === 'tentang-kami') {
+                return self::About;
+            }
+
+            if ($segment === 'contact' || $segment === 'kontak') {
+                return self::Contact;
             }
 
             $legacy = self::tryFrom($segment);

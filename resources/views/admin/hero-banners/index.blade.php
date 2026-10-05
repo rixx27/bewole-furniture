@@ -103,7 +103,7 @@
                                         </div>
                                     @endif
                                     <div class="min-w-0">
-                                        <p class="text-sm font-medium text-text-primary dark:text-white truncate max-w-[200px]">{{ $hero->title }}</p>
+                                        <p class="text-sm font-medium text-text-primary dark:text-black truncate max-w-[200px]">{{ $hero->title }}</p>
                                         @if ($hero->badge_text)
                                             <span class="inline-block mt-0.5 rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-950 dark:text-amber-300">
                                                 {{ $hero->badge_text }}
@@ -116,7 +116,7 @@
                                 <span class="text-sm text-text-secondary capitalize">{{ $hero->text_position }}</span>
                             </td>
                             <td class="px-6 py-4">
-                                <span class="text-sm text-text-primary dark:text-white">{{ $hero->sort_order }}</span>
+                                <span class="text-sm text-text-primary dark:text-black">{{ $hero->sort_order }}</span>
                             </td>
                             <td class="px-6 py-4">
                                 @if ($hero->status === 'active')

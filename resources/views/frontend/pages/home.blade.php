@@ -41,8 +41,4 @@
          Section ber-id "faq".
          ============================================================ --}}
     <x-home.faq />
-
-    {{-- Anchor targets — scroll-margin-top agar tidak tertutup navbar fixed. --}}
-    <div id="why-us" class="scroll-mt-24"></div>
-    <div id="reviews" class="scroll-mt-24"></div>
 @endsection
