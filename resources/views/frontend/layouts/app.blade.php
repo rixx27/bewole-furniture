@@ -50,6 +50,9 @@
     <link rel="icon" href="{{ asset('favicon.svg') }}?v=4" type="image/svg+xml">
     <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}?v=4">
 
+    {{-- Font Awesome --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     @fonts
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/frontend.js'])
     @livewireStyles
@@ -57,8 +60,9 @@
 <body class="flex min-h-screen flex-col bg-wood-bg font-sans text-wood-text antialiased">
     @include('frontend.partials.navbar')
 
-<main class="flex-1">
+    <main class="flex-1">
         @yield('content')
+        {{ $slot ?? '' }}
     </main>
 
     @include('frontend.partials.footer')

@@ -108,6 +108,9 @@
                         </svg>
                     </button>
                 </div>
+                <p class="text-[11px] text-[#2D2D2D]/55 mt-1">
+                    {{ __('Minimal 8 karakter. Simbol dan huruf besar bersifat opsional.') }}
+                </p>
                 @error('password')
                     <p class="text-sm text-red-600">{{ $message }}</p>
                 @enderror

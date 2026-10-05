@@ -112,12 +112,16 @@
                         type="button"
                         @click="open = !open"
                         @click.away="open = false"
-                        class="flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold text-white shadow-md ring-2 ring-white/30 transition-all hover:ring-wood-secondary/50"
+                        class="flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold text-white shadow-md ring-2 ring-white/30 transition-all hover:ring-wood-secondary/50 overflow-hidden"
                         :class="scrolled ? 'bg-wood-primary' : 'bg-wood-primary/80'"
                         :aria-expanded="open"
                         aria-label="Menu user"
                     >
-                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                        @if (auth()->user()->avatar)
+                            <img src="{{ auth()->user()->avatarUrl() }}" alt="{{ auth()->user()->name }}" class="h-full w-full object-cover">
+                        @else
+                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                        @endif
                     </button>
 
                     <div
@@ -136,6 +140,15 @@
                             <p class="text-xs font-bold text-wood-text truncate">{{ auth()->user()->name }}</p>
                             <p class="text-[10px] text-wood-muted truncate">{{ auth()->user()->email }}</p>
                         </div>
+
+                        <a
+                            href="{{ route('profile') }}"
+                            wire:navigate
+                            class="flex items-center gap-2 px-4 py-2 text-xs font-medium text-wood-text hover:bg-wood-primary/5 hover:text-wood-primary transition-colors"
+                        >
+                            <i class="fa-regular fa-user text-xs text-wood-secondary"></i>
+                            Kelola Profil
+                        </a>
 
                         @if (auth()->user()->hasRole('admin'))
                             <a
@@ -280,6 +293,15 @@
             @endguest
 
             @auth
+                <a
+                    href="{{ route('profile') }}"
+                    @click="mobileOpen = false"
+                    class="mt-2 inline-flex items-center justify-center gap-2 rounded-full border border-wood-border/80 bg-white px-5 py-3 text-sm font-semibold text-wood-text shadow-sm hover:bg-wood-bg transition-colors"
+                >
+                    <i class="fa-regular fa-user text-xs text-wood-secondary"></i>
+                    Kelola Profil
+                </a>
+
                 @if (auth()->user()->hasRole('admin'))
                     <a
                         href="{{ route('admin.dashboard') }}"

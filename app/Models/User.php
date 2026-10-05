@@ -68,6 +68,42 @@ class User extends Authenticatable implements PasskeyUser
     }
 
     /**
+     * Get the avatar URL or null.
+     */
+    public function avatarUrl(): ?string
+    {
+        if (empty($this->avatar)) {
+            return null;
+        }
+
+        if (Str::startsWith($this->avatar, ['http://', 'https://'])) {
+            return $this->avatar;
+        }
+
+        return asset('storage/'.$this->avatar);
+    }
+
+    /**
+     * Check if user has a local password set.
+     */
+    public function hasLocalPassword(): bool
+    {
+        return ! empty($this->password);
+    }
+
+    /**
+     * Get user login method label.
+     */
+    public function loginMethod(): string
+    {
+        if (! empty($this->google_id)) {
+            return 'Google';
+        }
+
+        return 'Email & Password';
+    }
+
+    /**
      * Get the orders for the user.
      */
     public function orders(): HasMany
