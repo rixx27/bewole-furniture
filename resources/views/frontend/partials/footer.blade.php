@@ -89,7 +89,7 @@
             {{-- ============================================================
                  COLUMN 2 — EXPLORE
                  ============================================================ --}}
-            <div data-reveal data-reveal-delay="100" class="sm:col-span-1 lg:col-span-2 lg:col-start-8">
+            <div data-reveal data-reveal-delay="100" class="sm:col-span-1 lg:col-span-3">
                 <h4 class="text-xs font-bold uppercase tracking-[0.15em] text-white/40">Explore</h4>
                 <ul class="mt-5 space-y-3.5">
                     @foreach ($exploreLinks as $link)
@@ -110,7 +110,7 @@
             {{-- ============================================================
                  COLUMN 3 — CONTACT
                  ============================================================ --}}
-            <div data-reveal data-reveal-delay="200" class="sm:col-span-1 lg:col-span-3 lg:col-start-10">
+            <div data-reveal data-reveal-delay="200" class="sm:col-span-1 lg:col-span-4">
                 <h4 class="text-xs font-bold uppercase tracking-[0.15em] text-white/40">Kontak</h4>
                 <ul class="mt-5 space-y-3.5 text-sm text-white/65">
                     @if ($whatsappUrl)
@@ -123,9 +123,9 @@
                                 href="{{ $whatsappUrl }}"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                class="transition-colors duration-200 hover:text-wood-secondary-light"
+                                class="transition-colors duration-200 hover:text-wood-secondary-light font-medium"
                             >
-                                WhatsApp
+                                {{ $whatsapp ?: 'WhatsApp' }}
                             </a>
                         </li>
                     @endif
@@ -137,7 +137,7 @@
                             </svg>
                             <a
                                 href="mailto:{{ $email }}"
-                                class="break-all transition-colors duration-200 hover:text-wood-secondary-light"
+                                class="break-words transition-colors duration-200 hover:text-wood-secondary-light"
                             >
                                 {{ $email }}
                             </a>
@@ -150,7 +150,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 10.5c0 6.5-7.5 12-7.5 12s-7.5-5.5-7.5-12a7.5 7.5 0 1115 0z"/>
                             </svg>
-                            <span class="break-words">{{ $address }}</span>
+                            <span class="break-words leading-relaxed">{{ $address }}</span>
                         </li>
                     @endif
                 </ul>

@@ -1,0 +1,29 @@
+{
+  "resources/css/app.css": {
+    "file": "assets/app-DJYCEmgi.css",
+    "name": "app",
+    "names": [
+      "app.css"
+    ],
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-vvh_Ep9O.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true
+  },
+  "resources/js/frontend.js": {
+    "file": "assets/frontend-JtAeJwWv.js",
+    "name": "frontend",
+    "src": "resources/js/frontend.js",
+    "isEntry": true
+  },
+  "resources/js/passkeys.js": {
+    "file": "assets/passkeys-BYToX1xp.js",
+    "name": "passkeys",
+    "src": "resources/js/passkeys.js",
+    "isEntry": true
+  }
+}
