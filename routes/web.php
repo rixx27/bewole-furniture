@@ -59,6 +59,18 @@ Route::middleware(['maintenance'])->group(function () {
             ['Content-Type' => 'image/webp']
         );
     })->name('orders.progress-photo.download');
+
+    // Lihat Penuh Foto Dokumentasi Progres Pesanan (Branded Viewer)
+    Route::get('/orders/progress-photo/{history}/view', function (\App\Models\OrderStatusHistory $history) {
+        if (!$history->photo || !\Illuminate\Support\Facades\Storage::disk('public')->exists($history->photo)) {
+            abort(404, 'Foto dokumentasi progres tidak ditemukan.');
+        }
+
+        return view('frontend.orders.photo-view', [
+            'history' => $history,
+            'order' => $history->order,
+        ]);
+    })->name('orders.progress-photo.view');
 });
 
 /*

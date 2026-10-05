@@ -327,6 +327,7 @@
                                             <button type="button"
                                                     @click="activePhoto = {
                                                         url: '{{ $history->photo_url }}',
+                                                        viewUrl: '{{ $history->view_url }}',
                                                         downloadUrl: '{{ $history->download_url }}',
                                                         status: '{{ $history->status_label }}',
                                                         date: '{{ $history->created_at->translatedFormat('d F Y, H:i') }} WIB',
@@ -422,7 +423,7 @@
                                     </div>
 
                                     <div class="flex items-center gap-2">
-                                        <a :href="activePhoto?.url"
+                                        <a :href="activePhoto?.viewUrl || activePhoto?.url"
                                            target="_blank"
                                            title="Buka Foto Penuh di Tab Baru"
                                            class="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-gray-50 px-3 py-1.5 font-semibold text-gray-700 hover:bg-gray-100 transition-colors shadow-2xs">

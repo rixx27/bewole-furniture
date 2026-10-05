@@ -64,6 +64,18 @@ class OrderStatusHistory extends Model
     }
 
     /**
+     * Get the view URL for the full progress photo viewer page.
+     */
+    public function getViewUrlAttribute(): ?string
+    {
+        if (!$this->photo) {
+            return null;
+        }
+
+        return route('orders.progress-photo.view', $this->id);
+    }
+
+    /**
      * Get the order that owns the status history.
      */
     public function order(): BelongsTo
