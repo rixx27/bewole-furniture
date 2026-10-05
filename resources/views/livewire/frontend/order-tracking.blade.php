@@ -301,14 +301,16 @@
                                 <div class="fixed inset-0 bg-black/75 backdrop-blur-sm" @click="activePhoto = null"></div>
 
                                 {{-- Modal Dialog --}}
-                                <div class="relative w-full max-w-3xl overflow-hidden rounded-3xl bg-white shadow-2xl border border-gray-200 z-10 flex flex-col max-h-[90vh]"
+                                <div class="relative w-full max-w-2xl sm:max-w-3xl overflow-hidden rounded-3xl bg-white shadow-2xl border border-gray-200 z-10 flex flex-col"
+                                     style="max-height: 90vh; height: auto;"
                                      @click.away="activePhoto = null"
                                      x-transition:enter="transition ease-out duration-300"
                                      x-transition:enter-start="opacity-0 scale-95 translate-y-4"
                                      x-transition:enter-end="opacity-100 scale-100 translate-y-0">
 
                                     {{-- Header Modal --}}
-                                    <div class="flex items-center justify-between border-b border-gray-100 px-6 py-4 bg-gray-50/70">
+                                    <div class="flex items-center justify-between border-b border-gray-100 px-5 sm:px-6 py-3.5 bg-gray-50/90 shrink-0"
+                                         style="flex-shrink: 0;">
                                         <div class="flex items-center gap-3">
                                             <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-800">
                                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -331,15 +333,20 @@
                                         </button>
                                     </div>
 
-                                    {{-- Foto Gambar --}}
-                                    <div class="flex-1 overflow-auto bg-black flex items-center justify-center p-2 sm:p-4 min-h-[300px]">
-                                        <img :src="activePhoto?.url" alt="Foto Dokumentasi Progres" class="max-h-[65vh] w-auto max-w-full rounded-lg object-contain shadow-lg">
+                                    {{-- Foto Gambar (Cinema/Lightbox View: gambar menyesuaikan tinggi layar secara utuh) --}}
+                                    <div class="flex-1 min-h-0 bg-gray-950 flex items-center justify-center p-2 sm:p-4 overflow-hidden"
+                                         style="flex: 1 1 auto; min-height: 0; background-color: #09090b; display: flex; align-items: center; justify-content: center;">
+                                        <img :src="activePhoto?.url"
+                                             alt="Foto Dokumentasi Progres"
+                                             class="w-auto h-auto max-w-full rounded-lg object-contain shadow-2xl transition-all"
+                                             style="max-height: calc(88vh - 140px); max-width: 100%; object-fit: contain; width: auto; height: auto; display: block;">
                                     </div>
 
-                                    {{-- Footer Modal --}}
-                                    <div class="flex items-center justify-between border-t border-gray-100 px-6 py-3.5 bg-white text-xs text-gray-600 flex-wrap gap-2">
-                                        <div class="flex items-center gap-2">
-                                            <span class="inline-flex items-center gap-1.5 font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">
+                                    {{-- Footer Modal (Selalu terlihat di bawah, tidak terdorong/hilang) --}}
+                                    <div class="flex items-center justify-between border-t border-gray-100 px-5 sm:px-6 py-3 bg-white text-xs text-gray-600 flex-wrap gap-2 shrink-0"
+                                         style="flex-shrink: 0; background-color: #ffffff;">
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <span class="inline-flex items-center gap-1.5 font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg text-[11px] sm:text-xs">
                                                 <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                                 </svg>
@@ -348,7 +355,7 @@
                                             <template x-if="activePhoto?.lat && activePhoto?.lng">
                                                 <a :href="'https://www.google.com/maps?q=' + activePhoto.lat + ',' + activePhoto.lng"
                                                    target="_blank"
-                                                   class="inline-flex items-center gap-1 text-amber-800 hover:text-amber-900 font-semibold underline decoration-amber-300 ml-1">
+                                                   class="inline-flex items-center gap-1 text-amber-800 hover:text-amber-900 font-semibold underline decoration-amber-300 ml-1 text-[11px] sm:text-xs">
                                                     <svg class="h-3.5 w-3.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -359,16 +366,27 @@
                                         </div>
 
                                         <div class="flex items-center gap-2">
+                                            <a :href="activePhoto?.url"
+                                               target="_blank"
+                                               title="Buka Foto Penuh di Tab Baru"
+                                               class="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-gray-50 px-3 py-1.5 font-semibold text-gray-700 hover:bg-gray-100 transition-colors shadow-2xs">
+                                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                </svg>
+                                                <span>Lihat Penuh</span>
+                                            </a>
+
                                             <a :href="activePhoto?.downloadUrl"
-                                               class="inline-flex items-center gap-1.5 rounded-xl border border-gray-300 bg-white px-3.5 py-1.5 font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-2xs">
+                                               class="inline-flex items-center gap-1.5 rounded-xl bg-amber-700 hover:bg-amber-800 text-white px-3.5 py-1.5 font-bold transition-colors shadow-2xs">
                                                 <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                                 </svg>
                                                 <span>Unduh Foto</span>
                                             </a>
+
                                             <button type="button"
                                                     @click="activePhoto = null"
-                                                    class="rounded-xl bg-gray-900 px-4 py-1.5 font-bold text-white hover:bg-gray-800 transition-colors cursor-pointer">
+                                                    class="rounded-xl border border-gray-300 bg-white px-3.5 py-1.5 font-bold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer">
                                                 Tutup
                                             </button>
                                         </div>
