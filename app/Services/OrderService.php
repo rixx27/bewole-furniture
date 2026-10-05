@@ -101,20 +101,26 @@ class OrderService
     /**
      * Update order status with validation.
      */
-    public function updateStatus(Order $order, OrderStatus $newStatus, ?string $notes = null): Order
-    {
+    public function updateStatus(
+        Order $order,
+        OrderStatus $newStatus,
+        ?string $notes = null,
+        ?string $photo = null,
+        ?float $latitude = null,
+        ?float $longitude = null
+    ): Order {
         $currentStatus = OrderStatus::tryFrom($order->status);
         if ($currentStatus && !$currentStatus->canTransitionTo($newStatus)) {
             throw new \InvalidArgumentException('Status pesanan hanya dapat dilanjutkan ke tahap berikutnya atau dibatalkan.');
         }
 
-        return DB::transaction(function () use ($order, $newStatus, $notes) {
+        return DB::transaction(function () use ($order, $newStatus, $notes, $photo, $latitude, $longitude) {
             $oldStatus = $order->status;
             $order->status = $newStatus->value;
             $order->save();
 
             // Create status history
-            $this->createStatusHistory($order, $newStatus, $notes, $oldStatus);
+            $this->createStatusHistory($order, $newStatus, $notes, $oldStatus, $photo, $latitude, $longitude);
 
             return $order->fresh();
         });
@@ -277,7 +283,10 @@ class OrderService
         Order $order,
         OrderStatus $status,
         ?string $notes = null,
-        ?string $previousStatus = null
+        ?string $previousStatus = null,
+        ?string $photo = null,
+        ?float $latitude = null,
+        ?float $longitude = null
     ): OrderStatusHistory {
         $description = $notes;
 
@@ -293,6 +302,9 @@ class OrderService
             'order_id' => $order->id,
             'status' => $status->value,
             'description' => $description,
+            'photo' => $photo,
+            'latitude' => $latitude,
+            'longitude' => $longitude,
             'changed_by' => Auth::id(),
         ]);
     }

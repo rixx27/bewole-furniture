@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Order;
 
 use App\Enums\OrderStatus;
 use App\Models\Order;
+use App\Services\ImageOptimizerService;
 use App\Services\OrderService;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
@@ -15,6 +16,9 @@ class OrderStatusManager extends Component
     public bool $show = false;
     public ?string $newStatus = null;
     public ?string $notes = null;
+    public ?string $photoData = null;
+    public ?float $latitude = null;
+    public ?float $longitude = null;
     public array $availableStatuses = [];
 
     public function mount(?int $orderId = null): void
@@ -33,6 +37,27 @@ class OrderStatusManager extends Component
         'newStatus.required' => 'Status wajib dipilih.',
     ];
 
+    public function getRequiresPhotoProperty(): bool
+    {
+        if (!$this->newStatus) {
+            return false;
+        }
+
+        return OrderStatus::tryFrom($this->newStatus)?->requiresPhoto() ?? false;
+    }
+
+    public function clearPhoto(): void
+    {
+        $this->photoData = null;
+        $this->latitude = null;
+        $this->longitude = null;
+    }
+
+    public function updatedNewStatus(): void
+    {
+        $this->resetValidation('photoData');
+    }
+
     #[On('openStatus')]
     public function loadOrder(int $orderId): void
     {
@@ -40,6 +65,7 @@ class OrderStatusManager extends Component
         $this->availableStatuses = [];
         $this->newStatus = null;
         $this->notes = null;
+        $this->clearPhoto();
 
         if ($this->order) {
             $currentEnum = OrderStatus::tryFrom($this->order->status);
@@ -55,6 +81,7 @@ class OrderStatusManager extends Component
                     'color' => $status->color(),
                     'isCurrent' => $isCurrent,
                     'canSelect' => $canSelect,
+                    'requiresPhoto' => $status->requiresPhoto(),
                 ];
 
                 if ($canSelect && !$this->newStatus && $status->value !== OrderStatus::Cancelled->value) {
@@ -71,6 +98,7 @@ class OrderStatusManager extends Component
     {
         $this->show = false;
         $this->order = null;
+        $this->clearPhoto();
         $this->resetValidation();
     }
 
@@ -98,7 +126,27 @@ class OrderStatusManager extends Component
                 return;
             }
 
-            $orderService->updateStatus($this->order, $targetStatus, $this->notes);
+            if ($targetStatus->requiresPhoto() && empty($this->photoData)) {
+                $this->addError('photoData', "Foto dokumentasi progres wajib diambil untuk status {$targetStatus->label()}.");
+                return;
+            }
+
+            $photoPath = null;
+            if ($this->photoData) {
+                $photoPath = ImageOptimizerService::compressBinaryAndStore(
+                    $this->photoData,
+                    'orders/progress'
+                );
+            }
+
+            $orderService->updateStatus(
+                $this->order,
+                $targetStatus,
+                $this->notes,
+                $photoPath,
+                $this->latitude,
+                $this->longitude
+            );
 
             $this->dispatch('orderUpdated');
             $this->dispatch('notify', type: 'success', message: "Status pesanan berhasil diubah menjadi {$targetStatus->label()}.");

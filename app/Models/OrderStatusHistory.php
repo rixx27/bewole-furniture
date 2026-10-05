@@ -6,6 +6,8 @@ use App\Enums\OrderStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+use Illuminate\Support\Facades\Storage;
+
 class OrderStatusHistory extends Model
 {
     /**
@@ -17,6 +19,9 @@ class OrderStatusHistory extends Model
         'order_id',
         'status',
         'description',
+        'photo',
+        'latitude',
+        'longitude',
         'changed_by',
     ];
 
@@ -28,8 +33,34 @@ class OrderStatusHistory extends Model
     protected function casts(): array
     {
         return [
+            'latitude' => 'float',
+            'longitude' => 'float',
             'created_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Get the photo full URL.
+     */
+    public function getPhotoUrlAttribute(): ?string
+    {
+        if (!$this->photo) {
+            return null;
+        }
+
+        return asset('storage/' . $this->photo);
+    }
+
+    /**
+     * Get the download URL for the progress photo.
+     */
+    public function getDownloadUrlAttribute(): ?string
+    {
+        if (!$this->photo) {
+            return null;
+        }
+
+        return route('orders.progress-photo.download', $this->id);
     }
 
     /**

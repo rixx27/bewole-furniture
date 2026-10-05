@@ -301,7 +301,8 @@
                 @endif
 
                 {{-- Status History --}}
-                <div class="rounded-3xl border border-wood-border/60 bg-white p-6 shadow-sm">
+                <div class="rounded-3xl border border-wood-border/60 bg-white p-6 shadow-sm"
+                     x-data="{ activePhoto: null }">
                     <h2 class="mb-4 text-base font-bold text-wood-text border-b border-wood-border/40 pb-3">Riwayat Status Pesanan</h2>
                     <div class="space-y-0">
                         @forelse ($order->statusHistories as $history)
@@ -317,8 +318,29 @@
                                         <p class="text-xs font-bold text-wood-text">{{ $history->status_label }}</p>
                                         <span class="text-[10px] text-wood-muted">{{ $history->created_at->format('d/m/Y H:i') }}</span>
                                     </div>
-                                    @if ($history->notes)
-                                        <p class="mt-0.5 text-xs text-wood-muted">{{ $history->notes }}</p>
+                                    @if ($history->description || $history->notes)
+                                        <p class="mt-0.5 text-xs text-wood-muted">{{ $history->description ?: $history->notes }}</p>
+                                    @endif
+
+                                    @if ($history->photo)
+                                        <div class="mt-2">
+                                            <button type="button"
+                                                    @click="activePhoto = {
+                                                        url: '{{ $history->photo_url }}',
+                                                        downloadUrl: '{{ $history->download_url }}',
+                                                        status: '{{ $history->status_label }}',
+                                                        date: '{{ $history->created_at->translatedFormat('d F Y, H:i') }} WIB',
+                                                        lat: '{{ $history->latitude }}',
+                                                        lng: '{{ $history->longitude }}'
+                                                    }"
+                                                    class="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-900 hover:bg-amber-100 transition-colors shadow-2xs group cursor-pointer">
+                                                <svg class="h-3.5 w-3.5 text-amber-700 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                </svg>
+                                                <span>Lihat Foto Dokumentasi</span>
+                                            </button>
+                                        </div>
                                     @endif
                                 </div>
                             </div>
@@ -326,6 +348,70 @@
                             <p class="text-sm text-wood-muted">Belum ada riwayat status.</p>
                         @endforelse
                     </div>
+
+                    {{-- Modal Lightbox --}}
+                    <template x-teleport="body">
+                        <div x-show="activePhoto"
+                             x-cloak
+                             class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+                             x-transition:enter="transition ease-out duration-200"
+                             x-transition:enter-start="opacity-0"
+                             x-transition:enter-end="opacity-100"
+                             x-transition:leave="transition ease-in duration-150"
+                             x-transition:leave-start="opacity-100"
+                             x-transition:leave-end="opacity-0">
+
+                            <div class="fixed inset-0 bg-black/75 backdrop-blur-sm" @click="activePhoto = null"></div>
+
+                            <div class="relative w-full max-w-3xl overflow-hidden rounded-3xl bg-white shadow-2xl border border-gray-200 z-10 flex flex-col max-h-[90vh]"
+                                 @click.away="activePhoto = null">
+                                <div class="flex items-center justify-between border-b border-gray-100 px-6 py-4 bg-gray-50/70">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-800">
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-sm font-bold text-gray-900" x-text="'Foto Progres: ' + (activePhoto?.status || '')"></h4>
+                                            <p class="text-xs text-gray-500 font-medium" x-text="activePhoto?.date || ''"></p>
+                                        </div>
+                                    </div>
+
+                                    <button type="button" @click="activePhoto = null" class="rounded-xl p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-colors cursor-pointer">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <div class="flex-1 overflow-auto bg-black flex items-center justify-center p-2 sm:p-4 min-h-[300px]">
+                                    <img :src="activePhoto?.url" alt="Foto Progres" class="max-h-[65vh] w-auto max-w-full rounded-lg object-contain shadow-lg">
+                                </div>
+
+                                <div class="flex items-center justify-between border-t border-gray-100 px-6 py-3.5 bg-white text-xs text-gray-600 flex-wrap gap-2">
+                                    <span class="inline-flex items-center gap-1.5 font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">
+                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Dokumentasi Lapangan Terverifikasi
+                                    </span>
+                                    <div class="flex items-center gap-2">
+                                        <a :href="activePhoto?.downloadUrl" class="inline-flex items-center gap-1.5 rounded-xl border border-gray-300 bg-white px-3.5 py-1.5 font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-2xs">
+                                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                            </svg>
+                                            <span>Unduh Foto</span>
+                                        </a>
+                                        <button type="button" @click="activePhoto = null" class="rounded-xl bg-gray-900 px-4 py-1.5 font-bold text-white hover:bg-gray-800 transition-colors cursor-pointer">
+                                            Tutup
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
                 </div>
             </div>
 

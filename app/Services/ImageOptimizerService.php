@@ -107,4 +107,100 @@ class ImageOptimizerService
             return $file->store($directory, $disk);
         }
     }
+
+    /**
+     * Compress and optimize raw binary or base64 image data to WebP format.
+     */
+    public static function compressBinaryAndStore(
+        string $binaryData,
+        string $directory,
+        int $maxWidth = 1280,
+        int $maxHeight = 1280,
+        int $quality = 82,
+        string $disk = 'public'
+    ): ?string {
+        if (str_starts_with($binaryData, 'data:image')) {
+            $binaryData = substr($binaryData, strpos($binaryData, ',') + 1);
+            $binaryData = base64_decode($binaryData);
+        }
+
+        if (empty($binaryData)) {
+            return null;
+        }
+
+        // Fallback if GD is not available
+        if (! extension_loaded('gd') || ! function_exists('imagewebp') || ! function_exists('imagecreatefromstring')) {
+            $filename = Str::random(40).'.jpg';
+            $targetPath = trim($directory, '/').'/'.$filename;
+            Storage::disk($disk)->put($targetPath, $binaryData);
+            return $targetPath;
+        }
+
+        try {
+            $sourceImage = @imagecreatefromstring($binaryData);
+            if (! $sourceImage) {
+                $filename = Str::random(40).'.jpg';
+                $targetPath = trim($directory, '/').'/'.$filename;
+                Storage::disk($disk)->put($targetPath, $binaryData);
+                return $targetPath;
+            }
+
+            $origWidth = imagesx($sourceImage);
+            $origHeight = imagesy($sourceImage);
+
+            if ($origWidth <= 0 || $origHeight <= 0) {
+                return null;
+            }
+
+            $widthRatio = $maxWidth / $origWidth;
+            $heightRatio = $maxHeight / $origHeight;
+            $ratio = min($widthRatio, $heightRatio, 1.0);
+
+            $targetWidth = (int) max(1, round($origWidth * $ratio));
+            $targetHeight = (int) max(1, round($origHeight * $ratio));
+
+            $canvas = imagecreatetruecolor($targetWidth, $targetHeight);
+
+            imagealphablending($canvas, false);
+            imagesavealpha($canvas, true);
+            $transparent = imagecolorallocatealpha($canvas, 0, 0, 0, 127);
+            imagefilledrectangle($canvas, 0, 0, $targetWidth, $targetHeight, $transparent);
+
+            imagecopyresampled(
+                $canvas,
+                $sourceImage,
+                0,
+                0,
+                0,
+                0,
+                $targetWidth,
+                $targetHeight,
+                $origWidth,
+                $origHeight
+            );
+
+            ob_start();
+            $success = imagewebp($canvas, null, $quality);
+            $webpData = ob_get_clean();
+
+            if (! $success || empty($webpData)) {
+                $filename = Str::random(40).'.jpg';
+                $targetPath = trim($directory, '/').'/'.$filename;
+                Storage::disk($disk)->put($targetPath, $binaryData);
+                return $targetPath;
+            }
+
+            $filename = Str::random(40).'.webp';
+            $targetPath = trim($directory, '/').'/'.$filename;
+            Storage::disk($disk)->put($targetPath, $webpData);
+
+            return $targetPath;
+        } catch (\Throwable $e) {
+            Log::warning('ImageOptimizerService failed to compress binary image: '.$e->getMessage());
+            $filename = Str::random(40).'.jpg';
+            $targetPath = trim($directory, '/').'/'.$filename;
+            Storage::disk($disk)->put($targetPath, $binaryData);
+            return $targetPath;
+        }
+    }
 }

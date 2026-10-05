@@ -137,6 +137,22 @@ enum OrderStatus: string
     }
 
     /**
+     * Check if this status requires a progress photo with timestamp and GPS.
+     * Only required for statuses after payment: InProduction, QualityControl, ReadyToShip, Shipped, Completed.
+     */
+    public function requiresPhoto(): bool
+    {
+        return match ($this) {
+            self::InProduction,
+            self::QualityControl,
+            self::ReadyToShip,
+            self::Shipped,
+            self::Completed => true,
+            default => false,
+        };
+    }
+
+    /**
      * Get all statuses that are considered "active" (not final).
      */
     public static function activeStatuses(): array

@@ -42,6 +42,23 @@ Route::middleware(['maintenance'])->group(function () {
     // Custom Furniture Upload Design
     Route::post('/custom-furniture/upload', [App\Http\Controllers\Frontend\CustomFurnitureController::class, 'uploadDesign'])
         ->name('custom-furniture.upload');
+
+    // Unduh Foto Dokumentasi Progres Pesanan
+    Route::get('/orders/progress-photo/{history}/download', function (\App\Models\OrderStatusHistory $history) {
+        if (!$history->photo || !\Illuminate\Support\Facades\Storage::disk('public')->exists($history->photo)) {
+            abort(404, 'Foto dokumentasi progres tidak ditemukan.');
+        }
+
+        $orderCode = $history->order?->order_code ?? 'pesanan';
+        $statusSlug = \Illuminate\Support\Str::slug($history->status_label);
+        $filename = "dokumentasi-{$orderCode}-{$statusSlug}.webp";
+
+        return \Illuminate\Support\Facades\Storage::disk('public')->download(
+            $history->photo,
+            $filename,
+            ['Content-Type' => 'image/webp']
+        );
+    })->name('orders.progress-photo.download');
 });
 
 /*

@@ -244,6 +244,238 @@
         </div>
     </div>
 
+    {{-- Order Photo Progress Capture Handler --}}
+    <script>
+        window.orderProgressCapture = function(orderCodeParam) {
+            return {
+                cameraActive: false,
+                processing: false,
+                videoStream: null,
+                statusMessage: '',
+                orderCode: orderCodeParam || '',
+
+                init() {},
+
+                destroy() {
+                    this.stopCamera();
+                },
+
+                async startCamera() {
+                    this.cameraActive = true;
+                    this.processing = true;
+                    this.statusMessage = 'Menghubungkan ke kamera...';
+
+                    if (this.videoStream) {
+                        try {
+                            this.videoStream.getTracks().forEach(t => t.stop());
+                        } catch (e) {}
+                        this.videoStream = null;
+                    }
+
+                    try {
+                        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                            throw new Error('Fitur kamera browser tidak didukung atau memerlukan HTTPS/localhost.');
+                        }
+
+                        let stream;
+                        try {
+                            stream = await navigator.mediaDevices.getUserMedia({
+                                video: {
+                                    facingMode: { ideal: 'environment' },
+                                    width: { ideal: 1280 },
+                                    height: { ideal: 720 }
+                                },
+                                audio: false
+                            });
+                        } catch (err1) {
+                            console.warn('Fallback ke default webcam:', err1);
+                            stream = await navigator.mediaDevices.getUserMedia({
+                                video: true,
+                                audio: false
+                            });
+                        }
+
+                        this.videoStream = stream;
+                        this.processing = false;
+                        this.statusMessage = '';
+
+                        this.$nextTick(async () => {
+                            const video = this.$refs.videoEl;
+                            if (video) {
+                                video.srcObject = stream;
+                                try {
+                                    await video.play();
+                                } catch (e) {
+                                    console.warn('Video play warning:', e);
+                                }
+                            }
+                        });
+                    } catch (err) {
+                        console.error('Camera access failed:', err);
+                        this.stopCamera();
+                        alert('Kamera tidak dapat diakses (' + (err.message || 'Izin kamera ditolak') + ').\nSilakan izinkan akses kamera di browser Anda atau gunakan tombol "Unggah foto dari file".');
+                    }
+                },
+
+                stopCamera() {
+                    if (this.videoStream) {
+                        try {
+                            this.videoStream.getTracks().forEach(track => track.stop());
+                        } catch (e) {}
+                        this.videoStream = null;
+                    }
+                    if (this.$refs.videoEl) {
+                        this.$refs.videoEl.srcObject = null;
+                    }
+                    this.cameraActive = false;
+                    this.processing = false;
+                    this.statusMessage = '';
+                },
+
+                async captureFromCamera() {
+                    if (!this.videoStream || !this.$refs.videoEl) return;
+
+                    this.processing = true;
+                    this.statusMessage = 'Mengambil foto & titik koordinat GPS...';
+
+                    const video = this.$refs.videoEl;
+                    const targetW = video.videoWidth || 1280;
+                    const targetH = video.videoHeight || 720;
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = targetW;
+                    canvas.height = targetH;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(video, 0, 0, targetW, targetH);
+
+                    this.stopCamera();
+                    await this.stampCanvasAndSave(canvas, targetW, targetH);
+                },
+
+                async processFile(event) {
+                    const file = event.target.files && event.target.files[0];
+                    if (!file) return;
+
+                    this.processing = true;
+                    this.statusMessage = 'Mendeteksi titik koordinat GPS...';
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.onload = async () => {
+                            const maxW = 1280;
+                            let targetW = img.width;
+                            let targetH = img.height;
+
+                            if (targetW > maxW) {
+                                targetH = Math.round((targetH * maxW) / targetW);
+                                targetW = maxW;
+                            }
+
+                            const canvas = document.createElement('canvas');
+                            canvas.width = targetW;
+                            canvas.height = targetH;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, targetW, targetH);
+
+                            await this.stampCanvasAndSave(canvas, targetW, targetH);
+                            event.target.value = '';
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                },
+
+                async stampCanvasAndSave(canvas, targetW, targetH) {
+                    let lat = -6.58912;
+                    let lng = 110.66782;
+                    let locationSource = 'Workshop Jepara';
+
+                    try {
+                        if (navigator.geolocation) {
+                            const pos = await new Promise((resolve, reject) => {
+                                navigator.geolocation.getCurrentPosition(resolve, reject, {
+                                    enableHighAccuracy: true,
+                                    timeout: 4000,
+                                    maximumAge: 0
+                                });
+                            });
+                            lat = parseFloat(pos.coords.latitude.toFixed(6));
+                            lng = parseFloat(pos.coords.longitude.toFixed(6));
+                            locationSource = 'GPS Aktif';
+                        }
+                    } catch (err) {
+                        console.warn('GPS fallback:', err);
+                    }
+
+                    const ctx = canvas.getContext('2d');
+                    const bannerHeight = Math.max(90, Math.round(targetH * 0.16));
+                    const bannerY = targetH - bannerHeight;
+
+                    // Watermark background bar
+                    ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+                    ctx.fillRect(0, bannerY, targetW, bannerHeight);
+
+                    // Amber top accent line
+                    ctx.fillStyle = '#d97706';
+                    ctx.fillRect(0, bannerY, targetW, Math.max(3, Math.round(targetW * 0.004)));
+
+                    const now = new Date();
+                    const day = String(now.getDate()).padStart(2, '0');
+                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                    const month = months[now.getMonth()];
+                    const year = now.getFullYear();
+                    const hours = String(now.getHours()).padStart(2, '0');
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    const seconds = String(now.getSeconds()).padStart(2, '0');
+                    const timeStr = `${day} ${month} ${year}, ${hours}:${minutes}:${seconds} WIB`;
+
+                    const code = this.orderCode || document.querySelector('[data-order-code]')?.getAttribute('data-order-code') || '';
+                    const statusLabel = document.querySelector('input[name="newStatus"]:checked')?.closest('label')?.querySelector('.text-gray-900')?.innerText?.trim() || 'Proses Pengerjaan';
+
+                    const padX = Math.round(targetW * 0.025);
+                    const baseFontSize = Math.max(13, Math.round(targetW * 0.02));
+                    const smallFontSize = Math.max(11, Math.round(targetW * 0.015));
+
+                    let currY = bannerY + Math.round(bannerHeight * 0.28);
+
+                    ctx.font = `bold ${baseFontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+                    ctx.fillStyle = '#fbbf24';
+                    ctx.fillText('🏢 BEWOLE JEPARA FURNITURE — DOKUMENTASI RESMI', padX, currY);
+
+                    currY += Math.round(bannerHeight * 0.25);
+                    ctx.font = `bold ${smallFontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillText(`📦 Pesanan: #${code}  •  Status: ${statusLabel}`, padX, currY);
+
+                    currY += Math.round(bannerHeight * 0.25);
+                    ctx.font = `normal ${smallFontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+                    ctx.fillStyle = '#cbd5e1';
+                    ctx.fillText(`🕒 ${timeStr}  |  📍 Lat: ${lat}, Long: ${lng} (${locationSource})`, padX, currY);
+
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+                    if (this.$wire) {
+                        this.$wire.set('photoData', dataUrl);
+                        this.$wire.set('latitude', lat);
+                        this.$wire.set('longitude', lng);
+                    }
+
+                    this.processing = false;
+                    this.statusMessage = '';
+                }
+            };
+        };
+
+        if (window.Alpine) {
+            window.Alpine.data('orderProgressCapture', window.orderProgressCapture);
+        } else {
+            document.addEventListener('alpine:init', () => {
+                window.Alpine.data('orderProgressCapture', window.orderProgressCapture);
+            });
+        }
+    </script>
+
     @stack('scripts')
     @fluxScripts
 </body>
