@@ -122,10 +122,83 @@
 
                         {{-- Right Column --}}
                         <div class="space-y-6">
-                            {{-- Produk --}}
+                            {{-- Produk / Request Custom --}}
                             <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 shadow-xs">
-                                <h3 class="mb-3 text-xs font-extrabold uppercase tracking-wider text-gray-500">Produk</h3>
-                                @if ($order->items && $order->items->count() > 0)
+                                <div class="mb-3 flex items-center justify-between">
+                                    <h3 class="text-xs font-extrabold uppercase tracking-wider text-gray-500">
+                                        {{ $order->is_custom ? 'Detail Custom Furniture' : 'Produk' }}
+                                    </h3>
+                                    @if ($order->is_custom)
+                                        <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-900 border border-amber-300">
+                                            ✦ Request Custom
+                                        </span>
+                                    @endif
+                                </div>
+
+                                @if ($order->is_custom)
+                                    <div class="space-y-4">
+                                        <div class="flex items-start gap-4">
+                                            {{-- Foto Referensi --}}
+                                            <div class="h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-gray-200 bg-white">
+                                                @if ($order->custom_design_image)
+                                                    <a href="{{ asset('storage/' . $order->custom_design_image) }}" target="_blank" title="Klik untuk lihat ukuran penuh">
+                                                        <img src="{{ asset('storage/' . $order->custom_design_image) }}" alt="Desain Custom" class="h-full w-full object-cover hover:scale-105 transition-transform duration-200">
+                                                    </a>
+                                                @else
+                                                    <div class="flex h-full w-full flex-col items-center justify-center text-gray-400 bg-amber-50/50 p-1 text-center">
+                                                        <svg class="h-6 w-6 stroke-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                                        </svg>
+                                                        <span class="text-[9px] font-bold text-gray-500">No Image</span>
+                                                    </div>
+                                                @endif
+                                            </div>
+
+                                            {{-- Info Custom --}}
+                                            <div class="flex-1 space-y-1 text-xs">
+                                                <p class="text-sm font-bold text-gray-900">{{ $order->custom_furniture_type ?: 'Custom Furniture' }}</p>
+                                                @if ($order->custom_dimensions)
+                                                    <p class="text-gray-600 font-semibold">Ukuran: <span class="text-gray-900">{{ $order->custom_dimensions }}</span></p>
+                                                @endif
+                                                <div class="mt-2 text-xs">
+                                                    <span class="text-gray-500 font-medium block">Deskripsi / Kebutuhan:</span>
+                                                    <p class="text-gray-800 bg-white rounded-lg p-2.5 border border-gray-200 mt-1 whitespace-pre-line leading-relaxed">{{ $order->notes ?: '-' }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {{-- Panel Input / Update Estimasi Harga oleh Admin --}}
+                                        <div class="rounded-xl border border-amber-300 bg-amber-50/60 p-3.5 space-y-2">
+                                            <div class="flex items-center justify-between">
+                                                <span class="text-xs font-extrabold text-amber-950 uppercase tracking-wider">Kesepakatan / Estimasi Harga</span>
+                                                <span class="text-xs font-bold text-amber-900">
+                                                    Saat ini: {{ $order->formatted_total_price }}
+                                                </span>
+                                            </div>
+                                            <div class="flex flex-col sm:flex-row gap-2">
+                                                <div class="relative flex-1">
+                                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-xs font-bold text-gray-500">Rp</span>
+                                                    <input
+                                                        type="number"
+                                                        wire:model="customPriceInput"
+                                                        placeholder="Masukkan nominal harga (contoh: 3500000)"
+                                                        class="w-full rounded-lg border border-gray-300 bg-white pl-9 pr-3 py-1.5 text-xs font-semibold text-gray-900 focus:border-amber-600 focus:outline-none focus:ring-1 focus:ring-amber-600"
+                                                    >
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    wire:click="saveCustomPrice"
+                                                    class="inline-flex items-center justify-center rounded-lg bg-amber-700 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-amber-800 transition-colors cursor-pointer shrink-0"
+                                                >
+                                                    Simpan Harga
+                                                </button>
+                                            </div>
+                                            <p class="text-[11px] text-amber-800">
+                                                * Harga yang Anda simpan akan langsung muncul di tagihan dan halaman "Pesanan Saya" milik pelanggan.
+                                            </p>
+                                        </div>
+                                    </div>
+                                @elseif ($order->items && $order->items->count() > 0)
                                     <div class="divide-y divide-gray-200">
                                         @foreach ($order->items as $item)
                                             <div class="py-2 flex items-start gap-4 first:pt-0 last:pb-0">
@@ -174,41 +247,43 @@
                                 @endif
                             </div>
 
-                            {{-- Pilihan Meubel & Packing --}}
-                            <div class="rounded-xl border border-amber-200 bg-amber-50/50 p-4 shadow-xs">
-                                <h3 class="mb-3 text-xs font-extrabold uppercase tracking-wider text-amber-900">Pilihan Meubel & Packing</h3>
-                                <div class="space-y-2.5 text-sm">
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600 font-medium">Jenis Meubel</span>
-                                        <span class="font-bold text-gray-900">{{ $order->meubel_type_label }}</span>
-                                    </div>
+                            {{-- Pilihan Meubel & Packing (Hanya untuk pesanan katalog reguler) --}}
+                            @if (!$order->is_custom)
+                                <div class="rounded-xl border border-amber-200 bg-amber-50/50 p-4 shadow-xs">
+                                    <h3 class="mb-3 text-xs font-extrabold uppercase tracking-wider text-amber-900">Pilihan Meubel & Packing</h3>
+                                    <div class="space-y-2.5 text-sm">
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600 font-medium">Jenis Meubel</span>
+                                            <span class="font-bold text-gray-900">{{ $order->meubel_type_label }}</span>
+                                        </div>
 
-                                    @if (($order->meubel_type === 'matang' || $order->meubel_type === 'finished') && !empty($order->customization_details))
-                                        @foreach ($order->customization_details as $pId => $selection)
-                                            @php
-                                                $pModel = \App\Models\Product::find($pId);
-                                            @endphp
-                                            <div class="flex justify-between">
-                                                <span class="text-gray-600 font-medium">Bahan Dudukan {{ $pModel ? "({$pModel->name})" : '' }}</span>
-                                                <span class="font-bold text-gray-900">{{ $selection }}</span>
-                                            </div>
-                                        @endforeach
-                                    @endif
+                                        @if (($order->meubel_type === 'matang' || $order->meubel_type === 'finished') && !empty($order->customization_details))
+                                            @foreach ($order->customization_details as $pId => $selection)
+                                                @php
+                                                    $pModel = \App\Models\Product::find($pId);
+                                                @endphp
+                                                <div class="flex justify-between">
+                                                    <span class="text-gray-600 font-medium">Bahan Dudukan {{ $pModel ? "({$pModel->name})" : '' }}</span>
+                                                    <span class="font-bold text-gray-900">{{ $selection }}</span>
+                                                </div>
+                                            @endforeach
+                                        @endif
 
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600 font-medium">Bahan Packing</span>
-                                        <span class="font-bold text-gray-900">{{ $order->packing_type_label }}</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600 font-medium">Biaya Customisasi</span>
-                                        <span class="font-bold text-gray-900">Rp {{ number_format($order->customization_fee ?? 0, 0, ',', '.') }}</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600 font-medium">Biaya Packing</span>
-                                        <span class="font-bold text-gray-900">Rp {{ number_format($order->packing_fee ?? 0, 0, ',', '.') }}</span>
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600 font-medium">Bahan Packing</span>
+                                            <span class="font-bold text-gray-900">{{ $order->packing_type_label }}</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600 font-medium">Biaya Customisasi</span>
+                                            <span class="font-bold text-gray-900">Rp {{ number_format($order->customization_fee ?? 0, 0, ',', '.') }}</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600 font-medium">Biaya Packing</span>
+                                            <span class="font-bold text-gray-900">Rp {{ number_format($order->packing_fee ?? 0, 0, ',', '.') }}</span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            @endif
 
                             {{-- Status & Pembayaran --}}
                             <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 shadow-xs">

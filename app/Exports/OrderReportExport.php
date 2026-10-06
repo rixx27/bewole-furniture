@@ -111,7 +111,7 @@ class OrderReportExport implements FromQuery, WithHeadings, WithMapping, WithTit
             $order->customer_name,
             $whatsapp,
             $email,
-            $order->product?->name ?? '-',
+            $order->is_custom ? ('[Custom] ' . ($order->custom_furniture_type ?: 'Custom Furniture')) : ($order->product?->name ?? '-'),
             (int) $order->quantity,
             (float) $unitPrice,
             (float) $order->total_price,

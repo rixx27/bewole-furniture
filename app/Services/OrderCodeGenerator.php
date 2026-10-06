@@ -54,4 +54,44 @@ class OrderCodeGenerator
             return $orderCode;
         });
     }
+
+    /**
+     * Generate a unique custom order code with format: BWL-CST-DD-MM-YY-D
+     * Example: BWL-CST-06-10-26-1
+     */
+    public function generateCustom(): string
+    {
+        return DB::transaction(function () {
+            $now    = now();
+            $dd     = $now->format('d');   // 2-digit day
+            $mm     = $now->format('m');   // 2-digit month
+            $yy     = $now->format('y');   // 2-digit year
+
+            $prefix = "BWL-CST-{$dd}-{$mm}-{$yy}-";
+
+            $query = Order::where('order_code', 'like', "{$prefix}%");
+            if (DB::getDriverName() === 'mysql') {
+                $query->orderByRaw('CAST(SUBSTRING_INDEX(order_code, \'-\', -1) AS UNSIGNED) DESC');
+            } else {
+                $query->orderBy('id', 'desc');
+            }
+            $lastOrder = $query->lockForUpdate()->first();
+
+            $newNumber = $lastOrder
+                ? ((int) substr($lastOrder->order_code, strrpos($lastOrder->order_code, '-') + 1)) + 1
+                : 1;
+
+            $orderCode = $prefix . $newNumber;
+
+            // Double-check uniqueness and increment if taken
+            $attempts = 0;
+            while (Order::where('order_code', $orderCode)->exists() && $attempts < 20) {
+                $newNumber++;
+                $orderCode = $prefix . $newNumber;
+                $attempts++;
+            }
+
+            return $orderCode;
+        });
+    }
 }

@@ -113,13 +113,28 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 align-middle">
-                                <span class="text-sm font-bold text-gray-900">{{ $order->product?->name ?? '-' }}</span>
+                                @if ($order->is_custom)
+                                    <div class="space-y-1">
+                                        <span class="inline-flex items-center gap-1 rounded-md bg-amber-100 text-amber-950 px-2 py-0.5 text-xs font-bold border border-amber-300">
+                                            ✦ Custom Furniture
+                                        </span>
+                                        <p class="text-xs font-bold text-gray-900">{{ $order->custom_furniture_type ?: ($order->customization_details['furniture_type'] ?? 'Custom Request') }}</p>
+                                    </div>
+                                @else
+                                    <span class="text-sm font-bold text-gray-900">{{ $order->product?->name ?? '-' }}</span>
+                                @endif
                             </td>
                             <td class="px-6 py-4 align-middle text-center">
                                 <span class="text-sm font-extrabold text-gray-900">{{ $order->quantity }}</span>
                             </td>
                             <td class="px-6 py-4 align-middle whitespace-nowrap">
-                                <span class="text-sm font-extrabold text-gray-900">{{ $order->formatted_total_price }}</span>
+                                @if ($order->is_custom && (float)$order->total_price <= 0)
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-900 border border-amber-300">
+                                        Menunggu Estimasi
+                                    </span>
+                                @else
+                                    <span class="text-sm font-extrabold text-gray-900">{{ $order->formatted_total_price }}</span>
+                                @endif
                             </td>
                             <td class="px-6 py-4 align-middle text-center whitespace-nowrap">
                                 <span class="text-sm font-semibold text-gray-700">{{ $order->shipping_method_label }}</span>

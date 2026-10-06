@@ -285,6 +285,23 @@
                         <td style="text-align: right; font-weight: bold;">Rp {{ number_format($item->total_price, 0, ',', '.') }}</td>
                     </tr>
                 @endforeach
+            @elseif ($order->is_custom)
+                <tr>
+                    <td>
+                        <div class="item-title">[Custom Furniture] {{ $order->custom_furniture_type ?: 'Custom Furniture' }}</div>
+                        <div class="item-meta">
+                            @if ($order->custom_dimensions)
+                                <span>• Dimensi: {{ $order->custom_dimensions }}</span><br>
+                            @endif
+                            @if ($order->notes)
+                                <span>• Catatan / Kebutuhan: {{ \Illuminate\Support\Str::limit($order->notes, 120) }}</span>
+                            @endif
+                        </div>
+                    </td>
+                    <td style="text-align: center;">{{ $order->quantity }}</td>
+                    <td style="text-align: right;">{{ (float)$order->total_price > 0 ? ('Rp ' . number_format($order->total_price, 0, ',', '.')) : 'Menunggu Estimasi' }}</td>
+                    <td style="text-align: right; font-weight: bold;">{{ (float)$order->total_price > 0 ? ('Rp ' . number_format($order->total_price, 0, ',', '.')) : 'Menunggu Estimasi' }}</td>
+                </tr>
             @else
                 <tr>
                     <td>

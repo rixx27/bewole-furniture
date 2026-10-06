@@ -113,7 +113,7 @@
                             </span>
                         </div>
                         <h2 class="mt-2 text-xl font-bold text-wood-text sm:text-2xl">
-                            {{ $order->product?->name ?? 'Detail Pesanan' }}
+                            {{ $order->is_custom ? ($order->custom_furniture_type ?: 'Custom Furniture') : ($order->product?->name ?? 'Detail Pesanan') }}
                         </h2>
                         <p class="mt-1 text-xs text-wood-muted">
                             Dipesan pada <span class="font-medium text-wood-text">{{ $order->created_at->translatedFormat('d F Y, H:i') }} WIB</span>
@@ -431,6 +431,30 @@
                                         </div>
                                     </div>
                                 @endforeach
+                            </div>
+                        @elseif ($order->is_custom)
+                            <div class="flex gap-4">
+                                <div class="h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-amber-50 border border-amber-200">
+                                    @if ($order->custom_design_image)
+                                        <a href="{{ asset('storage/' . $order->custom_design_image) }}" target="_blank">
+                                            <img src="{{ asset('storage/' . $order->custom_design_image) }}" alt="Desain Custom" class="h-full w-full object-cover">
+                                        </a>
+                                    @else
+                                        <div class="flex h-full w-full flex-col items-center justify-center text-amber-700 p-1 text-center">
+                                            <span class="text-[9px] font-bold">CUSTOM</span>
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <span class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800 border border-amber-200">
+                                        Custom Furniture
+                                    </span>
+                                    <h4 class="text-xs sm:text-sm font-semibold text-wood-text mt-1 truncate">{{ $order->custom_furniture_type ?: 'Custom Furniture' }}</h4>
+                                    @if ($order->custom_dimensions)
+                                        <p class="text-[11px] text-wood-muted mt-0.5">{{ $order->custom_dimensions }}</p>
+                                    @endif
+                                    <p class="text-xs font-bold text-wood-primary mt-1">{{ $order->formatted_total_price }}</p>
+                                </div>
                             </div>
                         @else
                             <div class="flex gap-4">

@@ -21,6 +21,10 @@ class Order extends Model
         'user_id',
         'product_id',
         'order_code',
+        'is_custom',
+        'custom_furniture_type',
+        'custom_dimensions',
+        'custom_design_image',
         'customer_name',
         'customer_phone',
         'customer_email',
@@ -62,6 +66,7 @@ class Order extends Model
     protected function casts(): array
     {
         return [
+            'is_custom' => 'boolean',
             'quantity' => 'integer',
             'total_price' => 'decimal:2',
             'customization_details' => 'array',
@@ -160,7 +165,23 @@ class Order extends Model
      */
     public function getFormattedTotalPriceAttribute(): string
     {
+        if ($this->is_custom && (float) $this->total_price <= 0) {
+            return 'Menunggu Estimasi';
+        }
+
         return 'Rp ' . number_format($this->total_price, 0, ',', '.');
+    }
+
+    /**
+     * Get the custom design image full URL attribute.
+     */
+    public function getCustomDesignImageUrlAttribute(): ?string
+    {
+        if (!$this->custom_design_image) {
+            return null;
+        }
+
+        return asset(\Illuminate\Support\Facades\Storage::url($this->custom_design_image));
     }
 
     /**

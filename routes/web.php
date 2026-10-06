@@ -39,9 +39,11 @@ Route::middleware(['maintenance'])->group(function () {
     // Cart — public (session-based, no login required to view/add)
     Route::view('/keranjang', 'frontend.pages.cart')->name('cart.index');
 
-    // Custom Furniture Upload Design
+    // Custom Furniture
     Route::post('/custom-furniture/upload', [App\Http\Controllers\Frontend\CustomFurnitureController::class, 'uploadDesign'])
         ->name('custom-furniture.upload');
+    Route::post('/custom-furniture/store', [App\Http\Controllers\Frontend\CustomFurnitureController::class, 'store'])
+        ->name('custom-furniture.store');
 
     // Unduh Foto Dokumentasi Progres Pesanan
     Route::get('/orders/progress-photo/{history}/download', function (\App\Models\OrderStatusHistory $history) {

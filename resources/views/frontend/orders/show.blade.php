@@ -58,13 +58,61 @@
                 {{-- Product Items List --}}
                 <div class="rounded-3xl border border-wood-border/60 bg-white p-6 shadow-sm">
                     <div class="flex items-center justify-between border-b border-wood-border/40 pb-3 mb-4">
-                        <h2 class="text-base font-bold text-wood-text">Daftar Produk Pesanan</h2>
+                        <h2 class="text-base font-bold text-wood-text">
+                            {{ $order->is_custom ? 'Detail Custom Furniture' : 'Daftar Produk Pesanan' }}
+                        </h2>
                         <span class="text-xs font-semibold text-wood-muted">
-                            Total: {{ $order->items && $order->items->count() > 0 ? $order->items->count() : 1 }} Produk ({{ $order->quantity }} Unit)
+                            @if ($order->is_custom)
+                                <span class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-900 border border-amber-300">
+                                    ✦ Custom Order
+                                </span>
+                            @else
+                                Total: {{ $order->items && $order->items->count() > 0 ? $order->items->count() : 1 }} Produk ({{ $order->quantity }} Unit)
+                            @endif
                         </span>
                     </div>
 
-                    @if ($order->items && $order->items->count() > 0)
+                    @if ($order->is_custom)
+                        <div class="space-y-4">
+                            <div class="flex flex-col sm:flex-row gap-5 items-start">
+                                {{-- Foto Desain Referensi --}}
+                                <div class="h-32 w-32 sm:h-40 sm:w-40 shrink-0 overflow-hidden rounded-2xl border border-amber-200 bg-amber-50 shadow-xs">
+                                    @if ($order->custom_design_image)
+                                        <a href="{{ asset('storage/' . $order->custom_design_image) }}" target="_blank" title="Klik untuk perbesar gambar">
+                                            <img src="{{ asset('storage/' . $order->custom_design_image) }}" alt="Desain Custom" class="h-full w-full object-cover hover:scale-105 transition-transform duration-300 cursor-zoom-in">
+                                        </a>
+                                    @else
+                                        <div class="flex h-full w-full flex-col items-center justify-center text-amber-700 bg-amber-50 p-2 text-center">
+                                            <svg class="h-8 w-8 stroke-1 text-amber-600 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                            </svg>
+                                            <span class="text-[10px] font-semibold text-amber-800">Tanpa Foto Referensi</span>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                {{-- Info Detail Custom --}}
+                                <div class="flex-1 space-y-3 text-xs sm:text-sm">
+                                    <div>
+                                        <span class="text-xs font-semibold text-wood-muted uppercase tracking-wider block">Jenis Furniture</span>
+                                        <h3 class="text-base font-bold text-wood-text mt-0.5">{{ $order->custom_furniture_type ?: 'Custom Furniture' }}</h3>
+                                    </div>
+
+                                    @if ($order->custom_dimensions)
+                                        <div>
+                                            <span class="text-xs font-semibold text-wood-muted uppercase tracking-wider block">Ukuran / Dimensi</span>
+                                            <p class="font-semibold text-wood-text mt-0.5">{{ $order->custom_dimensions }}</p>
+                                        </div>
+                                    @endif
+
+                                    <div>
+                                        <span class="text-xs font-semibold text-wood-muted uppercase tracking-wider block">Deskripsi & Kebutuhan</span>
+                                        <p class="text-wood-text leading-relaxed mt-0.5 whitespace-pre-line bg-amber-50/50 rounded-xl p-3 border border-amber-200/60">{{ $order->notes ?: '-' }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @elseif ($order->items && $order->items->count() > 0)
                         <div class="divide-y divide-wood-border/40">
                             @foreach ($order->items as $item)
                                 <div class="py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row items-start gap-4">
@@ -146,37 +194,118 @@
 
                     {{-- Breakdown Summary inside card --}}
                     <div class="mt-5 pt-4 border-t border-wood-border/40 space-y-2 text-xs">
-                        <div class="flex justify-between text-wood-muted">
-                            <span>Subtotal Produk</span>
-                            <span class="font-semibold text-wood-text">
-                                Rp {{ number_format(($order->total_price - ($order->customization_fee ?? 0) - ($order->packing_fee ?? 0)), 0, ',', '.') }}
-                            </span>
-                        </div>
-                        @if ($order->customization_fee > 0)
+                        @if ($order->is_custom)
+                            <div class="flex justify-between items-center text-sm font-bold text-wood-text pt-2">
+                                <span>Estimasi Total Biaya</span>
+                                @if ((float)$order->total_price <= 0)
+                                    <span class="text-sm font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">
+                                        Menunggu Estimasi Admin
+                                    </span>
+                                @else
+                                    <span class="text-base text-wood-primary">{{ $order->formatted_total_price }}</span>
+                                @endif
+                            </div>
+                        @else
                             <div class="flex justify-between text-wood-muted">
-                                <span>Biaya Tambahan Meubel Finished</span>
-                                <span class="font-semibold text-wood-text">Rp {{ number_format($order->customization_fee, 0, ',', '.') }}</span>
+                                <span>Subtotal Produk</span>
+                                <span class="font-semibold text-wood-text">
+                                    Rp {{ number_format(($order->total_price - ($order->customization_fee ?? 0) - ($order->packing_fee ?? 0)), 0, ',', '.') }}
+                                </span>
+                            </div>
+                            @if ($order->customization_fee > 0)
+                                <div class="flex justify-between text-wood-muted">
+                                    <span>Biaya Tambahan Meubel Finished</span>
+                                    <span class="font-semibold text-wood-text">Rp {{ number_format($order->customization_fee, 0, ',', '.') }}</span>
+                                </div>
+                            @endif
+                            @if ($order->packing_fee > 0)
+                                <div class="flex justify-between text-wood-muted">
+                                    <span>Biaya Bahan Packing</span>
+                                    <span class="font-semibold text-wood-text">Rp {{ number_format($order->packing_fee, 0, ',', '.') }}</span>
+                                </div>
+                            @endif
+                            <div class="flex justify-between text-wood-muted">
+                                <span>Ongkos Kirim</span>
+                                <span class="font-semibold text-danger">Belum Termasuk Biaya Ongkir</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm font-bold text-wood-text pt-2 border-t border-wood-border/30">
+                                <span>Grand Total</span>
+                                <span class="text-base text-wood-primary">{{ $order->formatted_total_price }}</span>
                             </div>
                         @endif
-                        @if ($order->packing_fee > 0)
-                            <div class="flex justify-between text-wood-muted">
-                                <span>Biaya Bahan Packing</span>
-                                <span class="font-semibold text-wood-text">Rp {{ number_format($order->packing_fee, 0, ',', '.') }}</span>
-                            </div>
-                        @endif
-                        <div class="flex justify-between text-wood-muted">
-                            <span>Ongkos Kirim</span>
-                            <span class="font-semibold text-danger">Belum Termasuk Biaya Ongkir</span>
-                        </div>
-                        <div class="flex justify-between items-center text-sm font-bold text-wood-text pt-2 border-t border-wood-border/30">
-                            <span>Grand Total</span>
-                            <span class="text-base text-wood-primary">{{ $order->formatted_total_price }}</span>
-                        </div>
                     </div>
                 </div>
 
-                {{-- Payment Info & Proof Upload Section --}}
-                <livewire:frontend.order-payment-upload :order-id="$order->id" />
+                {{-- Payment Info & Proof Upload Section or Pending Quotation Info --}}
+                @if ($order->is_custom && (float)$order->total_price <= 0)
+                    <div class="rounded-3xl border border-amber-300 bg-amber-50/80 p-6 shadow-sm">
+                        <div class="flex items-start gap-3">
+                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-200 text-amber-900 shadow-2xs">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-bold text-amber-950">Menunggu Estimasi Harga dari Admin</h3>
+                                <p class="mt-1 text-xs text-amber-900 leading-relaxed">
+                                    Spesifikasi custom furniture Anda sedang direview oleh admin Bewole Furniture. Anda dapat berkonsultasi langsung via WhatsApp mengenai estimasi biaya, jenis kayu, dan jadwal produksi. Setelah nominal harga disepakati dan diisi oleh admin, Anda dapat melakukan pembayaran DP melalui halaman ini.
+                                </p>
+                                <div class="mt-3.5">
+                                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', \App\Helpers\WebsiteSettings::whatsappNumber() ?: '6281234567890') }}?text={{ urlencode('Halo Admin Bewole Jepara Furniture, saya ingin konfirmasi estimasi harga untuk pesanan custom saya dengan Kode Pesanan: #' . $order->order_code) }}"
+                                       target="_blank"
+                                       class="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700 transition-all shadow-xs">
+                                        <span>Konsultasi Harga via WhatsApp</span>
+                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    {{-- Alert Reminder Isi Alamat Pengiriman jika harga sudah dikonfirmasi tapi alamat belum diisi --}}
+                    @if (empty($order->shipping_address) || $order->shipping_address === '-')
+                        <div
+                            x-data
+                            class="rounded-3xl border-2 border-dashed border-amber-400 bg-gradient-to-r from-amber-50/90 to-amber-100/50 p-5 sm:p-6 shadow-sm transition-all hover:border-amber-500"
+                        >
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div class="flex items-start gap-3.5">
+                                    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-200 text-amber-900 shadow-xs">
+                                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-200/80 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-amber-950 mb-1">
+                                            ✦ Perlu Dilengkapi
+                                        </span>
+                                        <h3 class="text-sm font-bold text-amber-950">
+                                            Pesanan Telah Dikonfirmasi — Silakan Lengkapi Alamat Pengiriman
+                                        </h3>
+                                        <p class="text-xs text-amber-900/90 mt-0.5 leading-relaxed">
+                                            Mohon isi alamat tujuan lengkap Anda agar pihak pengrajin & ekspedisi Bewole Furniture dapat mempersiapkan proses pengiriman meubel.
+                                        </p>
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    @click="Livewire.dispatch('openAddressModal')"
+                                    class="inline-flex items-center justify-center gap-2 rounded-xl bg-wood-primary px-5 py-2.5 text-xs font-bold text-white hover:bg-wood-primary-dark shadow-md transition-all shrink-0 cursor-pointer"
+                                >
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                    <span>Isi Alamat Sekarang</span>
+                                </button>
+                            </div>
+                        </div>
+                    @endif
+
+                    <livewire:frontend.order-payment-upload :order-id="$order->id" />
+                @endif
 
                 {{-- Product Review Section for Completed Orders --}}
                 @if ($order->status === 'completed')
@@ -494,12 +623,8 @@
                     </div>
                 </div>
 
-                {{-- Shipping Address --}}
-                <div class="rounded-3xl border border-wood-border/60 bg-white p-5 shadow-sm">
-                    <h2 class="text-sm font-bold text-wood-text border-b border-wood-border/40 pb-3 mb-3">Alamat Pengiriman</h2>
-                    <p class="text-xs text-wood-text leading-relaxed">{{ $order->shipping_address }}</p>
-                    <p class="mt-1 text-xs text-wood-muted">{{ $order->city }}{{ $order->postal_code ? ', ' . $order->postal_code : '' }}</p>
-                </div>
+                {{-- Shipping Address (Livewire Component) --}}
+                <livewire:frontend.order-shipping-address :order-id="$order->id" />
 
                 {{-- Info Pengiriman & Ongkir --}}
                 <div class="rounded-3xl border border-wood-border/60 bg-white p-5 shadow-sm space-y-3 text-xs">

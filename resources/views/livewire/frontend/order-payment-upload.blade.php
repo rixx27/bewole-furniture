@@ -2,7 +2,7 @@
     $bankName = App\Helpers\WebsiteSettings::bankName();
     $bankNumber = App\Helpers\WebsiteSettings::bankAccountNumber();
     $bankHolder = App\Helpers\WebsiteSettings::bankAccountHolder();
-    $isFullyPaid = $order->payment_status === 'paid' || $order->remaining_payment <= 0;
+    $isFullyPaid = $order->payment_status === 'paid' || ((float) $order->total_price > 0 && $order->remaining_payment <= 0);
     $hasPending = $payments->where('status', 'pending')->isNotEmpty();
 @endphp
 

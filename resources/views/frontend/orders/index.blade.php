@@ -52,23 +52,40 @@
                                     $itemCount = $order->items?->count() ?: 1;
                                 @endphp
                                 <div class="h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-wood-light/50 border border-wood-border/40">
-                                    @if ($displayProduct && $displayProduct->thumbnail)
+                                    @if ($order->is_custom && $order->custom_design_image)
+                                        <img src="{{ asset('storage/' . $order->custom_design_image) }}" alt="Desain Custom" class="h-full w-full object-cover">
+                                    @elseif ($displayProduct && $displayProduct->thumbnail)
                                         <img src="{{ asset('storage/' . $displayProduct->thumbnail) }}" alt="{{ $displayProduct->name }}" class="h-full w-full object-cover">
                                     @else
-                                        <div class="flex h-full w-full items-center justify-center text-wood-muted">
-                                            <svg class="h-8 w-8 stroke-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                                            </svg>
+                                        <div class="flex h-full w-full items-center justify-center text-wood-muted bg-amber-50">
+                                            @if ($order->is_custom)
+                                                <span class="text-xs font-bold text-amber-800">CUSTOM</span>
+                                            @else
+                                                <svg class="h-8 w-8 stroke-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                                </svg>
+                                            @endif
                                         </div>
                                     @endif
                                 </div>
 
                                 <div>
-                                    <span class="font-mono text-xs font-bold text-wood-primary">{{ $order->order_code }}</span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-mono text-xs font-bold text-wood-primary">{{ $order->order_code }}</span>
+                                        @if ($order->is_custom)
+                                            <span class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-900 border border-amber-300">
+                                                Custom Furniture
+                                            </span>
+                                        @endif
+                                    </div>
                                     <h3 class="mt-0.5 text-sm font-semibold text-wood-text">
-                                        {{ $displayProduct?->name ?? 'Produk' }}
-                                        @if ($itemCount > 1)
-                                            <span class="font-normal text-wood-muted">(+{{ $itemCount - 1 }} produk lain)</span>
+                                        @if ($order->is_custom)
+                                            {{ $order->custom_furniture_type ?: 'Custom Furniture' }}
+                                        @else
+                                            {{ $displayProduct?->name ?? 'Produk' }}
+                                            @if ($itemCount > 1)
+                                                <span class="font-normal text-wood-muted">(+{{ $itemCount - 1 }} produk lain)</span>
+                                            @endif
                                         @endif
                                     </h3>
                                     <p class="mt-0.5 text-xs text-wood-muted">
@@ -81,7 +98,13 @@
                             <div class="flex items-center justify-between gap-4 sm:flex-col sm:items-end sm:justify-center">
                                 <div class="text-right">
                                     <span class="text-xs text-wood-muted block">Total Pembayaran</span>
-                                    <span class="text-base font-bold text-wood-primary">{{ $order->formatted_total_price }}</span>
+                                    @if ($order->is_custom && (float)$order->total_price <= 0)
+                                        <span class="inline-block text-xs font-bold text-amber-700 bg-amber-50 px-2 py-1 rounded-md border border-amber-200">
+                                            Menunggu Estimasi
+                                        </span>
+                                    @else
+                                        <span class="text-base font-bold text-wood-primary">{{ $order->formatted_total_price }}</span>
+                                    @endif
                                 </div>
                                 <span class="rounded-full px-3 py-1 text-xs font-semibold
                                     @if($order->status === 'pending') bg-amber-50 text-amber-700 border border-amber-200

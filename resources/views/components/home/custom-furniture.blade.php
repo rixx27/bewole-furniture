@@ -2,7 +2,7 @@
     id="custom-furniture"
     aria-labelledby="custom-furniture-heading"
     class="relative overflow-hidden bg-wood-bg py-20 sm:py-24 lg:py-28"
-    x-data="customFurnitureModal('{{ $whatsappNumber }}')"
+    x-data="customFurnitureModal('{{ $whatsappNumber }}', @js(auth()->check()), @js(auth()->user()?->name ?? ''), @js(auth()->user()?->phone ?? ''))"
 >
     {{-- Ambient background accents (matching theme) --}}
     <div aria-hidden="true" class="pointer-events-none absolute inset-0">
@@ -153,6 +153,8 @@
 
                 {{-- Form Body --}}
                 <form @submit.prevent="submitForm()" class="mt-6 space-y-4">
+                    <div x-show="errors.general" x-text="errors.general" class="rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-semibold text-red-600" x-cloak></div>
+
                     {{-- Nama --}}
                     <div>
                         <label for="custom-name" class="block text-xs font-bold uppercase tracking-wider text-wood-text sm:text-sm">
@@ -323,15 +325,18 @@
     @push('scripts')
         <script>
             document.addEventListener('alpine:init', () => {
-                Alpine.data('customFurnitureModal', (adminNumber) => ({
+                Alpine.data('customFurnitureModal', (adminNumber, isLoggedIn = false, userName = '', userPhone = '') => ({
                     isOpen: false,
                     isSubmitting: false,
+                    isLoggedIn: isLoggedIn,
+                    userName: userName,
+                    userPhone: userPhone,
                     adminNumber: adminNumber || '',
                     imageFile: null,
                     imagePreview: null,
                     form: {
-                        name: '',
-                        whatsapp: '',
+                        name: userName || '',
+                        whatsapp: userPhone || '',
                         furniture_type: '',
                         description: '',
                         dimensions: '',
@@ -340,6 +345,8 @@
 
                     openModal() {
                         this.isOpen = true;
+                        if (!this.form.name && this.userName) this.form.name = this.userName;
+                        if (!this.form.whatsapp && this.userPhone) this.form.whatsapp = this.userPhone;
                         document.body.style.overflow = 'hidden';
                         this.$nextTick(() => {
                             if (this.$refs.nameInput) {
@@ -410,78 +417,99 @@
                         }
 
                         this.isSubmitting = true;
-                        let uploadedImageUrl = null;
 
-                        // Jika ada gambar contoh desain yang dipilih, upload ke server
-                        if (this.imageFile) {
-                            try {
-                                const formData = new FormData();
+                        try {
+                            const formData = new FormData();
+                            formData.append('name', this.form.name.trim());
+                            formData.append('whatsapp', this.form.whatsapp.trim());
+                            formData.append('furniture_type', this.form.furniture_type.trim());
+                            formData.append('description', this.form.description.trim());
+                            if (this.form.dimensions.trim()) {
+                                formData.append('dimensions', this.form.dimensions.trim());
+                            }
+                            if (this.imageFile) {
                                 formData.append('image', this.imageFile);
+                            }
 
-                                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+                            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
 
-                                const response = await fetch('{{ route("custom-furniture.upload") }}', {
-                                    method: 'POST',
-                                    headers: {
-                                        'X-CSRF-TOKEN': csrfToken,
-                                        'Accept': 'application/json',
-                                    },
-                                    body: formData
-                                });
+                            const response = await fetch('{{ route("custom-furniture.store") }}', {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': csrfToken,
+                                    'Accept': 'application/json',
+                                },
+                                body: formData
+                            });
 
-                                const result = await response.json();
+                            const result = await response.json();
 
-                                if (!response.ok || !result.success) {
-                                    this.errors.image = result.message || 'Gagal mengunggah gambar. Silakan coba lagi.';
-                                    this.isSubmitting = false;
-                                    return;
+                            if (!response.ok || !result.success) {
+                                if (result.errors) {
+                                    this.errors = Object.fromEntries(
+                                        Object.entries(result.errors).map(([k, v]) => [k, Array.isArray(v) ? v[0] : v])
+                                    );
+                                } else {
+                                    this.errors.general = result.message || 'Gagal menyimpan request custom. Silakan coba lagi.';
                                 }
-
-                                uploadedImageUrl = result.url;
-                            } catch (err) {
-                                console.error('Upload error:', err);
-                                this.errors.image = 'Terjadi kesalahan saat mengunggah gambar. Silakan coba lagi.';
                                 this.isSubmitting = false;
                                 return;
                             }
+
+                            const orderCode = result.order_code;
+                            const uploadedImageUrl = result.image_url;
+
+                            // Dispatch notification
+                            const successMsg = this.isLoggedIn
+                                ? `Request custom berhasil dibuat (#${orderCode})! Telah masuk ke daftar Pesanan Saya.`
+                                : `Request custom berhasil dibuat (#${orderCode})! Anda dapat melacaknya melalui fitur Lacak Pesanan.`;
+
+                            window.dispatchEvent(new CustomEvent('notify', {
+                                detail: { type: 'success', message: successMsg }
+                            }));
+
+                            // Format pesan WhatsApp dengan kode order resmi
+                            const messageLines = [
+                                'Halo Admin Bewole Jepara Furniture, saya ingin konsultasi request custom furniture.',
+                                '',
+                                `*Kode Pesanan: #${orderCode}*`,
+                                `Nama: ${this.form.name.trim()}`,
+                                `Nomor WhatsApp: ${this.form.whatsapp.trim()}`,
+                                `Jenis Furniture: ${this.form.furniture_type.trim()}`,
+                                `Deskripsi: ${this.form.description.trim()}`,
+                                `Ukuran / Detail: ${this.form.dimensions.trim() || '-'}`,
+                            ];
+
+                            if (uploadedImageUrl) {
+                                messageLines.push(`Link Foto Referensi Desain: ${uploadedImageUrl}`);
+                            }
+
+                            messageLines.push('');
+                            messageLines.push('Saya telah mengajukan request ini melalui website Bewole Furniture. Mohon informasi konfirmasi dan estimasi biayanya. Terima kasih!');
+
+                            const messageText = messageLines.join('\n');
+                            const targetNumber = this.adminNumber || '6281234567890';
+                            const waUrl = `https://wa.me/${targetNumber}?text=${encodeURIComponent(messageText)}`;
+
+                            // Reset form state & tutup modal
+                            this.removeFile();
+                            this.closeModal();
+                            this.form = {
+                                name: this.userName || '',
+                                whatsapp: this.userPhone || '',
+                                furniture_type: '',
+                                description: '',
+                                dimensions: '',
+                            };
+                            this.isSubmitting = false;
+
+                            // Buka WhatsApp di tab baru
+                            window.open(waUrl, '_blank', 'noopener,noreferrer');
+                        } catch (err) {
+                            console.error('Submit error:', err);
+                            this.errors.general = 'Terjadi kesalahan pada sistem saat memproses request. Silakan coba lagi.';
+                            this.isSubmitting = false;
                         }
-
-                        // Format pesan WhatsApp
-                        const messageLines = [
-                            'Halo Admin Bewole Jepara Furniture, saya ingin request custom furniture.',
-                            '',
-                            `Nama: ${this.form.name.trim()}`,
-                            `Nomor WhatsApp: ${this.form.whatsapp.trim()}`,
-                            `Jenis Furniture: ${this.form.furniture_type.trim()}`,
-                            `Deskripsi: ${this.form.description.trim()}`,
-                            `Ukuran / Detail: ${this.form.dimensions.trim() || '-'}`,
-                        ];
-
-                        if (uploadedImageUrl) {
-                            messageLines.push(`Link Contoh Desain: ${uploadedImageUrl}`);
-                        }
-
-                        messageLines.push('');
-                        messageLines.push('Mohon informasi lebih lanjut mengenai request saya.');
-
-                        const messageText = messageLines.join('\n');
-                        const targetNumber = this.adminNumber || '6281234567890';
-                        const waUrl = `https://wa.me/${targetNumber}?text=${encodeURIComponent(messageText)}`;
-
-                        // Reset form state & tutup modal
-                        this.removeFile();
-                        this.closeModal();
-                        this.form = {
-                            name: '',
-                            whatsapp: '',
-                            furniture_type: '',
-                            description: '',
-                            dimensions: '',
-                        };
-                        this.isSubmitting = false;
-
-                        // Buka WhatsApp di tab baru
-                        window.open(waUrl, '_blank', 'noopener,noreferrer');
                     }
                 }));
             });
