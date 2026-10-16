@@ -25,6 +25,10 @@ Route::middleware(['maintenance'])->group(function () {
         Route::get('/tracking/{order_code?}', function ($order_code = null) {
             return view('frontend.tracking', ['order_code' => $order_code]);
         })->name('tracking');
+        Route::get('/order/track', function (\Illuminate\Http\Request $request) {
+            $code = $request->query('code') ?? $request->query('order_code');
+            return redirect()->route('frontend.tracking', ['order_code' => $code]);
+        });
     });
 
     // Product catalog — public

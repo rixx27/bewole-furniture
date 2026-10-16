@@ -178,7 +178,7 @@ class WhatsAppNotificationService
         }
 
         $customer = $order->customer_name ?: 'Pelanggan';
-        $trackingUrl = url('/order/track?code=' . $order->order_code);
+        $trackingUrl = route('frontend.tracking', ['order_code' => $order->order_code]);
 
         $statusText = match ($status) {
             OrderStatus::PaymentReceived => "Pembayaran pesanan Anda telah berhasil kami terima dan diverifikasi.",
@@ -202,7 +202,7 @@ class WhatsAppNotificationService
     protected function composeEnglishStatusMessage(Order $order, OrderStatus $status): string
     {
         $customer = $order->customer_name ?: 'Customer';
-        $trackingUrl = url('/order/track?code=' . $order->order_code);
+        $trackingUrl = route('frontend.tracking', ['order_code' => $order->order_code]);
 
         $statusLabel = match ($status) {
             OrderStatus::PaymentReceived => "Payment Verified",
