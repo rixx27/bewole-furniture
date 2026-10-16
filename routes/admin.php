@@ -26,6 +26,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
     Route::patch('orders/{order}/shipping', [App\Http\Controllers\Admin\OrderController::class, 'updateShipping'])->name('orders.update-shipping');
     Route::patch('orders/{order}/payment', [App\Http\Controllers\Admin\OrderController::class, 'updatePayment'])->name('orders.update-payment');
     Route::post('orders/{order}/cancel', [App\Http\Controllers\Admin\OrderController::class, 'cancel'])->name('orders.cancel');
+    Route::post('orders/{order}/resend-whatsapp/{log}', [App\Http\Controllers\Admin\OrderController::class, 'resendWhatsapp'])->name('orders.resend-whatsapp');
     Route::resource('product-reviews', App\Http\Controllers\Admin\ProductReviewController::class)->only(['index', 'show'])->names('product-reviews');
 
     // Reports
@@ -34,7 +35,8 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
         Route::get('/orders', App\Livewire\Admin\Report\OrderReport::class)->name('orders');
     });
 
-    // Website
+    // Website & Integrations
+    Route::get('whatsapp', App\Livewire\Admin\Whatsapp\WhatsappManager::class)->name('whatsapp.index');
     Route::resource('settings', App\Http\Controllers\Admin\SettingController::class)->only(['index'])->names('settings');
     Route::get('company-profile', [App\Http\Controllers\Admin\CompanyProfileController::class, 'index'])->name('company-profile.index');
 });

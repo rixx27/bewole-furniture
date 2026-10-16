@@ -22,13 +22,59 @@
                     {{-- WhatsApp --}}
                     <div>
                         <label class="block text-xs font-semibold text-wood-text">Nomor WhatsApp <span class="text-rose-500">*</span></label>
-                        <input
-                            type="text"
-                            wire:model="customer_phone"
-                            placeholder="Contoh: 081234567890"
-                            class="mt-1 w-full rounded-2xl border border-wood-border/60 bg-white/80 py-2.5 px-4 text-xs font-medium text-wood-text focus:border-wood-primary focus:outline-none focus:ring-2 focus:ring-wood-primary/20"
-                        />
+                        <div class="mt-1 flex rounded-2xl border border-wood-border/60 bg-white/80 overflow-hidden focus-within:border-wood-primary focus-within:ring-2 focus-within:ring-wood-primary/20 transition-all">
+                            <select
+                                wire:model.live="phone_country_code"
+                                class="bg-wood-bg/30 border-r border-wood-border/60 py-2.5 px-3 text-xs font-semibold text-wood-text focus:outline-none cursor-pointer"
+                            >
+                                <optgroup label="Populer / Ekspor">
+                                    <option value="62">🇮🇩 +62 (Indonesia)</option>
+                                    <option value="60">🇲🇾 +60 (Malaysia)</option>
+                                    <option value="65">🇸🇬 +65 (Singapura)</option>
+                                    <option value="61">🇦🇺 +61 (Australia)</option>
+                                    <option value="1">🇺🇸 +1 (USA / Kanada)</option>
+                                    <option value="44">🇬🇧 +44 (UK)</option>
+                                    <option value="31">🇳🇱 +31 (Belanda)</option>
+                                    <option value="81">🇯🇵 +81 (Jepang)</option>
+                                    <option value="82">🇰🇷 +82 (Korea Selatan)</option>
+                                    <option value="966">🇸🇦 +966 (Arab Saudi)</option>
+                                    <option value="971">🇦🇪 +971 (Uni Emirat Arab)</option>
+                                </optgroup>
+                                <optgroup label="Negara Lainnya">
+                                    <option value="49">🇩🇪 +49 (Jerman)</option>
+                                    <option value="33">🇫🇷 +33 (Prancis)</option>
+                                    <option value="39">🇮🇹 +39 (Italia)</option>
+                                    <option value="34">🇪🇸 +34 (Spanyol)</option>
+                                    <option value="63">🇵🇭 +63 (Filipina)</option>
+                                    <option value="66">🇹🇭 +66 (Thailand)</option>
+                                    <option value="84">🇻🇳 +84 (Vietnam)</option>
+                                    <option value="91">🇮🇳 +91 (India)</option>
+                                    <option value="86">🇨🇳 +86 (China)</option>
+                                    <option value="852">🇭🇰 +852 (Hong Kong)</option>
+                                    <option value="886">🇹🇼 +886 (Taiwan)</option>
+                                    <option value="64">🇳🇿 +64 (Selandia Baru)</option>
+                                    <option value="90">🇹🇷 +90 (Turki)</option>
+                                    <option value="27">🇿🇦 +27 (Afrika Selatan)</option>
+                                    <option value="55">🇧🇷 +55 (Brasil)</option>
+                                    <option value="52">🇲🇽 +52 (Meksiko)</option>
+                                </optgroup>
+                            </select>
+                            <input
+                                type="tel"
+                                wire:model="customer_phone"
+                                placeholder="{{ $phone_country_code === '62' ? '81234567890' : 'Nomor WhatsApp' }}"
+                                class="flex-1 bg-transparent py-2.5 px-4 text-xs font-medium text-wood-text placeholder:text-wood-muted/60 focus:outline-none"
+                            />
+                        </div>
+                        <p class="mt-1 text-[11px] text-wood-muted">
+                            @if ($phone_country_code === '62')
+                                Masukkan nomor tanpa awalan 0 (contoh: 81234567890).
+                            @else
+                                Masukkan nomor telepon lokal negara yang dipilih.
+                            @endif
+                        </p>
                         @error('customer_phone') <span class="mt-1 block text-xs text-rose-500">{{ $message }}</span> @enderror
+                        @error('phone_country_code') <span class="mt-1 block text-xs text-rose-500">{{ $message }}</span> @enderror
                     </div>
 
                     {{-- Email --}}

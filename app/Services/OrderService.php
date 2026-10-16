@@ -8,6 +8,7 @@ use App\Enums\ShippingMethod;
 use App\Models\Order;
 use App\Models\OrderPayment;
 use App\Models\OrderStatusHistory;
+use App\Services\WhatsAppNotificationService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
@@ -115,7 +116,7 @@ class OrderService
             throw new \InvalidArgumentException('Status pesanan hanya dapat dilanjutkan ke tahap berikutnya atau dibatalkan.');
         }
 
-        return DB::transaction(function () use ($order, $newStatus, $notes, $photo, $latitude, $longitude) {
+        $updatedOrder = DB::transaction(function () use ($order, $newStatus, $notes, $photo, $latitude, $longitude) {
             $oldStatus = $order->status;
             $order->status = $newStatus->value;
             $order->save();
@@ -125,6 +126,17 @@ class OrderService
 
             return $order->fresh();
         });
+
+        // ==========================================
+        // PEMICU NOTIFIKASI WHATSAPP:
+        // ==========================================
+        try {
+            app(WhatsAppNotificationService::class)->sendOrderStatusNotification($updatedOrder, $newStatus);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Gagal mengirim WA: " . $e->getMessage());
+        }
+
+        return $updatedOrder;
     }
 
     /**

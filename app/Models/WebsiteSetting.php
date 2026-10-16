@@ -30,6 +30,7 @@ class WebsiteSetting extends Model
         'email',
         'phone',
         'whatsapp',
+        'whatsapp_notification_enabled',
         'bank_name',
         'bank_account_number',
         'bank_account_holder',
@@ -68,6 +69,7 @@ class WebsiteSetting extends Model
     {
         return [
             'is_maintenance' => 'boolean',
+            'whatsapp_notification_enabled' => 'boolean',
         ];
     }
 

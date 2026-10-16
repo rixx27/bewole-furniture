@@ -188,5 +188,25 @@ class OrderController extends Controller
 
         return $pdf->download('INVOICE-' . $order->order_code . '.pdf');
     }
+
+    /**
+     * Resend a WhatsApp status notification for the order.
+     */
+    public function resendWhatsapp(Order $order, \App\Models\WhatsAppNotificationLog $log, \App\Services\WhatsAppNotificationService $waService)
+    {
+        Gate::authorize('updateStatus', $order);
+
+        if ($log->order_id !== $order->id) {
+            return back()->with('error', 'Log notifikasi tidak sesuai dengan pesanan.');
+        }
+
+        $success = $waService->resendNotification($log);
+
+        if ($success) {
+            return back()->with('success', 'Notifikasi WhatsApp berhasil dikirim ulang ke ' . $log->recipient_phone);
+        }
+
+        return back()->with('error', 'Gagal mengirim ulang WhatsApp: ' . ($log->error_message ?: 'Server WhatsApp gagal memproses.'));
+    }
 }
 

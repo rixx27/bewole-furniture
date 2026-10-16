@@ -319,6 +319,102 @@
                 </div>
             </div>
 
+            {{-- Notifikasi WhatsApp Pelanggan --}}
+            <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2.5">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
+                            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.007c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824zM12 2C6.477 2 2 6.477 2 12c0 1.891.524 3.662 1.435 5.176L2 22l4.958-1.398A9.956 9.956 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.61 0-3.098-.444-4.371-1.213l-.313-.189-2.937.827.838-2.863-.207-.329A7.957 7.957 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-semibold text-text-primary dark:text-white">Chat Notifikasi WA</h3>
+                            <p class="text-[11px] text-text-muted">Salinan pesan yang dikirim ke pelanggan</p>
+                        </div>
+                    </div>
+                    <span class="rounded-full bg-emerald-100 dark:bg-emerald-950 px-2 py-0.5 text-[11px] font-bold text-emerald-800 dark:text-emerald-300">
+                        {{ $order->whatsappLogs->count() }} pesan
+                    </span>
+                </div>
+
+                @if ($order->whatsappLogs->isNotEmpty())
+                    <div class="space-y-4 max-h-[460px] overflow-y-auto pr-1">
+                        @foreach ($order->whatsappLogs as $waLog)
+                            <div class="rounded-xl border border-emerald-200/60 dark:border-emerald-900/40 bg-emerald-50/30 dark:bg-emerald-950/20 p-3.5 space-y-2.5">
+                                {{-- Header Pesan --}}
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="font-bold text-emerald-800 dark:text-emerald-400">
+                                        Status: {{ ucwords(str_replace('_', ' ', $waLog->status_trigger)) }}
+                                    </span>
+                                    @if ($waLog->status === 'sent')
+                                        <span class="inline-flex items-center gap-1 font-bold text-[10px] text-emerald-700 dark:text-emerald-400">
+                                            <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            Terkirim
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 font-bold text-[10px] text-rose-600 dark:text-rose-400">
+                                            <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                            Gagal
+                                        </span>
+                                    @endif
+                                </div>
+
+                                {{-- WhatsApp Chat Bubble Preview --}}
+                                <div class="relative rounded-2xl rounded-tr-none bg-emerald-100/70 dark:bg-emerald-900/40 p-3 text-xs text-text-primary dark:text-gray-100 shadow-2xs leading-relaxed font-sans border border-emerald-200/50">
+                                    {!! nl2br(e($waLog->message)) !!}
+                                    <div class="mt-1.5 flex items-center justify-end gap-1 text-[10px] text-text-muted">
+                                        <span>{{ $waLog->created_at->format('H:i') }}</span>
+                                        @if ($waLog->status === 'sent')
+                                            <svg class="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                @if ($waLog->status === 'failed' && $waLog->error_message)
+                                    <div class="rounded-lg bg-rose-50 dark:bg-rose-950/40 p-2 text-[11px] text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-900">
+                                        <strong>Alasan Gagal:</strong> {{ $waLog->error_message }}
+                                    </div>
+                                @endif
+
+                                {{-- Footer & Tombol Kirim Ulang --}}
+                                <div class="flex items-center justify-between pt-1 text-[11px]">
+                                    <span class="text-text-muted">{{ $waLog->created_at->format('d/m/Y H:i') }}</span>
+
+                                    <form method="POST" action="{{ route('admin.orders.resend-whatsapp', [$order, $waLog]) }}">
+                                        @csrf
+                                        <button
+                                            type="submit"
+                                            onclick="return confirm('Kirim ulang notifikasi WhatsApp ini ke pelanggan?')"
+                                            class="inline-flex items-center gap-1 rounded-lg border border-border bg-card px-2.5 py-1 text-[11px] font-semibold text-text-secondary hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 transition-colors shadow-2xs cursor-pointer"
+                                        >
+                                            <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            </svg>
+                                            <span>Kirim Ulang</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="rounded-xl border border-dashed border-border p-5 text-center text-text-muted">
+                        <svg class="mx-auto h-7 w-7 text-text-muted/40 mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                        <p class="text-xs font-medium">Belum ada notifikasi WhatsApp terkirim.</p>
+                        <p class="text-[11px] text-text-muted mt-0.5">Pesan dikirim otomatis saat status pesanan diperbarui.</p>
+                    </div>
+                @endif
+            </div>
+
             {{-- Alamat --}}
             <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
                 <h3 class="mb-4 text-base font-semibold text-text-primary dark:text-white">Alamat Pengiriman</h3>

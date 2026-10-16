@@ -41,4 +41,9 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI', env('APP_URL', 'http://localhost') . '/auth/google/callback'),
     ],
 
+    'whatsapp' => [
+    'url' => env('WHATSAPP_API_URL'),
+    'key' => env('WHATSAPP_API_KEY'),
+],
+
 ];

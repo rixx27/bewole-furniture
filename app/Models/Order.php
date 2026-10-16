@@ -161,6 +161,14 @@ class Order extends Model
     }
 
     /**
+     * Get all WhatsApp notification logs for the order.
+     */
+    public function whatsappLogs(): HasMany
+    {
+        return $this->hasMany(WhatsAppNotificationLog::class)->orderBy('created_at', 'desc');
+    }
+
+    /**
      * Get the formatted total price attribute.
      */
     public function getFormattedTotalPriceAttribute(): string

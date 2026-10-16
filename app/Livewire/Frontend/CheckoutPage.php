@@ -16,6 +16,7 @@ class CheckoutPage extends Component
     public int $subtotal = 0;
 
     public string $customer_name = '';
+    public string $phone_country_code = '62';
     public string $customer_phone = '';
     public string $customer_email = '';
     public string $province = '';
@@ -36,6 +37,7 @@ class CheckoutPage extends Component
 
     protected array $rules = [
         'customer_name' => 'required|string|max:255',
+        'phone_country_code' => 'required|string|max:10',
         'customer_phone' => 'required|string|max:30',
         'customer_email' => 'nullable|email|max:255',
         'province' => 'required|string',
@@ -163,6 +165,39 @@ class CheckoutPage extends Component
         ];
     }
 
+    public function getFormattedPhone(): string
+    {
+        $raw = trim($this->customer_phone);
+        if (empty($raw)) {
+            return '';
+        }
+
+        if (str_starts_with($raw, '+')) {
+            return preg_replace('/[^0-9]/', '', $raw);
+        }
+
+        $cleaned = preg_replace('/[^0-9]/', '', $raw);
+
+        if ($this->phone_country_code === '62') {
+            if (str_starts_with($cleaned, '08')) {
+                return '62' . substr($cleaned, 1);
+            }
+            if (str_starts_with($cleaned, '628')) {
+                return $cleaned;
+            }
+            if (str_starts_with($cleaned, '8')) {
+                return '62' . $cleaned;
+            }
+        }
+
+        $cleanedNoZero = ltrim($cleaned, '0');
+        if (str_starts_with($cleaned, $this->phone_country_code)) {
+            return $cleaned;
+        }
+
+        return $this->phone_country_code . $cleanedNoZero;
+    }
+
     public function placeOrder()
     {
         $this->validate();
@@ -222,13 +257,15 @@ class CheckoutPage extends Component
             $fullNotes .= "\n\nCatatan Tambahan:\n" . $this->notes;
         }
 
+        $formattedPhone = $this->getFormattedPhone();
+
         // Create order via OrderService
         $orderService = app(OrderService::class);
         $orderData = [
             'user_id' => Auth::id(),
             'product_id' => $firstProductId,
             'customer_name' => $this->customer_name,
-            'customer_phone' => $this->customer_phone,
+            'customer_phone' => $formattedPhone,
             'customer_email' => $this->customer_email,
             'shipping_address' => $this->shipping_address . ' (Provinsi: ' . $this->province . ')',
             'city' => $this->city,
@@ -242,7 +279,7 @@ class CheckoutPage extends Component
             'quantity' => $totalQuantity,
             'total_price' => $serverTotal,
             'notes' => $fullNotes,
-            'whatsapp_number' => $this->customer_phone,
+            'whatsapp_number' => $formattedPhone,
         ];
 
         $order = $orderService->createOrder($orderData, $currentCart);
