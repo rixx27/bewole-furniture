@@ -48,6 +48,7 @@
             <div class="mt-14 grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:mt-20 lg:grid-cols-4 lg:gap-8">
                 @foreach ($products as $product)
                     <article
+                        wire:key="featured-product-{{ $product->id }}"
                         data-reveal
                         data-reveal-blur
                         data-reveal-delay="{{ $loop->index * 90 }}"

@@ -247,6 +247,18 @@
                         <td><strong>{{ $order->tracking_number }}</strong></td>
                     </tr>
                     @endif
+                    @if ($order->driver_name)
+                    <tr>
+                        <td class="label">Driver/Plat</td>
+                        <td>{{ $order->driver_name }} ({{ $order->vehicle_number ?: '-' }})</td>
+                    </tr>
+                    @endif
+                    @if ((float)$order->shipping_cost > 0)
+                    <tr>
+                        <td class="label">Biaya Ongkir</td>
+                        <td><strong>{{ $order->formatted_shipping_cost }}</strong> ({{ $order->shipping_cost_type_label }})</td>
+                    </tr>
+                    @endif
                 </table>
             </td>
         </tr>
@@ -337,7 +349,7 @@
                 <table class="total-table">
                     <tr>
                         <td>Subtotal Produk</td>
-                        <td class="amount">Rp {{ number_format(($order->total_price - ($order->customization_fee ?? 0) - ($order->packing_fee ?? 0)), 0, ',', '.') }}</td>
+                        <td class="amount">Rp {{ number_format(($order->subtotal - ($order->customization_fee ?? 0) - ($order->packing_fee ?? 0)), 0, ',', '.') }}</td>
                     </tr>
                     @if ($order->customization_fee > 0)
                     <tr>
@@ -353,10 +365,19 @@
                     @endif
                     <tr>
                         <td>Biaya Pengiriman</td>
-                        <td class="amount">Rp 0</td>
+                        <td class="amount">
+                            @if ((float)$order->shipping_cost > 0)
+                                {{ $order->formatted_shipping_cost }}
+                                <div style="font-size: 8px; color: #6b7280; font-weight: normal;">({{ $order->shipping_cost_type_label }})</div>
+                            @elseif ($order->shipping_cost_type === 'free_shipping')
+                                Gratis (Rp 0)
+                            @else
+                                Rp 0 (Belum Ditentukan)
+                            @endif
+                        </td>
                     </tr>
                     <tr class="grand-total">
-                        <td>Grand Total</td>
+                        <td>Total Tagihan</td>
                         <td class="amount">{{ $order->formatted_total_price }}</td>
                     </tr>
                     @if ($order->down_payment_amount > 0)

@@ -184,7 +184,31 @@ if (document.readyState === 'loading') {
 } else {
     initRevealOnScroll();
 }
+
 document.addEventListener('livewire:navigated', initRevealOnScroll);
+
+function setupLivewireReveal() {
+    if (window.Livewire && !window._livewireRevealHooked) {
+        window._livewireRevealHooked = true;
+        window.Livewire.hook('morph.updated', () => {
+            initRevealOnScroll();
+        });
+        window.Livewire.hook('morph.added', () => {
+            initRevealOnScroll();
+        });
+        window.Livewire.hook('commit', ({ succeed }) => {
+            succeed(() => {
+                queueMicrotask(initRevealOnScroll);
+            });
+        });
+    }
+}
+
+document.addEventListener('livewire:init', setupLivewireReveal);
+document.addEventListener('livewire:initialized', setupLivewireReveal);
+if (window.Livewire) {
+    setupLivewireReveal();
+}
 
 // ============================================================
 // Smooth Scroll (semua anchor menuju section dalam halaman)

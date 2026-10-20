@@ -209,7 +209,7 @@
                             <div class="flex justify-between text-wood-muted">
                                 <span>Subtotal Produk</span>
                                 <span class="font-semibold text-wood-text">
-                                    Rp {{ number_format(($order->total_price - ($order->customization_fee ?? 0) - ($order->packing_fee ?? 0)), 0, ',', '.') }}
+                                    Rp {{ number_format(($order->subtotal - ($order->customization_fee ?? 0) - ($order->packing_fee ?? 0)), 0, ',', '.') }}
                                 </span>
                             </div>
                             @if ($order->customization_fee > 0)
@@ -226,7 +226,17 @@
                             @endif
                             <div class="flex justify-between text-wood-muted">
                                 <span>Ongkos Kirim</span>
-                                <span class="font-semibold text-danger">Belum Termasuk Biaya Ongkir</span>
+                                @if ((float)$order->shipping_cost > 0)
+                                    @if ($order->shipping_cost_type === 'billed_to_order')
+                                        <span class="font-semibold text-emerald-700">+ {{ $order->formatted_shipping_cost }} (Masuk Tagihan)</span>
+                                    @elseif ($order->shipping_cost_type === 'free_shipping')
+                                        <span class="font-semibold text-emerald-700">Gratis (Rp 0)</span>
+                                    @else
+                                        <span class="font-semibold text-amber-800">{{ $order->formatted_shipping_cost }} (Bayar ke Sopir)</span>
+                                    @endif
+                                @else
+                                    <span class="font-semibold text-amber-700">Belum Termasuk Biaya Ongkir</span>
+                                @endif
                             </div>
                             <div class="flex justify-between items-center text-sm font-bold text-wood-text pt-2 border-t border-wood-border/30">
                                 <span>Grand Total</span>
@@ -636,13 +646,78 @@
                             <span>Pengiriman & Ongkir</span>
                         </h2>
                         <span class="inline-flex items-center rounded-full bg-wood-light/40 px-2.5 py-0.5 text-[10px] font-bold text-wood-text border border-wood-border/60">
-                            Ekspedisi Truk Jepara
+                            {{ $order->shipping_method_label ?: 'Ekspedisi Truk Jepara' }}
                         </span>
                     </div>
 
-                    <div class="rounded-2xl border border-amber-200 bg-amber-50/70 p-3 text-[11px] text-amber-800 leading-relaxed">
-                        Pengiriman meubel diproses via truk ekspedisi lokal. Biaya ongkir dan jadwal pengantaran dikoordinasikan langsung melalui WhatsApp.
-                    </div>
+                    @if ($order->is_shipping_configured)
+                        <div class="rounded-2xl border border-amber-200/80 bg-amber-50/50 p-3.5 space-y-2">
+                            <div class="flex items-center justify-between border-b border-amber-200/60 pb-1.5">
+                                <span class="font-bold text-amber-950 text-xs">Status Pengiriman</span>
+                                @if ($order->shipping_cost_type === 'billed_to_order')
+                                    <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-bold text-emerald-800 border border-emerald-300">
+                                        <svg class="h-3 w-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                        <span>Masuk Tagihan Toko</span>
+                                    </span>
+                                @elseif ($order->shipping_cost_type === 'free_shipping')
+                                    <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-bold text-emerald-800 border border-emerald-300">
+                                        <svg class="h-3 w-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V6a2 2 0 10-2 2h2zm0 0H4v11a2 2 0 002 2h12a2 2 0 002-2V8h-8z"/>
+                                        </svg>
+                                        <span>Gratis Ongkir</span>
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-bold text-amber-900 border border-amber-300">
+                                        <svg class="h-3 w-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <rect x="2" y="6" width="20" height="12" rx="2" stroke-width="2"/>
+                                            <circle cx="12" cy="12" r="2" stroke-width="2"/>
+                                            <path stroke-width="2" d="M6 12h.01M18 12h.01"/>
+                                        </svg>
+                                        <span>Bayar ke Sopir (COD)</span>
+                                    </span>
+                                @endif
+                            </div>
+
+                            <div class="space-y-1 text-xs">
+                                @if ($order->courier)
+                                    <div class="flex justify-between">
+                                        <span class="text-wood-muted">Jasa Ekspedisi / Kargo:</span>
+                                        <span class="font-bold text-wood-text">{{ $order->courier }}</span>
+                                    </div>
+                                @endif
+                                @if ($order->tracking_number)
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-wood-muted">No. Resi / Surat Jalan:</span>
+                                        <span class="font-mono font-bold text-amber-900 bg-white px-2 py-0.5 rounded border border-amber-300 select-all">
+                                            {{ $order->tracking_number }}
+                                        </span>
+                                    </div>
+                                @endif
+                                @if ($order->driver_name)
+                                    <div class="flex justify-between">
+                                        <span class="text-wood-muted">Sopir / Plat Kendaraan:</span>
+                                        <span class="font-semibold text-wood-text">{{ $order->driver_name }} ({{ $order->vehicle_number ?: '-' }})</span>
+                                    </div>
+                                @endif
+                                @if ($order->shipping_date)
+                                    <div class="flex justify-between">
+                                        <span class="text-wood-muted">Tanggal Kirim:</span>
+                                        <span class="font-semibold text-wood-text">{{ $order->shipping_date->translatedFormat('d F Y') }}</span>
+                                    </div>
+                                @endif
+                                <div class="flex justify-between pt-1 border-t border-amber-200/50">
+                                    <span class="font-bold text-amber-950">Biaya Ongkir:</span>
+                                    <span class="font-bold text-wood-primary text-sm">{{ $order->formatted_shipping_cost }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <div class="rounded-2xl border border-amber-200 bg-amber-50/70 p-3 text-[11px] text-amber-800 leading-relaxed">
+                            Pengiriman meubel diproses via truk ekspedisi lokal Jepara. Estimasi biaya ongkir dan jadwal pengantaran dikoordinasikan langsung melalui WhatsApp.
+                        </div>
+                    @endif
 
                     @php
                         $rawWa = App\Helpers\WebsiteSettings::whatsapp();

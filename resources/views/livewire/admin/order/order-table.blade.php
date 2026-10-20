@@ -204,6 +204,16 @@
                                     @endif
 
 
+                                    {{-- Shipping / Pengiriman --}}
+                                    <button wire:click="openShipping({{ $order->id }})"
+                                            class="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-900 hover:bg-amber-100 transition-colors shadow-2xs"
+                                            title="Atur pengiriman & ongkir">
+                                        <svg class="h-3.5 w-3.5 text-amber-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                                        </svg>
+                                        Kirim
+                                    </button>
+
                                     {{-- Payment --}}
                                     <button wire:click="openPayment({{ $order->id }})"
                                             class="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 hover:bg-emerald-100 transition-colors shadow-2xs"
@@ -263,6 +273,10 @@
         <livewire:admin.order.order-status-manager :order-id="$selectedOrderId" :key="'status-' . $selectedOrderId" />
     @endif
 
+    {{-- Shipping Modal --}}
+    @if ($showShippingModal && $selectedOrderId)
+        <livewire:admin.order.order-shipping :order-id="$selectedOrderId" :key="'shipping-' . $selectedOrderId" />
+    @endif
 
     {{-- Payment Modal --}}
     @if ($showPaymentModal && $selectedOrderId)

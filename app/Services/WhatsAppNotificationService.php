@@ -185,7 +185,23 @@ class WhatsAppNotificationService
             OrderStatus::InProduction => "Pesanan furniture Anda saat ini telah masuk ke tahap proses produksi pengerjaan.",
             OrderStatus::QualityControl => "Pengerjaan furniture telah selesai dan sedang dalam tahap pemeriksaan kualitas (Quality Control).",
             OrderStatus::ReadyToShip => "Pesanan Anda telah lolos pemeriksaan kualitas dan siap untuk dikirimkan.",
-            OrderStatus::Shipped => "Pesanan Anda telah dikirimkan via " . ($order->shipping_method_label ?? 'ekspedisi') . ($order->tracking_number ? " dengan nomor resi: *{$order->tracking_number}*" : "") . ".",
+            OrderStatus::Shipped => (function() use ($order) {
+                $shipInfo = "Pesanan Anda telah dikirimkan via " . ($order->courier ?: ($order->shipping_method_label ?? 'ekspedisi'));
+                if ($order->tracking_number) {
+                    $shipInfo .= " dengan nomor resi: *{$order->tracking_number}*";
+                } elseif ($order->driver_name) {
+                    $shipInfo .= " oleh driver *{$order->driver_name}*" . ($order->vehicle_number ? " ({$order->vehicle_number})" : "");
+                }
+                $shipInfo .= ".";
+
+                if ((float)$order->shipping_cost > 0) {
+                    $shipInfo .= "\nBiaya Ongkir: *{$order->formatted_shipping_cost}* ({$order->shipping_cost_type_label})";
+                } elseif ($order->shipping_cost_type === 'free_shipping') {
+                    $shipInfo .= "\nBiaya Ongkir: *Gratis Ongkir (Ditanggung Toko)*";
+                }
+
+                return $shipInfo;
+            })(),
             default => "Status pesanan Anda telah diperbarui menjadi: " . $status->label(),
         };
 
@@ -218,7 +234,23 @@ class WhatsAppNotificationService
             OrderStatus::InProduction => "Your furniture is currently in the production process by our skilled craftsmen.",
             OrderStatus::QualityControl => "Crafting is completed and your items are now undergoing Quality Control (QC).",
             OrderStatus::ReadyToShip => "Your order has passed quality inspection and is packed, ready to be dispatched.",
-            OrderStatus::Shipped => "Your order has been dispatched via " . ($order->shipping_method_label ?? 'freight service') . ($order->tracking_number ? " with tracking number: *{$order->tracking_number}*" : "") . ".",
+            OrderStatus::Shipped => (function() use ($order) {
+                $shipInfo = "Your order has been dispatched via " . ($order->courier ?: ($order->shipping_method_label ?? 'freight service'));
+                if ($order->tracking_number) {
+                    $shipInfo .= " with tracking number: *{$order->tracking_number}*";
+                } elseif ($order->driver_name) {
+                    $shipInfo .= " by driver *{$order->driver_name}*" . ($order->vehicle_number ? " ({$order->vehicle_number})" : "");
+                }
+                $shipInfo .= ".";
+
+                if ((float)$order->shipping_cost > 0) {
+                    $shipInfo .= "\nShipping Cost: *{$order->formatted_shipping_cost}* (" . ($order->shipping_cost_type === 'billed_to_order' ? 'Billed to Invoice' : 'Pay to Driver upon arrival') . ")";
+                } elseif ($order->shipping_cost_type === 'free_shipping') {
+                    $shipInfo .= "\nShipping Cost: *Free Shipping*";
+                }
+
+                return $shipInfo;
+            })(),
             default => "Your order status has been updated to: " . $statusLabel,
         };
 

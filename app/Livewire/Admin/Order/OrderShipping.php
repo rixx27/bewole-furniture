@@ -21,6 +21,8 @@ class OrderShipping extends Component
     public ?string $vehicle_number = null;
     public ?string $shipping_date = null;
     public ?string $pickup_date = null;
+    public ?string $shipping_cost = '0';
+    public string $shipping_cost_type = 'buyer_to_driver';
 
     public function mount(?int $orderId = null): void
     {
@@ -33,6 +35,8 @@ class OrderShipping extends Component
     {
         $rules = [
             'shipping_method' => 'required|in:expedition,internal_delivery,self_pickup',
+            'shipping_cost' => 'nullable|string',
+            'shipping_cost_type' => 'required|in:buyer_to_driver,billed_to_order,free_shipping',
         ];
 
         if ($this->shipping_method === ShippingMethod::Expedition->value) {
@@ -52,6 +56,7 @@ class OrderShipping extends Component
 
     protected $messages = [
         'shipping_method.required' => 'Metode pengiriman wajib dipilih.',
+        'shipping_cost_type.required' => 'Skema pembayaran ongkos kirim wajib dipilih.',
         'courier.required' => 'Nama kurir wajib diisi.',
         'courier.max' => 'Nama kurir maksimal 255 karakter.',
         'tracking_number.required' => 'Nomor resi wajib diisi.',
@@ -71,7 +76,7 @@ class OrderShipping extends Component
     public function loadOrder(int $orderId): void
     {
         $this->order = Order::find($orderId);
-        $this->reset(['shipping_method', 'courier', 'tracking_number', 'driver_name', 'vehicle_number', 'shipping_date', 'pickup_date']);
+        $this->reset(['shipping_method', 'courier', 'tracking_number', 'driver_name', 'vehicle_number', 'shipping_date', 'pickup_date', 'shipping_cost', 'shipping_cost_type']);
 
         if ($this->order) {
             $this->shipping_method = $this->order->shipping_method;
@@ -81,6 +86,9 @@ class OrderShipping extends Component
             $this->vehicle_number = $this->order->vehicle_number;
             $this->shipping_date = $this->order->shipping_date?->format('Y-m-d');
             $this->pickup_date = $this->order->pickup_date?->format('Y-m-d');
+            $cost = (float) ($this->order->shipping_cost ?? 0);
+            $this->shipping_cost = $cost > 0 ? number_format($cost, 0, ',', '.') : '0';
+            $this->shipping_cost_type = $this->order->shipping_cost_type ?: 'buyer_to_driver';
         }
 
         $this->show = true;
@@ -109,6 +117,11 @@ class OrderShipping extends Component
         }
 
         try {
+            $cleanedCost = (float) str_replace(['.', ','], ['', '.'], (string) $this->shipping_cost);
+            if ($this->shipping_cost_type === 'free_shipping') {
+                $cleanedCost = 0;
+            }
+
             $data = [
                 'shipping_method' => $this->shipping_method,
                 'courier' => $this->courier,
@@ -117,6 +130,8 @@ class OrderShipping extends Component
                 'vehicle_number' => $this->vehicle_number,
                 'shipping_date' => $this->shipping_date,
                 'pickup_date' => $this->pickup_date,
+                'shipping_cost' => $cleanedCost,
+                'shipping_cost_type' => $this->shipping_cost_type,
             ];
 
             $orderService->updateShipping($this->order, $data);

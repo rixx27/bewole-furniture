@@ -54,8 +54,13 @@ class OrderDetail extends Component
             return;
         }
 
-        $oldPrice = (float) $this->order->total_price;
-        $this->order->total_price = $price;
+        $oldPrice = (float) ($this->order->product_subtotal ?: $this->order->total_price);
+        $this->order->product_subtotal = $price;
+        if ($this->order->shipping_cost_type === 'billed_to_order') {
+            $this->order->total_price = $price + (float) $this->order->shipping_cost;
+        } else {
+            $this->order->total_price = $price;
+        }
         $this->order->save();
 
         $this->order->statusHistories()->create([

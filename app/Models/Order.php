@@ -37,6 +37,7 @@ class Order extends Model
         'customization_fee',
         'packing_fee',
         'quantity',
+        'product_subtotal',
         'total_price',
         'notes',
         'status',
@@ -56,6 +57,8 @@ class Order extends Model
         'vehicle_number',
         'shipping_date',
         'pickup_date',
+        'shipping_cost',
+        'shipping_cost_type',
     ];
 
     /**
@@ -68,6 +71,7 @@ class Order extends Model
         return [
             'is_custom' => 'boolean',
             'quantity' => 'integer',
+            'product_subtotal' => 'decimal:2',
             'total_price' => 'decimal:2',
             'customization_details' => 'array',
             'customization_fee' => 'decimal:2',
@@ -77,6 +81,7 @@ class Order extends Model
             'final_payment_proof_uploaded_at' => 'datetime',
             'shipping_date' => 'date',
             'pickup_date' => 'date',
+            'shipping_cost' => 'decimal:2',
         ];
     }
 
@@ -239,6 +244,44 @@ class Order extends Model
     }
 
     /**
+     * Get formatted shipping cost attribute.
+     */
+    public function getFormattedShippingCostAttribute(): string
+    {
+        if ((float) ($this->shipping_cost ?? 0) <= 0) {
+            return $this->shipping_cost_type === 'free_shipping' ? 'Gratis (Rp 0)' : 'Rp 0';
+        }
+
+        return 'Rp ' . number_format((float) $this->shipping_cost, 0, ',', '.');
+    }
+
+    /**
+     * Get shipping cost payment type label attribute.
+     */
+    public function getShippingCostTypeLabelAttribute(): string
+    {
+        return match ($this->shipping_cost_type) {
+            'billed_to_order' => 'Masuk Tagihan Toko',
+            'buyer_to_driver' => 'Bayar di Tempat ke Sopir (COD Ongkir)',
+            'free_shipping' => 'Gratis Ongkir (Ditanggung Toko)',
+            default => 'Bayar ke Sopir',
+        };
+    }
+
+    /**
+     * Check if shipping information has been configured.
+     */
+    public function getIsShippingConfiguredAttribute(): bool
+    {
+        return !empty($this->shipping_method) && (
+            !empty($this->courier) ||
+            !empty($this->driver_name) ||
+            !empty($this->pickup_date) ||
+            (float) ($this->shipping_cost ?? 0) > 0
+        );
+    }
+
+    /**
      * Get the status label attribute.
      */
     public function getStatusLabelAttribute(): string
@@ -377,7 +420,7 @@ class Order extends Model
      */
     public function getSubtotalAttribute(): float
     {
-        return (float) $this->total_price;
+        return (float) ($this->product_subtotal ?: $this->total_price);
     }
 
     /**

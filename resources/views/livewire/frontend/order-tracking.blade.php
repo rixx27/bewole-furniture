@@ -136,7 +136,7 @@
                             @else bg-gray-50 text-gray-700 border border-gray-200
                             @endif
                         ">
-                            <span>{{ $order->status_emoji }}</span>
+                            <x-order-status-icon :status="$order->status" class="h-4 w-4 shrink-0" />
                             <span>{{ $order->status_label }}</span>
                         </span>
                     </div>
@@ -478,7 +478,28 @@
                         @endif
 
                         <div class="mt-4 pt-3 border-t border-wood-border/40 space-y-1.5 text-xs">
-                            <div class="flex justify-between items-center">
+                            @if ((float)$order->shipping_cost > 0 && $order->shipping_cost_type === 'billed_to_order')
+                                <div class="flex justify-between items-center text-wood-muted">
+                                    <span>Subtotal Meubel:</span>
+                                    <span class="font-semibold text-wood-text">Rp {{ number_format($order->subtotal, 0, ',', '.') }}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-wood-muted">
+                                    <span>Biaya Ongkir (Ekspedisi):</span>
+                                    <span class="font-semibold text-emerald-700">+ {{ $order->formatted_shipping_cost }}</span>
+                                </div>
+                            @elseif ((float)$order->shipping_cost > 0 && $order->shipping_cost_type === 'buyer_to_driver')
+                                <div class="flex justify-between items-center text-wood-muted">
+                                    <span>Ongkir (Bayar ke Sopir):</span>
+                                    <span class="font-semibold text-amber-800">{{ $order->formatted_shipping_cost }}</span>
+                                </div>
+                            @elseif ($order->shipping_cost_type === 'free_shipping')
+                                <div class="flex justify-between items-center text-wood-muted">
+                                    <span>Biaya Ongkir:</span>
+                                    <span class="font-semibold text-emerald-700">Gratis (Rp 0)</span>
+                                </div>
+                            @endif
+
+                            <div class="flex justify-between items-center pt-1 border-t border-wood-border/20">
                                 <span class="font-semibold text-wood-muted">Total Pembayaran:</span>
                                 <span class="font-bold text-wood-primary text-sm">{{ $order->formatted_total_price }}</span>
                             </div>
@@ -531,9 +552,85 @@
                                 <span>Informasi Pengiriman</span>
                             </h3>
                             <span class="inline-flex items-center rounded-full bg-wood-light/40 px-2.5 py-0.5 text-[10px] font-bold text-wood-text border border-wood-border/60">
-                                Ekspedisi Truk Jepara
+                                {{ $order->shipping_method_label ?: 'Ekspedisi Truk Jepara' }}
                             </span>
                         </div>
+
+                        {{-- Rincian Ekspedisi & Ongkir Jika Sudah Diatur Admin --}}
+                        @if ($order->is_shipping_configured)
+                            <div class="rounded-2xl border border-amber-200/80 bg-amber-50/50 p-3.5 space-y-2.5">
+                                <div class="flex items-center justify-between border-b border-amber-200/60 pb-2">
+                                    <span class="font-bold text-amber-950 text-xs">Status Pengiriman Toko</span>
+                                    @if ($order->shipping_cost_type === 'billed_to_order')
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-bold text-emerald-800 border border-emerald-300">
+                                            <svg class="h-3 w-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                            <span>Masuk Tagihan Toko</span>
+                                        </span>
+                                    @elseif ($order->shipping_cost_type === 'free_shipping')
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-bold text-emerald-800 border border-emerald-300">
+                                            <svg class="h-3 w-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V6a2 2 0 10-2 2h2zm0 0H4v11a2 2 0 002 2h12a2 2 0 002-2V8h-8z"/>
+                                            </svg>
+                                            <span>Gratis Ongkir</span>
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-bold text-amber-900 border border-amber-300">
+                                            <svg class="h-3 w-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <rect x="2" y="6" width="20" height="12" rx="2" stroke-width="2"/>
+                                                <circle cx="12" cy="12" r="2" stroke-width="2"/>
+                                                <path stroke-width="2" d="M6 12h.01M18 12h.01"/>
+                                            </svg>
+                                            <span>Bayar ke Sopir (COD)</span>
+                                        </span>
+                                    @endif
+                                </div>
+
+                                <div class="space-y-1.5 text-xs">
+                                    <div class="flex justify-between">
+                                        <span class="text-wood-muted">Metode:</span>
+                                        <span class="font-bold text-wood-text">{{ $order->shipping_method_label }}</span>
+                                    </div>
+                                    @if ($order->courier)
+                                        <div class="flex justify-between">
+                                            <span class="text-wood-muted">Jasa Ekspedisi / Kargo:</span>
+                                            <span class="font-bold text-wood-text">{{ $order->courier }}</span>
+                                        </div>
+                                    @endif
+                                    @if ($order->tracking_number)
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-wood-muted">No. Resi / Surat Jalan:</span>
+                                            <span class="font-mono font-bold text-amber-900 bg-white px-2 py-0.5 rounded border border-amber-300 select-all">
+                                                {{ $order->tracking_number }}
+                                            </span>
+                                        </div>
+                                    @endif
+                                    @if ($order->driver_name)
+                                        <div class="flex justify-between">
+                                            <span class="text-wood-muted">Sopir / Plat:</span>
+                                            <span class="font-semibold text-wood-text">{{ $order->driver_name }} ({{ $order->vehicle_number ?: '-' }})</span>
+                                        </div>
+                                    @endif
+                                    @if ($order->shipping_date)
+                                        <div class="flex justify-between">
+                                            <span class="text-wood-muted">Tanggal Kirim:</span>
+                                            <span class="font-semibold text-wood-text">{{ $order->shipping_date->translatedFormat('d F Y') }}</span>
+                                        </div>
+                                    @endif
+                                    @if ($order->pickup_date)
+                                        <div class="flex justify-between">
+                                            <span class="text-wood-muted">Tanggal Ambil:</span>
+                                            <span class="font-semibold text-wood-text">{{ $order->pickup_date->translatedFormat('d F Y') }}</span>
+                                        </div>
+                                    @endif
+                                    <div class="flex justify-between pt-1.5 border-t border-amber-200/50">
+                                        <span class="font-bold text-amber-950">Biaya Ongkos Kirim:</span>
+                                        <span class="font-bold text-wood-primary text-sm">{{ $order->formatted_shipping_cost }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                         
                         <div>
                             <span class="text-wood-muted block mb-0.5">Penerima:</span>
@@ -549,18 +646,20 @@
                             <p class="text-wood-muted mt-0.5">{{ $order->city }}{{ $order->postal_code ? ', ' . $order->postal_code : '' }}</p>
                         </div>
 
-                        {{-- WhatsApp Shipping & Ongkir Notice --}}
-                        <div class="rounded-2xl border border-amber-200 bg-amber-50/70 p-3.5 space-y-1.5 text-xs">
-                            <div class="flex items-center gap-1.5 font-bold text-amber-900">
-                                <svg class="h-4 w-4 text-amber-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                                <span>Koordinasi Ongkir & Pengiriman</span>
+                        @if (!$order->is_shipping_configured)
+                            {{-- WhatsApp Shipping & Ongkir Notice --}}
+                            <div class="rounded-2xl border border-amber-200 bg-amber-50/70 p-3.5 space-y-1.5 text-xs">
+                                <div class="flex items-center gap-1.5 font-bold text-amber-900">
+                                    <svg class="h-4 w-4 text-amber-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <span>Koordinasi Ongkir & Pengiriman</span>
+                                </div>
+                                <p class="text-amber-800/90 leading-relaxed text-[11px]">
+                                    Pengiriman meubel diproses via armada truk ekspedisi lokal Jepara. Estimasi biaya ongkir dan jadwal tiba dikoordinasikan langsung melalui WhatsApp.
+                                </p>
                             </div>
-                            <p class="text-amber-800/90 leading-relaxed text-[11px]">
-                                Pengiriman meubel diproses via armada truk ekspedisi lokal Jepara. Estimasi biaya ongkir dan jadwal tiba dikoordinasikan langsung melalui WhatsApp.
-                            </p>
-                        </div>
+                        @endif
 
                         @php
                             $orderWa = App\Helpers\WebsiteSettings::whatsapp();

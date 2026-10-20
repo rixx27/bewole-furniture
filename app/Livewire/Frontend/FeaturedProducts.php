@@ -44,6 +44,8 @@ class FeaturedProducts extends Component
             product_quantity: 1,
             cart_count: $count
         );
+
+        $this->skipRender();
     }
 
     public function render()

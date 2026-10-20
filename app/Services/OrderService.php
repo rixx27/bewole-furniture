@@ -43,6 +43,7 @@ class OrderService
             $order->customization_fee = $data['customization_fee'] ?? 0;
             $order->packing_fee = $data['packing_fee'] ?? 0;
             $order->quantity = (int) ($data['quantity'] ?? 1);
+            $order->product_subtotal = $data['total_price'] ?? 0;
             $order->total_price = $data['total_price'] ?? 0;
             $order->notes = $data['notes'] ?? null;
             $order->status = OrderStatus::Pending->value;
@@ -501,11 +502,38 @@ class OrderService
                     break;
             }
 
+            $shippingCost = (float) ($data['shipping_cost'] ?? 0);
+            $shippingCostType = $data['shipping_cost_type'] ?? 'buyer_to_driver';
+
+            $baseSubtotal = (float) ($order->product_subtotal ?: $order->total_price);
+            $newTotalPrice = ($shippingCostType === 'billed_to_order') ? ($baseSubtotal + $shippingCost) : $baseSubtotal;
+
+            $shippingData = array_merge($shippingData, [
+                'shipping_cost' => $shippingCost,
+                'shipping_cost_type' => $shippingCostType,
+                'product_subtotal' => $baseSubtotal,
+                'total_price' => $newTotalPrice,
+            ]);
+
+            // Re-evaluate payment status if order has verified payments and total price changes
+            $totalVerified = (float) $order->payments()->where('status', 'verified')->sum('amount');
+            if ($totalVerified > 0) {
+                if ($totalVerified >= $newTotalPrice) {
+                    $shippingData['payment_status'] = PaymentStatus::Paid->value;
+                } else {
+                    $shippingData['payment_status'] = PaymentStatus::DownPayment->value;
+                }
+            }
+
             $order->update($shippingData);
 
             // Update status to shipped
             if ($order->status === OrderStatus::ReadyToShip->value) {
-                $this->updateStatus($order, OrderStatus::Shipped, "Pengiriman via {$shippingMethod->label()}");
+                $statusDetail = "Pengiriman via {$shippingMethod->label()}";
+                if (!empty($data['courier'])) {
+                    $statusDetail .= " ({$data['courier']})";
+                }
+                $this->updateStatus($order, OrderStatus::Shipped, $statusDetail);
             }
 
             return $order->fresh();

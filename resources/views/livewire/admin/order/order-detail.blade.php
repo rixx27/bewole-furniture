@@ -320,9 +320,53 @@
                                         <span class="text-gray-600 font-medium">Metode Pembayaran</span>
                                         <span class="font-bold text-gray-900">{{ $order->payment_method_label }}</span>
                                     </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600 font-medium">Metode Pengiriman</span>
-                                        <span class="font-bold text-gray-900">{{ $order->shipping_method_label }}</span>
+                                    <div class="pt-2 border-t border-gray-200">
+                                        <div class="flex justify-between items-center mb-1">
+                                            <span class="text-gray-600 font-medium">Pengiriman</span>
+                                            <button
+                                                type="button"
+                                                wire:click="$dispatch('openShipping', { orderId: {{ $order->id }} })"
+                                                class="text-[11px] font-bold text-amber-800 hover:underline cursor-pointer"
+                                            >
+                                                Atur Pengiriman
+                                            </button>
+                                        </div>
+                                        <div class="rounded-lg bg-white p-2.5 border border-gray-200 text-xs space-y-1">
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-500">Metode:</span>
+                                                <span class="font-bold text-gray-900">{{ $order->shipping_method_label }}</span>
+                                            </div>
+                                            @if ($order->courier)
+                                                <div class="flex justify-between">
+                                                    <span class="text-gray-500">Ekspedisi/Kurir:</span>
+                                                    <span class="font-semibold text-gray-900">{{ $order->courier }}</span>
+                                                </div>
+                                            @endif
+                                            @if ($order->tracking_number)
+                                                <div class="flex justify-between">
+                                                    <span class="text-gray-500">No. Resi/Surat Jalan:</span>
+                                                    <span class="font-mono font-bold text-amber-900">{{ $order->tracking_number }}</span>
+                                                </div>
+                                            @endif
+                                            @if ($order->driver_name)
+                                                <div class="flex justify-between">
+                                                    <span class="text-gray-500">Driver / Plat:</span>
+                                                    <span class="font-semibold text-gray-900">{{ $order->driver_name }} ({{ $order->vehicle_number ?: '-' }})</span>
+                                                </div>
+                                            @endif
+                                            <div class="flex justify-between pt-1 border-t border-gray-100">
+                                                <span class="text-gray-500">Biaya Ongkir:</span>
+                                                <span class="font-bold text-gray-900">{{ $order->formatted_shipping_cost }}</span>
+                                            </div>
+                                            @if ((float)$order->shipping_cost > 0)
+                                                <div class="flex justify-between text-[11px]">
+                                                    <span class="text-gray-500">Skema Ongkir:</span>
+                                                    <span class="font-semibold {{ $order->shipping_cost_type === 'billed_to_order' ? 'text-indigo-700' : 'text-amber-800' }}">
+                                                        {{ $order->shipping_cost_type_label }}
+                                                    </span>
+                                                </div>
+                                            @endif
+                                        </div>
                                     </div>
 
                                     @if ($order->payment_rejection_reason)
