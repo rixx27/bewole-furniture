@@ -293,8 +293,8 @@
                             </div>
                         </td>
                         <td style="text-align: center;">{{ $item->quantity }}</td>
-                        <td style="text-align: right;">Rp {{ number_format($item->unit_price, 0, ',', '.') }}</td>
-                        <td style="text-align: right; font-weight: bold;">Rp {{ number_format($item->total_price, 0, ',', '.') }}</td>
+                        <td style="text-align: right;">{{ $item->unit_price > 0 ? ('Rp ' . number_format($item->unit_price, 0, ',', '.')) : 'Menunggu Kesepakatan' }}</td>
+                        <td style="text-align: right; font-weight: bold;">{{ $item->total_price > 0 ? ('Rp ' . number_format($item->total_price, 0, ',', '.')) : 'Menunggu Kesepakatan' }}</td>
                     </tr>
                 @endforeach
             @elseif ($order->is_custom)
@@ -328,8 +328,8 @@
                         </div>
                     </td>
                     <td style="text-align: center;">{{ $order->quantity }}</td>
-                    <td style="text-align: right;">Rp {{ number_format($order->product?->price ?? 0, 0, ',', '.') }}</td>
-                    <td style="text-align: right; font-weight: bold;">Rp {{ number_format($order->total_price, 0, ',', '.') }}</td>
+                    <td style="text-align: right;">{{ (float)$order->total_price > 0 ? ('Rp ' . number_format(($order->product_subtotal ?: $order->total_price) / max(1, $order->quantity), 0, ',', '.')) : 'Menunggu Kesepakatan' }}</td>
+                    <td style="text-align: right; font-weight: bold;">{{ (float)$order->total_price > 0 ? ('Rp ' . number_format($order->total_price, 0, ',', '.')) : 'Menunggu Kesepakatan' }}</td>
                 </tr>
             @endif
         </tbody>

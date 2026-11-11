@@ -3,10 +3,13 @@
 namespace App\Livewire\Frontend;
 
 use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
+use App\Helpers\WebsiteSettings;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductReview;
 use App\Services\CartService;
+use App\Services\OrderCodeGenerator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -19,6 +22,20 @@ class ProductDetail extends Component
     public Product $product;
     public int $quantity = 1;
     public ?string $selectedImage = null;
+
+    // Inquiry / Hubungi CS Modal properties
+    public bool $showInquiryModal = false;
+    public string $inquiryName = '';
+    public string $inquiryPhone = '';
+    public string $inquiryProvince = '';
+    public string $inquiryCity = '';
+    public string $inquiryAddress = '';
+    public string $inquiryMeubelType = 'finished';
+    public int $inquiryQuantity = 1;
+    public string $inquiryNotes = '';
+
+    public array $inquiryProvinces = [];
+    public array $inquiryCities = [];
 
     // Review form properties
     public int $rating = 5;
@@ -34,6 +51,41 @@ class ProductDetail extends Component
             'visibleReviews.images',
         ]);
         $this->selectedImage = $this->product->thumbnail;
+
+        $this->loadInquiryProvinces();
+
+        if (request()->query('inquiry') && !$this->product->show_price) {
+            $this->openInquiryModal();
+        }
+    }
+
+    public function loadInquiryProvinces(): void
+    {
+        $path = storage_path('app/indonesia_regions.json');
+        if (file_exists($path)) {
+            $data = json_decode(file_get_contents($path), true);
+            $this->inquiryProvinces = is_array($data) ? array_keys($data) : [];
+        }
+    }
+
+    public function updatedInquiryProvince($value): void
+    {
+        $this->inquiryCity = '';
+        $this->loadCitiesForProvince($value);
+    }
+
+    public function loadCitiesForProvince(?string $province): void
+    {
+        $this->inquiryCities = [];
+        if (!empty($province)) {
+            $path = storage_path('app/indonesia_regions.json');
+            if (file_exists($path)) {
+                $data = json_decode(file_get_contents($path), true);
+                if (isset($data[$province]) && is_array($data[$province])) {
+                    $this->inquiryCities = $data[$province];
+                }
+            }
+        }
     }
 
     public function incrementQuantity(): void
@@ -53,8 +105,150 @@ class ProductDetail extends Component
         $this->selectedImage = $imagePath;
     }
 
+    public function openInquiryModal(): void
+    {
+        if (empty($this->inquiryProvinces)) {
+            $this->loadInquiryProvinces();
+        }
+        if (!empty($this->inquiryProvince) && empty($this->inquiryCities)) {
+            $this->loadCitiesForProvince($this->inquiryProvince);
+        }
+
+        if (Auth::check()) {
+            $user = Auth::user();
+            if (empty($this->inquiryName)) {
+                $this->inquiryName = $user->name ?? '';
+            }
+            if (empty($this->inquiryPhone)) {
+                $this->inquiryPhone = $user->phone ?? '';
+            }
+        }
+        $this->inquiryQuantity = max(1, $this->quantity);
+        $this->showInquiryModal = true;
+    }
+
+    public function closeInquiryModal(): void
+    {
+        $this->showInquiryModal = false;
+        $this->resetErrorBag();
+    }
+
+    public function submitInquiry(OrderCodeGenerator $orderCodeGenerator)
+    {
+        $this->validate([
+            'inquiryName' => ['required', 'string', 'max:100'],
+            'inquiryPhone' => ['required', 'string', 'max:30'],
+            'inquiryQuantity' => ['required', 'integer', 'min:1'],
+            'inquiryMeubelType' => ['required', 'string', 'in:finished,unfinished,matang,mentah'],
+            'inquiryProvince' => ['required', 'string', 'max:100'],
+            'inquiryCity' => ['required', 'string', 'max:100'],
+            'inquiryAddress' => ['nullable', 'string', 'max:255'],
+            'inquiryNotes' => ['nullable', 'string', 'max:1000'],
+        ], [
+            'inquiryName.required' => 'Nama lengkap wajib diisi.',
+            'inquiryPhone.required' => 'Nomor WhatsApp wajib diisi.',
+            'inquiryQuantity.required' => 'Jumlah pesanan wajib diisi.',
+            'inquiryQuantity.min' => 'Jumlah pesanan minimal 1 unit.',
+            'inquiryMeubelType.required' => 'Pilihan finishing meubel wajib dipilih.',
+            'inquiryProvince.required' => 'Provinsi tujuan wajib dipilih.',
+            'inquiryCity.required' => 'Kota atau kabupaten tujuan wajib dipilih.',
+        ]);
+
+        $order = DB::transaction(function () use ($orderCodeGenerator) {
+            $user = Auth::user();
+            $orderCode = $orderCodeGenerator->generate();
+
+            $order = new Order();
+            $order->order_code = $orderCode;
+            $order->is_custom = false;
+            $order->user_id = $user?->id;
+            $order->product_id = $this->product->id;
+            $order->customer_name = trim($this->inquiryName);
+            $order->customer_phone = trim($this->inquiryPhone);
+            $order->whatsapp_number = trim($this->inquiryPhone);
+            $order->customer_email = $user?->email;
+
+            $customAddress = trim($this->inquiryAddress);
+            if ($customAddress) {
+                $order->shipping_address = $customAddress . " (Provinsi: {$this->inquiryProvince})";
+            } else {
+                $order->shipping_address = "{$this->inquiryCity} (Provinsi: {$this->inquiryProvince})";
+            }
+            $order->city = trim($this->inquiryCity) ?: '-';
+            $order->meubel_type = $this->inquiryMeubelType;
+            $order->quantity = $this->inquiryQuantity;
+            $order->product_subtotal = 0;
+            $order->total_price = 0;
+            $order->notes = trim($this->inquiryNotes) ?: null;
+            $order->status = OrderStatus::Pending->value;
+            $order->payment_status = PaymentStatus::Unpaid->value;
+            $order->payment_method = 'manual_transfer';
+            $order->save();
+
+            $order->items()->create([
+                'product_id' => $this->product->id,
+                'quantity' => $this->inquiryQuantity,
+                'meubel_type' => $this->inquiryMeubelType,
+                'unit_price' => 0,
+                'total_price' => 0,
+            ]);
+
+            $order->statusHistories()->create([
+                'status' => OrderStatus::Pending->value,
+                'description' => 'Pesanan diajukan via Hubungi CS (Menunggu kesepakatan harga & konfirmasi admin).',
+                'changed_by' => $user?->id,
+            ]);
+
+            return $order;
+        });
+
+        $rawWa = WebsiteSettings::whatsapp() ?: '081234567890';
+        $cleanWa = preg_replace('/[^0-9]/', '', (string) $rawWa);
+        if (str_starts_with($cleanWa, '0')) {
+            $cleanWa = '62' . substr($cleanWa, 1);
+        }
+
+        $trackingUrl = route('frontend.tracking', ['code' => $order->order_code]);
+        $meubelLabel = in_array($this->inquiryMeubelType, ['finished', 'matang']) ? 'Finished (Siap Pakai)' : 'Unfinished (Mentah)';
+
+        $destinationStr = '';
+        if ($this->inquiryCity && $this->inquiryProvince) {
+            $destinationStr = "{$this->inquiryCity}, {$this->inquiryProvince}";
+        } elseif ($this->inquiryCity) {
+            $destinationStr = $this->inquiryCity;
+        } elseif ($this->inquiryProvince) {
+            $destinationStr = $this->inquiryProvince;
+        }
+
+        $msg = "Halo Admin Bewole Furniture,\n"
+            . "Saya ingin memesan produk berikut via website:\n\n"
+            . "📦 *Produk:* {$this->product->name}" . ($this->product->sku ? " (SKU: {$this->product->sku})" : "") . "\n"
+            . "🔢 *Kode Pesanan:* {$order->order_code}\n"
+            . "👤 *Nama Pemesan:* {$this->inquiryName}\n"
+            . "📱 *No. WhatsApp:* {$this->inquiryPhone}\n"
+            . "🪵 *Finishing:* {$meubelLabel}\n"
+            . "🔢 *Jumlah:* {$this->inquiryQuantity} unit\n"
+            . ($destinationStr ? "📍 *Tujuan:* {$destinationStr}\n" : "")
+            . ($this->inquiryNotes ? "📝 *Catatan:* {$this->inquiryNotes}\n" : "")
+            . "\n🔗 *Link Lacak Pesanan:* {$trackingUrl}\n\n"
+            . "Mohon info ketersediaan dan kesepakatan harga untuk pesanan ini ya min. Terima kasih!";
+
+        $waUrl = 'https://wa.me/' . $cleanWa . '?text=' . rawurlencode($msg);
+
+        $this->showInquiryModal = false;
+        $this->reset(['inquiryNotes', 'inquiryProvince', 'inquiryCity', 'inquiryCities']);
+
+        $this->dispatch('open-wa-window', url: $waUrl);
+        $this->dispatch('notify', message: "Pesanan {$order->order_code} berhasil dibuat! Mengalihkan ke WhatsApp...", type: 'success');
+    }
+
     public function addToCart(): void
     {
+        if (!$this->product->show_price) {
+            $this->openInquiryModal();
+            return;
+        }
+
         $cartService = app(CartService::class);
         $cartService->add($this->product->id, $this->quantity);
         $count = $cartService->getItemCount();
@@ -82,6 +276,11 @@ class ProductDetail extends Component
 
     public function buyNow()
     {
+        if (!$this->product->show_price) {
+            $this->openInquiryModal();
+            return;
+        }
+
         $cartService = app(CartService::class);
         $cartService->add($this->product->id, $this->quantity);
         $count = $cartService->getItemCount();

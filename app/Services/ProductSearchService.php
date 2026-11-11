@@ -315,9 +315,11 @@ class ProductSearchService
             return [
                 'name' => $p->name,
                 'slug' => $p->slug,
-                'price' => $p->discount_price
-                    ? 'Rp ' . number_format($p->discount_price, 0, ',', '.')
-                    : 'Rp ' . number_format($p->price, 0, ',', '.'),
+                'price' => !$p->show_price
+                    ? 'Hubungi CS'
+                    : ($p->discount_price
+                        ? 'Rp ' . number_format($p->discount_price, 0, ',', '.')
+                        : 'Rp ' . number_format($p->price, 0, ',', '.')),
                 'thumbnail' => $p->thumbnail,
                 'category_name' => $p->category?->name ?? 'Bewole',
                 'material' => $p->material,

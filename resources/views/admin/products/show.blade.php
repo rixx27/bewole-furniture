@@ -93,6 +93,20 @@
                             </span>
                         </div>
                         <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-text-muted">Visibilitas Harga</p>
+                            @if ($product->show_price)
+                                <span class="mt-1 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                                    <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                                    Tampil di Website
+                                </span>
+                            @else
+                                <span class="mt-1 inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+                                    <span class="h-2 w-2 rounded-full bg-amber-500"></span>
+                                    Sembunyi (Hubungi CS)
+                                </span>
+                            @endif
+                        </div>
+                        <div>
                             <p class="text-xs font-semibold uppercase tracking-wider text-text-muted">Harga Unit Unfinished</p>
                             @if ($product->has_discount)
                                 <p class="mt-1 text-lg font-bold text-primary">{{ $product->formatted_discount_price }}</p>

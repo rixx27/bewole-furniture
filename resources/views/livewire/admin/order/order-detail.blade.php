@@ -245,6 +245,39 @@
                                         </div>
                                     </div>
                                 @endif
+
+                                @if (!$order->is_custom && $customPriceInput !== null)
+                                    {{-- Panel Input / Update Estimasi Harga oleh Admin untuk Pesanan Inquiry CS / Call for Price --}}
+                                    <div class="mt-4 rounded-xl border border-amber-300 bg-amber-50/60 p-3.5 space-y-2">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-xs font-extrabold text-amber-950 uppercase tracking-wider">Kesepakatan / Estimasi Harga</span>
+                                            <span class="text-xs font-bold text-amber-900">
+                                                Saat ini: {{ $order->formatted_total_price }}
+                                            </span>
+                                        </div>
+                                        <div class="flex flex-col sm:flex-row gap-2">
+                                            <div class="relative flex-1">
+                                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-xs font-bold text-gray-500">Rp</span>
+                                                <input
+                                                    type="number"
+                                                    wire:model="customPriceInput"
+                                                    placeholder="Masukkan nominal harga (contoh: 3500000)"
+                                                    class="w-full rounded-lg border border-gray-300 bg-white pl-9 pr-3 py-1.5 text-xs font-semibold text-gray-900 focus:border-amber-600 focus:outline-none focus:ring-1 focus:ring-amber-600"
+                                                >
+                                            </div>
+                                            <button
+                                                type="button"
+                                                wire:click="saveCustomPrice"
+                                                class="inline-flex items-center justify-center rounded-lg bg-amber-700 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-amber-800 transition-colors cursor-pointer shrink-0"
+                                            >
+                                                Simpan Harga
+                                            </button>
+                                        </div>
+                                        <p class="text-[11px] text-amber-800">
+                                            * Harga yang Anda simpan akan langsung muncul di tagihan dan halaman pelacakan pesanan pelanggan.
+                                        </p>
+                                    </div>
+                                @endif
                             </div>
 
                             {{-- Pilihan Meubel & Packing (Hanya untuk pesanan katalog reguler) --}}

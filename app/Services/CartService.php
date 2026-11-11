@@ -24,7 +24,7 @@ class CartService
     {
         $product = Product::active()->find($productId);
 
-        if (!$product) {
+        if (!$product || !$product->show_price) {
             return $this->getCart();
         }
 

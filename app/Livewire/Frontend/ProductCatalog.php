@@ -78,6 +78,11 @@ class ProductCatalog extends Component
             return;
         }
 
+        if (!$product->show_price) {
+            $this->redirect(route('products.show', $product->slug));
+            return;
+        }
+
         $cartService = app(CartService::class);
         $cartService->add($productId, 1);
         $count = $cartService->getItemCount();

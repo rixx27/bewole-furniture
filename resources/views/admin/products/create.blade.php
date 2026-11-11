@@ -160,6 +160,30 @@
                 <h3 class="text-base font-semibold text-text-primary dark:text-white mb-1">Harga, Pilihan Meubel & Stok</h3>
                 <p class="text-xs text-text-muted mb-5">Atur harga untuk produk unfinished, finished, diskon, dan ketersediaan stok.</p>
 
+                {{-- Toggle Tampilkan Harga (Ark UI / Shadcn Style Switch) --}}
+                <div x-data="{ checked: {{ old('show_price', true) ? 'true' : 'false' }} }"
+                     class="mb-5 rounded-xl border border-border bg-background/50 p-4 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <button type="button"
+                                role="switch"
+                                :aria-checked="checked"
+                                @click="checked = !checked"
+                                :class="checked ? 'bg-primary dark:bg-primary' : 'bg-gray-300 dark:bg-gray-600'"
+                                class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full p-0.5 transition-colors duration-200 ease-in-out focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/40">
+                            <span :class="checked ? 'translate-x-5' : 'translate-x-0'"
+                                  class="pointer-events-none block h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out"></span>
+                        </button>
+                        <input type="hidden" name="show_price" :value="checked ? '1' : '0'">
+                        <span class="text-sm font-medium text-text-primary dark:text-black cursor-pointer select-none"
+                              @click="checked = !checked">
+                            Tampilkan Harga di Katalog & Halaman Produk
+                        </span>
+                    </div>
+                    <p class="mt-1.5 text-xs text-text-muted leading-relaxed pl-14">
+                        Jika dinonaktifkan, harga tidak akan ditampilkan ke pembeli. Tombol beli otomatis digantikan dengan tombol "Hubungi CS" yang mengarahkan pembeli ke WhatsApp.
+                    </p>
+                </div>
+
                 <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
                     {{-- Harga Unit Unfinished --}}
                     <div>

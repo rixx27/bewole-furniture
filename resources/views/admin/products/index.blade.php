@@ -141,7 +141,14 @@
                             </td>
                             <td class="px-6 py-4">
                                 <div class="space-y-0.5">
-                                    @if ($product->has_discount)
+                                    @if (!$product->show_price)
+                                        <span class="inline-block rounded bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                                            Hubungi CS
+                                        </span>
+                                        @if ($product->price > 0)
+                                            <p class="text-[11px] text-text-muted mt-0.5">Acuan: {{ $product->formatted_price }}</p>
+                                        @endif
+                                    @elseif ($product->has_discount)
                                         <p class="text-sm font-semibold text-text-primary dark:text-black">{{ $product->formatted_discount_price }}</p>
                                         <p class="text-xs text-text-muted line-through">{{ $product->formatted_price }}</p>
                                         <span class="inline-block rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-medium text-red-600 dark:bg-red-950 dark:text-red-400">-{{ $product->discount_percentage }}%</span>

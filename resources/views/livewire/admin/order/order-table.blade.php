@@ -128,9 +128,9 @@
                                 <span class="text-sm font-extrabold text-gray-900">{{ $order->quantity }}</span>
                             </td>
                             <td class="px-6 py-4 align-middle whitespace-nowrap">
-                                @if ($order->is_custom && (float)$order->total_price <= 0)
+                                @if ((float)$order->total_price <= 0)
                                     <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-900 border border-amber-300">
-                                        Menunggu Estimasi
+                                        Menunggu Kesepakatan
                                     </span>
                                 @else
                                     <span class="text-sm font-extrabold text-gray-900">{{ $order->formatted_total_price }}</span>

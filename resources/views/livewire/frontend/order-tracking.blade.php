@@ -426,8 +426,13 @@
                                         </div>
                                         <div class="flex-1 min-w-0 text-xs">
                                             <h4 class="font-semibold text-wood-text truncate">{{ $item->product?->name ?? 'Produk' }}</h4>
-                                            <p class="text-wood-muted mt-0.5">{{ $item->quantity }} pcs × Rp {{ number_format($item->unit_price, 0, ',', '.') }}</p>
-                                            <p class="font-bold text-wood-primary mt-0.5">Rp {{ number_format($item->total_price, 0, ',', '.') }}</p>
+                                            @if ($item->unit_price > 0)
+                                                <p class="text-wood-muted mt-0.5">{{ $item->quantity }} pcs × Rp {{ number_format($item->unit_price, 0, ',', '.') }}</p>
+                                                <p class="font-bold text-wood-primary mt-0.5">Rp {{ number_format($item->total_price, 0, ',', '.') }}</p>
+                                            @else
+                                                <p class="text-wood-muted mt-0.5">{{ $item->quantity }} pcs</p>
+                                                <p class="font-bold text-amber-700 mt-0.5">Menunggu Kesepakatan</p>
+                                            @endif
                                         </div>
                                     </div>
                                 @endforeach

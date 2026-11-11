@@ -81,6 +81,7 @@ class ProductController extends Controller
 
         // Handle boolean
         $data['is_featured'] = $request->boolean('is_featured', false);
+        $data['show_price'] = $request->boolean('show_price', true);
 
 
         // Upload thumbnail with auto compression
@@ -197,6 +198,7 @@ class ProductController extends Controller
 
         // Handle boolean
         $data['is_featured'] = $request->boolean('is_featured', false);
+        $data['show_price'] = $request->boolean('show_price', true);
 
         // Upload new thumbnail if provided with auto compression
         if ($request->hasFile('thumbnail')) {

@@ -23,6 +23,7 @@ class Product extends Model
         'short_description',
         'price',
         'price_matang',
+        'show_price',
         'packing_fee',
         'discount_percentage',
         'discount_price',
@@ -49,6 +50,7 @@ class Product extends Model
         return [
             'price' => 'integer',
             'price_matang' => 'integer',
+            'show_price' => 'boolean',
             'packing_fee' => 'integer',
             'discount_price' => 'integer',
             'discount_percentage' => 'integer',

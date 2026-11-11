@@ -178,8 +178,8 @@ class Order extends Model
      */
     public function getFormattedTotalPriceAttribute(): string
     {
-        if ($this->is_custom && (float) $this->total_price <= 0) {
-            return 'Menunggu Estimasi';
+        if ((float) $this->total_price <= 0) {
+            return 'Menunggu Kesepakatan';
         }
 
         return 'Rp ' . number_format($this->total_price, 0, ',', '.');

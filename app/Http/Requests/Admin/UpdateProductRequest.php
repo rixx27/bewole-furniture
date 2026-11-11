@@ -20,10 +20,15 @@ class UpdateProductRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
-        if ($this->has('price')) {
+        $showPrice = $this->boolean('show_price', true);
+        $this->merge(['show_price' => $showPrice]);
+
+        if ($this->has('price') && $this->input('price') !== '' && $this->input('price') !== null) {
             $cleanedPrice = str_replace('.', '', $this->input('price'));
             $cleanedPrice = str_replace(',', '.', $cleanedPrice);
             $this->merge(['price' => $cleanedPrice]);
+        } elseif (!$showPrice) {
+            $this->merge(['price' => 0]);
         }
 
         if ($this->has('price_matang')) {
@@ -78,6 +83,7 @@ class UpdateProductRequest extends FormRequest
     public function rules(): array
     {
         $productId = $this->route('product');
+        $showPrice = $this->boolean('show_price', true);
 
         return [
             'category_id' => ['required', 'exists:categories,id'],
@@ -85,7 +91,8 @@ class UpdateProductRequest extends FormRequest
             'slug' => ['nullable', 'string', 'max:255'],
             'short_description' => ['nullable', 'string', 'max:500'],
             'description' => ['required', 'string'],
-            'price' => ['required', 'numeric', 'gt:0'],
+            'show_price' => ['nullable', 'boolean'],
+            'price' => [$showPrice ? 'required' : 'nullable', 'numeric', $showPrice ? 'gt:0' : 'min:0'],
             'price_matang' => ['nullable', 'numeric', 'min:0'],
             'discount_percentage' => ['nullable', 'integer', 'min:0', 'max:100'],
             'stock' => ['required', 'integer', 'min:0'],
