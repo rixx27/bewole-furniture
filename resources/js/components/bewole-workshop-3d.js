@@ -279,10 +279,10 @@ export function initBewoleScene(root, options = {}) {
     const machine = new THREE.Group()
     scene.add(machine)
 
-    // Lantai bayangan
+    // Lantai bayangan halus yang menyatu dengan latar putih
     const floor = new THREE.Mesh(
         new THREE.PlaneGeometry(70, 70),
-        new THREE.ShadowMaterial({ opacity: 0.22 })
+        new THREE.ShadowMaterial({ opacity: 0.16 })
     )
     floor.rotation.x = -Math.PI / 2
     floor.position.y = -0.43
@@ -883,9 +883,9 @@ export function initBewoleScene(root, options = {}) {
     let visible = true
 
     const desiredPosition = new THREE.Vector3()
-    const desiredTarget = new THREE.Vector3(0, 0.8, 0)
+    const desiredTarget = new THREE.Vector3(0, 0.45, 0)
     const viewDirection = new THREE.Vector3(10.5, 10.8, 17).normalize()
-    let baseDistance = 22
+    let baseDistance = 26
 
     function layoutCamera() {
         if (!frameWidth() || !frameHeight()) return
@@ -897,16 +897,18 @@ export function initBewoleScene(root, options = {}) {
         const aspect = width / height
         const isMobile = checkMobile()
 
-        // FOV sedikit lebih luas di smartphone agar objek 3D tidak terdorong terlalu jauh
+        // FOV diatur proporsional agar bidang pandang nyaman
         camera.fov = isMobile ? 38 : 34
 
+        // Dimensi batas aman dengan margin lebih longgar agar diorama tidak terpotong di tepi kiri/kanan/bawah
         const horizontalFit =
-            15.5 / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * aspect * (isMobile ? 1.05 : 0.72))
+            18.5 / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * aspect * (isMobile ? 0.96 : 0.72))
         const verticalFit =
-            10.2 / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * (isMobile ? 0.8 : 0.74))
+            12.5 / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * (isMobile ? 0.78 : 0.72))
 
-        baseDistance = Math.max(horizontalFit, verticalFit) * (isMobile ? 0.95 : 1)
-        controls.maxDistance = Math.max(45, baseDistance * 1.6)
+        // Jarak kamera sedikit lebih mundur (zoom out ~16%) agar memiliki ruang nafas yang elegan
+        baseDistance = Math.max(horizontalFit, verticalFit) * (isMobile ? 1.08 : 1.16)
+        controls.maxDistance = Math.max(55, baseDistance * 1.8)
         camera.updateProjectionMatrix()
         setCameraGoal()
         cameraAnimating = true
@@ -914,14 +916,14 @@ export function initBewoleScene(root, options = {}) {
 
     function setCameraGoal() {
         const isMobile = checkMobile()
-        const expand = mode === 'stations' ? 1.22 : 1
+        const expand = mode === 'stations' ? 1.2 : 1
         if (cameraMode === 'station') {
             const s = stations.find((s) => s.id === selected) || stations[0]
-            desiredTarget.copy(s.group.position).add(new THREE.Vector3(0, 1.2, 0))
-            desiredPosition.copy(desiredTarget).addScaledVector(viewDirection, isMobile ? 7.5 : 12)
+            desiredTarget.copy(s.group.position).add(new THREE.Vector3(0, 1.0, 0))
+            desiredPosition.copy(desiredTarget).addScaledVector(viewDirection, isMobile ? 8.5 : 13)
         } else {
-            // Pada mobile, titik target diturunkan sedikit (y = 0.35) agar diorama berada tepat di tengah area bebas kontrol
-            desiredTarget.set(0, isMobile ? 0.35 : 0.8, 0)
+            // Titik target y = 0.45 agar diorama berada pas di tengah-tengah ruang dan tidak mepet bar kontrol bawah
+            desiredTarget.set(0, isMobile ? 0.35 : 0.45, 0)
             const distance = baseDistance * expand
             if (cameraMode === 'side') {
                 desiredPosition.set(13, 5, 20).normalize().multiplyScalar(distance).add(desiredTarget)

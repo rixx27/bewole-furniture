@@ -524,7 +524,7 @@ div[id] {
     position: relative;
     width: 100%;
     contain: layout;
-    background: radial-gradient(ellipse at 50% 40%, #2a1f18 0%, #150f0c 70%, #0d0907 100%);
+    background: transparent;
     user-select: none;
 }
 
@@ -567,23 +567,23 @@ div[id] {
 .bewole-station-label .stem {
     height: 20px;
     width: 1px;
-    background: linear-gradient(to bottom, transparent, rgba(217, 119, 6, 0.7));
+    background: linear-gradient(to bottom, transparent, rgba(166, 124, 82, 0.6));
     margin-left: 14px;
 }
 
 .bewole-station-label .label-card {
-    background: rgba(26, 18, 14, 0.94);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(8px);
-    border: 1px solid rgba(212, 175, 55, 0.45);
+    border: 1px solid rgba(166, 124, 82, 0.3);
     border-radius: 8px;
     padding: 6px 10px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 4px 15px rgba(91, 58, 41, 0.08);
 }
 
 .bewole-station-label .label-title {
     font-weight: 600;
     font-size: 11px;
-    color: #f5deb3;
+    color: #2D2D2D;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -591,14 +591,15 @@ div[id] {
 }
 
 .bewole-station-label .label-title span {
-    color: #f59e0b;
+    color: #A67C52;
     font-family: monospace;
     font-size: 9px;
+    font-weight: 700;
 }
 
 .bewole-station-label .label-meta {
     font-size: 9px;
-    color: #d1c4b2;
+    color: #78716C;
     margin-top: 2px;
     white-space: nowrap;
 }
@@ -610,10 +611,10 @@ div[id] {
     opacity: 0;
     transition: opacity 0.15s ease;
     padding: 8px 12px;
-    border: 1px solid rgba(212, 175, 55, 0.4);
-    background: rgba(20, 14, 11, 0.95);
+    border: 1px solid rgba(166, 124, 82, 0.3);
+    background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(12px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 8px 25px rgba(91, 58, 41, 0.1);
     border-radius: 8px;
     max-width: 230px;
 }
@@ -625,19 +626,20 @@ div[id] {
 .bewole-tooltip strong {
     font-size: 11px;
     font-weight: 600;
-    color: #f5deb3;
+    color: #2D2D2D;
     display: block;
 }
 
 .bewole-tooltip strong span {
     font-size: 9px;
-    color: #f59e0b;
+    color: #A67C52;
     margin-right: 6px;
+    font-weight: 700;
 }
 
 .bewole-tooltip p {
     font-size: 10px;
-    color: #d1c4b2;
+    color: #78716C;
     margin-top: 4px;
     line-height: 1.4;
 }
