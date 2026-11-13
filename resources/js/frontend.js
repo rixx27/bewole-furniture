@@ -11,6 +11,68 @@ function initBewoleAlpine(AlpineInstance) {
     if (!AlpineInstance || AlpineInstance._bewoleRegistered) return;
     AlpineInstance._bewoleRegistered = true;
 
+    AlpineInstance.data('bewoleWorkshop3d', () => ({
+        mode: 'assembled',
+        cameraMode: 'overview',
+        isPlaying: true,
+        selectedStation: null,
+        journeyStep: 0,
+        journeyTitle: 'Menerima Request Desain',
+        journeyDetail: 'Studio Desain · Menganalisis sketsa & spesifikasi custom Anda',
+        journeyProgress: '0%',
+        _dispose: null,
+
+        async init() {
+            const root = this.$el;
+            if (!root) return;
+
+            try {
+                const { initBewoleScene } = await import('./components/bewole-workshop-3d.js');
+                document.fonts.ready.then(() => {
+                    this._dispose = initBewoleScene(root, {
+                        onStation: (id) => {
+                            this.selectedStation = id;
+                        },
+                        onJourneyUpdate: (step, title, detail, progress) => {
+                            this.journeyStep = step;
+                            this.journeyTitle = title;
+                            this.journeyDetail = detail;
+                            this.journeyProgress = progress;
+                        },
+                    });
+                });
+            } catch (err) {
+                console.error('Gagal memuat modul 3D Atelier:', err);
+            }
+        },
+
+        destroy() {
+            if (this._dispose) {
+                this._dispose();
+                this._dispose = null;
+            }
+        },
+
+        setMode(newMode) {
+            this.mode = newMode;
+            window.__bewoleMachine?.setMode(newMode);
+        },
+
+        setCamera(newCamera) {
+            this.cameraMode = newCamera;
+            window.__bewoleMachine?.setCamera(newCamera);
+        },
+
+        togglePlay() {
+            this.isPlaying = !this.isPlaying;
+            if (this.isPlaying) {
+                window.__bewoleMachine?.play();
+            } else {
+                window.__bewoleMachine?.pause();
+            }
+        },
+    }));
+
     AlpineInstance.data('navbar', () => ({
         scrolled: false,
         mobileOpen: false,

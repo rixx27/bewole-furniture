@@ -61,12 +61,212 @@
                 </div>
             </div>
 
-            {{-- RIGHT : Foto Furniture --}}
-            <div class="order-2">
+            {{-- RIGHT : 3D Diorama & Galeri Workshop --}}
+            <div class="order-2" x-data="{ activeTab: '3d' }">
+                {{-- Tab Switcher Mini di atas container --}}
+                <div class="mb-3 flex items-center justify-between gap-2 px-1">
+                    <span class="flex items-center gap-1.5 text-xs font-medium text-wood-secondary">
+                        <span class="inline-block h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
+                        <span class="hidden sm:inline">Interactive 3D Experience</span>
+                        <span class="sm:hidden text-[11px] font-semibold">✦ 3D Experience</span>
+                    </span>
+                    <div class="inline-flex rounded-full bg-wood-primary/5 p-0.5 sm:p-1 border border-wood-border/70 backdrop-blur-sm">
+                        <button
+                            type="button"
+                            @click="activeTab = '3d'"
+                            :class="activeTab === '3d' ? 'bg-wood-primary text-white shadow-sm' : 'text-wood-muted hover:text-wood-text'"
+                            class="flex items-center gap-1 sm:gap-1.5 rounded-full px-2.5 py-1 text-[11px] sm:text-xs font-semibold transition-all duration-200 cursor-pointer"
+                        >
+                            <svg class="h-3 w-3 sm:h-3.5 sm:w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+                            </svg>
+                            <span>Atelier 3D</span>
+                        </button>
+                        <button
+                            type="button"
+                            @click="activeTab = 'photo'"
+                            :class="activeTab === 'photo' ? 'bg-wood-primary text-white shadow-sm' : 'text-wood-muted hover:text-wood-text'"
+                            class="flex items-center gap-1 sm:gap-1.5 rounded-full px-2.5 py-1 text-[11px] sm:text-xs font-semibold transition-all duration-200 cursor-pointer"
+                        >
+                            <svg class="h-3 w-3 sm:h-3.5 sm:w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                            </svg>
+                            <span>Foto Asli</span>
+                        </button>
+                    </div>
+                </div>
+
+                {{-- CONTAINER 3D DIORAMA --}}
                 <div
+                    x-show="activeTab === '3d'"
+                    x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 scale-95"
+                    x-transition:enter-end="opacity-100 scale-100"
                     data-reveal
                     data-reveal-delay="400"
-                    class="group relative aspect-[4/3] w-full max-w-md overflow-hidden rounded-[2rem] border border-wood-border/60 bg-wood-surface shadow-xl shadow-wood-primary/10 sm:max-w-lg lg:ml-auto"
+                    class="bewole-workshop-box group relative h-[360px] sm:h-[440px] lg:h-[500px] w-full max-w-xl overflow-hidden rounded-[1.75rem] sm:rounded-[2rem] border border-amber-900/30 shadow-2xl shadow-black/40 sm:max-w-xl lg:ml-auto"
+                    x-data="bewoleWorkshop3d()"
+                >
+                    {{-- 3D WebGL Scene Canvas --}}
+                    <div class="bewole-scene-canvas" role="img" aria-label="Diorama 3D Alur Pembuatan Custom Furniture Bewole Jepara"></div>
+
+                    {{-- Vignette Overlay --}}
+                    <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(10,7,5,0.75)_100%)]"></div>
+
+                    {{-- Topbar Brand & Status --}}
+                    <div class="pointer-events-none absolute inset-x-4 top-4 z-20 flex items-center justify-between sm:inset-x-6 sm:top-5">
+                        <div class="flex items-center gap-2.5">
+                            <div class="flex h-7 w-7 items-center justify-center rounded-lg border border-amber-600/40 bg-amber-950/60 text-amber-400 shadow-sm backdrop-blur-md">
+                                <span class="font-serif text-xs font-bold">B</span>
+                            </div>
+                            <div>
+                                <span class="block text-xs font-semibold tracking-wide text-amber-100/90 font-serif">Atelier Jepara</span>
+                                <span class="block text-[9px] uppercase tracking-wider text-amber-200/50">5 Tahap Kustom</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2 rounded-full border border-amber-900/40 bg-black/40 px-3 py-1 text-[10px] text-amber-200/80 backdrop-blur-md">
+                            <span class="h-1.5 w-1.5 rounded-full" :class="isPlaying ? 'bg-amber-400 animate-pulse' : 'bg-stone-500'"></span>
+                            <span x-text="isPlaying ? 'Bengkel Aktif' : 'Dijeda'"></span>
+                        </div>
+                    </div>
+
+                    {{-- Journey HUD: Muncul saat mode 'order' (Simulasi 1 Order) --}}
+                    <div
+                        x-show="mode === 'order'"
+                        x-transition
+                        class="pointer-events-none absolute inset-x-4 top-16 z-20 rounded-xl border border-amber-500/30 bg-black/60 p-3 backdrop-blur-md sm:inset-x-6"
+                    >
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-semibold uppercase tracking-wider text-amber-400" x-text="'TAHAP 0' + (journeyStep + 1) + ' / 05'"></span>
+                            <span class="text-[10px] text-stone-400 font-mono" x-text="journeyProgress"></span>
+                        </div>
+                        <div class="mt-1 text-xs font-bold text-amber-100 font-serif" x-text="journeyTitle"></div>
+                        <div class="text-[10px] text-stone-300 mt-0.5 line-clamp-1" x-text="journeyDetail"></div>
+                        <div class="mt-2 h-1 w-full overflow-hidden rounded-full bg-stone-800">
+                            <div class="h-full bg-amber-500 transition-all duration-300" :style="'width: ' + journeyProgress"></div>
+                        </div>
+                    </div>
+
+                    {{-- Floating Station Labels Container --}}
+                    <div class="bewole-labels-container"></div>
+
+                    {{-- Interactive Tooltip on Hover/Tap --}}
+                    <div class="bewole-tooltip" role="tooltip">
+                        <strong></strong>
+                        <p></p>
+                    </div>
+
+                    {{-- Bottom Controls Bar --}}
+                    <div class="absolute inset-x-2 bottom-2.5 z-20 flex flex-col items-center gap-1.5 sm:inset-x-6 sm:bottom-4 sm:gap-2">
+                        {{-- Mode Selector Bar --}}
+                        <div class="flex items-center gap-0.5 sm:gap-1 rounded-xl border border-amber-900/40 bg-stone-950/85 p-0.5 sm:p-1 shadow-lg backdrop-blur-md max-w-full">
+                            <button
+                                type="button"
+                                @click="setMode('assembled')"
+                                :class="mode === 'assembled' ? 'bg-amber-600 text-stone-950 font-semibold shadow' : 'text-stone-300 hover:text-white'"
+                                class="flex items-center gap-1 sm:gap-1.5 rounded-lg px-2 py-1 sm:px-2.5 sm:py-1.5 text-[10px] sm:text-[11px] transition-all cursor-pointer whitespace-nowrap"
+                            >
+                                <svg class="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor">
+                                    <path d="M8 1.5l6 3.3v6.4l-6 3.3-6-3.3V4.8L8 1.5zM2 4.8l6 3.4 6-3.4M8 8.2v6.3" stroke-width="1.5" stroke-linejoin="round"/>
+                                </svg>
+                                <span class="hidden sm:inline">Pabrik Berputar</span>
+                                <span class="sm:hidden">Pabrik</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                @click="setMode('stations')"
+                                :class="mode === 'stations' ? 'bg-amber-600 text-stone-950 font-semibold shadow' : 'text-stone-300 hover:text-white'"
+                                class="flex items-center gap-1 sm:gap-1.5 rounded-lg px-2 py-1 sm:px-2.5 sm:py-1.5 text-[10px] sm:text-[11px] transition-all cursor-pointer whitespace-nowrap"
+                            >
+                                <svg class="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor">
+                                    <path d="M8 1.5l6 3-6 3-6-3 6-3zM2 8l6 3 6-3M2 11.5l6 3 6-3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span class="hidden sm:inline">5 Tahapan</span>
+                                <span class="sm:hidden">5 Tahap</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                @click="setMode('order')"
+                                :class="mode === 'order' ? 'bg-amber-600 text-stone-950 font-semibold shadow' : 'text-stone-300 hover:text-white'"
+                                class="flex items-center gap-1 sm:gap-1.5 rounded-lg px-2 py-1 sm:px-2.5 sm:py-1.5 text-[10px] sm:text-[11px] transition-all cursor-pointer whitespace-nowrap"
+                            >
+                                <svg class="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor">
+                                    <path d="M5 2.5l8 5.5-8 5.5v-11z" stroke-width="1.5" stroke-linejoin="round"/>
+                                </svg>
+                                <span class="hidden sm:inline">Simulasi Order</span>
+                                <span class="sm:hidden">Simulasi</span>
+                            </button>
+                        </div>
+
+                        {{-- Camera angle & Play/Pause row --}}
+                        <div class="flex items-center justify-between w-full px-1 sm:px-2">
+                            <div class="flex items-center gap-0.5 sm:gap-1">
+                                <span class="text-[9px] uppercase tracking-wider text-amber-200/40 mr-0.5 hidden sm:inline">Sudut:</span>
+                                <button
+                                    type="button"
+                                    @click="setCamera('overview')"
+                                    :class="cameraMode === 'overview' ? 'text-amber-400 font-bold' : 'text-stone-400 hover:text-stone-200'"
+                                    class="px-1 py-0.5 text-[9px] sm:text-[10px] transition-colors cursor-pointer"
+                                >
+                                    Overview
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="setCamera('side')"
+                                    :class="cameraMode === 'side' ? 'text-amber-400 font-bold' : 'text-stone-400 hover:text-stone-200'"
+                                    class="px-1 py-0.5 text-[9px] sm:text-[10px] transition-colors cursor-pointer"
+                                >
+                                    Samping
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="setCamera('top')"
+                                    :class="cameraMode === 'top' ? 'text-amber-400 font-bold' : 'text-stone-400 hover:text-stone-200'"
+                                    class="px-1 py-0.5 text-[9px] sm:text-[10px] transition-colors cursor-pointer"
+                                >
+                                    Atas
+                                </button>
+                            </div>
+
+                            <div class="flex items-center gap-2 sm:gap-3">
+                                <span class="hidden sm:flex items-center gap-1 text-[9px] text-stone-400">
+                                    <svg class="h-3 w-3 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                                    </svg>
+                                    Putar 360° · Klik Stasiun
+                                </span>
+
+                                <button
+                                    type="button"
+                                    @click="togglePlay()"
+                                    class="flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full bg-stone-900 border border-amber-500/30 text-amber-300 hover:bg-stone-800 transition-colors cursor-pointer"
+                                    :title="isPlaying ? 'Jeda Animasi' : 'Jalankan Animasi'"
+                                >
+                                    <svg x-show="isPlaying" class="h-2 w-2 sm:h-2.5 sm:w-2.5" viewBox="0 0 12 12" fill="currentColor">
+                                        <rect x="2" y="1" width="2.5" height="10" rx=".5" />
+                                        <rect x="7.5" y="1" width="2.5" height="10" rx=".5" />
+                                    </svg>
+                                    <svg x-show="!isPlaying" class="h-2 w-2 sm:h-2.5 sm:w-2.5" viewBox="0 0 12 12" fill="currentColor">
+                                        <path d="M3 1l8 5-8 5z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- CONTAINER FOTO WORKSHOP (TAB ALTERNATIF) --}}
+                <div
+                    x-show="activeTab === 'photo'"
+                    x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 scale-95"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    data-reveal
+                    data-reveal-delay="400"
+                    class="group relative h-[360px] sm:h-[440px] lg:h-[500px] w-full max-w-xl overflow-hidden rounded-[1.75rem] sm:rounded-[2rem] border border-wood-border/60 bg-wood-surface shadow-xl shadow-wood-primary/10 sm:max-w-xl lg:ml-auto"
                 >
                     @if ($imageUrl)
                         <img
@@ -81,8 +281,12 @@
                         </div>
                     @endif
 
-                    {{-- Overlay tipis untuk efek depth editorial --}}
-                    <div class="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/25 to-transparent opacity-60" aria-hidden="true"></div>
+                    <div class="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/60 via-black/20 to-transparent p-6 flex items-end" aria-hidden="true">
+                        <div>
+                            <span class="text-xs uppercase tracking-widest text-amber-300 font-semibold">Workshop Jepara Asli</span>
+                            <p class="text-white text-sm font-serif">Proses Pengerjaan Manual Oleh Artisan Lokal</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

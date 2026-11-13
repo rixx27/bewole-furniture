@@ -1,6 +1,6 @@
 {
   "resources/css/app.css": {
-    "file": "assets/app-ZsJREXP_.css",
+    "file": "assets/app-DWf7mGnl.css",
     "name": "app",
     "names": [
       "app.css"
@@ -14,11 +14,20 @@
     "src": "resources/js/app.js",
     "isEntry": true
   },
+  "resources/js/components/bewole-workshop-3d.js": {
+    "file": "assets/bewole-workshop-3d-DpKOGNWX.js",
+    "name": "bewole-workshop-3d",
+    "src": "resources/js/components/bewole-workshop-3d.js",
+    "isDynamicEntry": true
+  },
   "resources/js/frontend.js": {
-    "file": "assets/frontend-JtAeJwWv.js",
+    "file": "assets/frontend-Bm7cCGuu.js",
     "name": "frontend",
     "src": "resources/js/frontend.js",
-    "isEntry": true
+    "isEntry": true,
+    "dynamicImports": [
+      "resources/js/components/bewole-workshop-3d.js"
+    ]
   },
   "resources/js/passkeys.js": {
     "file": "assets/passkeys-BYToX1xp.js",

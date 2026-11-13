@@ -518,6 +518,161 @@ div[id] {
 }
 
 /* ============================================================
+   BEWOLE 3D ARTISAN WORKSHOP DIORAMA
+   ============================================================ */
+.bewole-workshop-box {
+    position: relative;
+    width: 100%;
+    contain: layout;
+    background: radial-gradient(ellipse at 50% 40%, #2a1f18 0%, #150f0c 70%, #0d0907 100%);
+    user-select: none;
+}
+
+.bewole-scene-canvas {
+    position: absolute;
+    inset: 0;
+    touch-action: pan-y;
+    outline: none;
+}
+
+.bewole-scene-canvas canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.bewole-labels-container {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 10;
+}
+
+.bewole-station-label {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    will-change: transform;
+    min-width: 130px;
+}
+
+.bewole-station-label.visible {
+    opacity: 1;
+}
+
+.bewole-station-label .stem {
+    height: 20px;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, rgba(217, 119, 6, 0.7));
+    margin-left: 14px;
+}
+
+.bewole-station-label .label-card {
+    background: rgba(26, 18, 14, 0.94);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(212, 175, 55, 0.45);
+    border-radius: 8px;
+    padding: 6px 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.bewole-station-label .label-title {
+    font-weight: 600;
+    font-size: 11px;
+    color: #f5deb3;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.bewole-station-label .label-title span {
+    color: #f59e0b;
+    font-family: monospace;
+    font-size: 9px;
+}
+
+.bewole-station-label .label-meta {
+    font-size: 9px;
+    color: #d1c4b2;
+    margin-top: 2px;
+    white-space: nowrap;
+}
+
+.bewole-tooltip {
+    position: absolute;
+    pointer-events: none;
+    z-index: 25;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    padding: 8px 12px;
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    background: rgba(20, 14, 11, 0.95);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+    border-radius: 8px;
+    max-width: 230px;
+}
+
+.bewole-tooltip.visible {
+    opacity: 1;
+}
+
+.bewole-tooltip strong {
+    font-size: 11px;
+    font-weight: 600;
+    color: #f5deb3;
+    display: block;
+}
+
+.bewole-tooltip strong span {
+    font-size: 9px;
+    color: #f59e0b;
+    margin-right: 6px;
+}
+
+.bewole-tooltip p {
+    font-size: 10px;
+    color: #d1c4b2;
+    margin-top: 4px;
+    line-height: 1.4;
+}
+
+@media (max-width: 640px) {
+    .bewole-station-label {
+        min-width: 100px;
+    }
+    .bewole-station-label .label-card {
+        padding: 4px 8px;
+    }
+    .bewole-station-label .label-title {
+        font-size: 10px;
+        gap: 4px;
+    }
+    .bewole-station-label .label-meta {
+        font-size: 8px;
+    }
+    .bewole-station-label .stem {
+        height: 14px;
+        margin-left: 10px;
+    }
+    .bewole-tooltip {
+        max-width: 180px;
+        padding: 6px 10px;
+    }
+    .bewole-tooltip strong {
+        font-size: 10px;
+    }
+    .bewole-tooltip p {
+        font-size: 9px;
+    }
+}
+
+/* ============================================================
    LIVEWIRE SPA NAVIGATION PROGRESS BAR
    ============================================================ */
 :root {
