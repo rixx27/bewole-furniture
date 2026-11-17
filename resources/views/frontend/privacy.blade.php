@@ -2,7 +2,11 @@
     $siteName = App\Helpers\WebsiteSettings::siteName();
 @endphp
 
-<x-frontend.layout :title="'Kebijakan Privasi - ' . $siteName">
+@extends('frontend.layouts.app')
+
+@section('title', 'Kebijakan Privasi — ' . $siteName)
+
+@section('content')
     <div class="bg-wood-50/50 py-12 md:py-20">
         <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
             <div class="rounded-2xl border border-wood-200/70 bg-white p-6 md:p-12 shadow-xs">
@@ -55,4 +59,4 @@
             </div>
         </div>
     </div>
-</x-frontend.layout>
+@endsection
