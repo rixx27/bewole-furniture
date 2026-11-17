@@ -73,13 +73,18 @@
 
             {{-- Price --}}
             @if ($product->show_price)
-                <div class="mt-4 flex items-baseline gap-3">
+                <div class="mt-4 flex items-baseline flex-wrap gap-3">
                     <span class="text-2xl font-bold text-wood-primary lg:text-3xl">
                         {{ $product->formatted_discount_price ?: $product->formatted_price }}
                     </span>
                     @if ($product->has_discount)
                         <span class="text-base text-wood-muted line-through">
                             {{ $product->formatted_price }}
+                        </span>
+                    @endif
+                    @if (\App\Helpers\Currency::isUsd())
+                        <span class="text-xs text-wood-muted font-normal bg-wood-primary/5 border border-wood-border/60 rounded-full px-2.5 py-0.5">
+                            ≈ {{ $product->formatted_price_idr }}
                         </span>
                     @endif
                 </div>

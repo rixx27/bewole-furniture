@@ -23,21 +23,55 @@ class StoreProductRequest extends FormRequest
         $showPrice = $this->boolean('show_price', true);
         $this->merge(['show_price' => $showPrice]);
 
-        if ($this->has('price') && $this->input('price') !== '' && $this->input('price') !== null) {
-            $cleanedPrice = str_replace('.', '', $this->input('price'));
-            $cleanedPrice = str_replace(',', '.', $cleanedPrice);
-            $this->merge(['price' => $cleanedPrice]);
-        } elseif (!$showPrice) {
-            $this->merge(['price' => 0]);
+        // Clean price_usd
+        if ($this->has('price_usd') && $this->input('price_usd') !== '' && $this->input('price_usd') !== null) {
+            $cleanedUsd = str_replace(['$', ' '], '', (string) $this->input('price_usd'));
+            $cleanedUsd = str_replace(',', '.', $cleanedUsd);
+            $this->merge(['price_usd' => is_numeric($cleanedUsd) ? (float) $cleanedUsd : null]);
         }
 
+        // Clean price_matang_usd
+        if ($this->has('price_matang_usd') && $this->input('price_matang_usd') !== '' && $this->input('price_matang_usd') !== null) {
+            $cleanedMatangUsd = str_replace(['$', ' '], '', (string) $this->input('price_matang_usd'));
+            $cleanedMatangUsd = str_replace(',', '.', $cleanedMatangUsd);
+            $this->merge(['price_matang_usd' => is_numeric($cleanedMatangUsd) ? (float) $cleanedMatangUsd : null]);
+        }
+
+        // Clean price (IDR)
+        if ($this->has('price') && $this->input('price') !== '' && $this->input('price') !== null) {
+            $cleanedPrice = str_replace('.', '', (string) $this->input('price'));
+            $cleanedPrice = str_replace(',', '.', $cleanedPrice);
+            $this->merge(['price' => $cleanedPrice]);
+        }
+
+        // Auto-fill between IDR and USD if one is provided
+        $valPriceUsd = (float) ($this->input('price_usd') ?? 0);
+        $valPriceIdr = (float) ($this->input('price') ?? 0);
+        if ($valPriceUsd > 0 && $valPriceIdr <= 0) {
+            $this->merge(['price' => \App\Helpers\Currency::toIdr($valPriceUsd)]);
+        } elseif ($valPriceIdr > 0 && $valPriceUsd <= 0) {
+            $this->merge(['price_usd' => \App\Helpers\Currency::toUsd($valPriceIdr)]);
+        } elseif (!$showPrice && $valPriceIdr <= 0 && $valPriceUsd <= 0) {
+            $this->merge(['price' => 0, 'price_usd' => 0]);
+        }
+
+        // Clean price_matang (IDR)
         if ($this->has('price_matang')) {
             $val = $this->input('price_matang');
             if ($val !== null && $val !== '') {
-                $cleanedMatang = str_replace('.', '', $val);
+                $cleanedMatang = str_replace('.', '', (string) $val);
                 $cleanedMatang = str_replace(',', '.', $cleanedMatang);
                 $this->merge(['price_matang' => $cleanedMatang]);
             }
+        }
+
+        // Auto-fill price_matang between IDR and USD
+        $valMatangUsd = (float) ($this->input('price_matang_usd') ?? 0);
+        $valMatangIdr = (float) ($this->input('price_matang') ?? 0);
+        if ($valMatangUsd > 0 && $valMatangIdr <= 0) {
+            $this->merge(['price_matang' => \App\Helpers\Currency::toIdr($valMatangUsd)]);
+        } elseif ($valMatangIdr > 0 && $valMatangUsd <= 0) {
+            $this->merge(['price_matang_usd' => \App\Helpers\Currency::toUsd($valMatangIdr)]);
         }
 
         if ($this->has('weight')) {
@@ -102,7 +136,9 @@ class StoreProductRequest extends FormRequest
             'description' => ['required', 'string'],
             'show_price' => ['nullable', 'boolean'],
             'price' => [$showPrice ? 'required' : 'nullable', 'numeric', $showPrice ? 'gt:0' : 'min:0'],
+            'price_usd' => ['nullable', 'numeric', 'min:0'],
             'price_matang' => ['nullable', 'numeric', 'min:0'],
+            'price_matang_usd' => ['nullable', 'numeric', 'min:0'],
             'discount_percentage' => ['nullable', 'integer', 'min:0', 'max:100'],
             'stock' => ['required', 'integer', 'min:0'],
             'sku' => ['nullable', 'string', 'max:255', 'unique:products,sku'],

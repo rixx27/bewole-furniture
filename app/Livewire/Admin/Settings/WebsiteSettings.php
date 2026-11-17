@@ -75,6 +75,10 @@ class WebsiteSettings extends Component
     public string $meta_description = '';
     public string $meta_keywords = '';
 
+    // Section 8: Pengaturan Mata Uang & Kurs
+    public $usd_rate = '18271.95';
+    public string $default_currency = 'IDR';
+
     /**
      * Loading state.
      */
@@ -157,6 +161,9 @@ class WebsiteSettings extends Component
         $this->meta_title = $this->settings->meta_title ?? '';
         $this->meta_description = $this->settings->meta_description ?? '';
         $this->meta_keywords = $this->settings->meta_keywords ?? '';
+
+        $this->usd_rate = (string) ($this->settings->usd_rate ?? '18271.95');
+        $this->default_currency = $this->settings->default_currency ?? 'IDR';
     }
 
     /**
@@ -300,6 +307,7 @@ class WebsiteSettings extends Component
                 'is_maintenance', 'maintenance_message',
                 'login_background', 'login_quote',
                 'meta_title', 'meta_description', 'meta_keywords',
+                'usd_rate', 'default_currency',
             ]);
         }
 
@@ -310,6 +318,25 @@ class WebsiteSettings extends Component
         $this->remove_custom_furniture_image = false;
 
         $this->dispatch('settings-saved', type: 'info', message: 'Form telah direset.');
+    }
+
+    /**
+     * Sync USD rate from exchange rate API.
+     */
+    public function syncUsdRate(): void
+    {
+        $currencyService = app(\App\Services\CurrencyService::class);
+        $result = $currencyService->syncRateFromApi();
+
+        if ($result['success']) {
+            $this->usd_rate = (string) $result['rate'];
+            if ($this->settings) {
+                $this->settings->usd_rate = $result['rate'];
+            }
+            $this->dispatch('settings-saved', type: 'success', message: $result['message']);
+        } else {
+            $this->dispatch('settings-saved', type: 'error', message: $result['message']);
+        }
     }
 
     /**
@@ -342,6 +369,8 @@ class WebsiteSettings extends Component
             'meta_title' => $this->meta_title,
             'meta_description' => $this->meta_description,
             'meta_keywords' => $this->meta_keywords,
+            'usd_rate' => is_numeric($this->usd_rate) ? (float) $this->usd_rate : 18271.95,
+            'default_currency' => $this->default_currency,
         ];
     }
 

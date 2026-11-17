@@ -80,8 +80,71 @@
             @endforeach
         </div>
 
-        {{-- Right side: Cart + Auth --}}
+        {{-- Right side: Currency + Cart + Auth --}}
         <div class="flex items-center gap-2">
+
+            {{-- Currency Switcher (Desktop) --}}
+            <div class="relative hidden sm:block" x-data="{ open: false }">
+                @php
+                    $isUsd = \App\Helpers\Currency::isUsd();
+                @endphp
+                <button
+                    type="button"
+                    @click="open = !open"
+                    @click.away="open = false"
+                    class="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold tracking-wide transition-all duration-300 shadow-sm border backdrop-blur-md cursor-pointer"
+                    :class="scrolled
+                        ? 'border-wood-border/80 bg-wood-primary/5 text-wood-primary hover:bg-wood-primary/10'
+                        : 'border-white/30 bg-white/15 text-white hover:bg-white/25'"
+                    aria-label="Pilih mata uang"
+                >
+                    <span>{{ $isUsd ? '🇺🇸 USD' : '🇮🇩 IDR' }}</span>
+                    <svg class="h-3 w-3 opacity-70 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+
+                <div
+                    x-show="open"
+                    x-cloak
+                    x-transition:enter="transition ease-out duration-150"
+                    x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                    x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-100"
+                    x-transition:leave-start="opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-95"
+                    class="absolute right-0 mt-2 w-36 rounded-2xl border border-wood-border/60 bg-white/95 p-1.5 shadow-xl shadow-wood-primary/10 backdrop-blur-md z-50 text-xs"
+                >
+                    <a
+                        href="{{ route('currency.switch', 'IDR') }}"
+                        class="flex items-center justify-between rounded-xl px-3 py-2 font-medium transition-colors {{ !$isUsd ? 'bg-wood-primary text-white font-semibold' : 'text-wood-text hover:bg-wood-primary/10' }}"
+                    >
+                        <span class="flex items-center gap-1.5">
+                            <span>🇮🇩</span>
+                            <span>IDR (Rp)</span>
+                        </span>
+                        @if (!$isUsd)
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                            </svg>
+                        @endif
+                    </a>
+                    <a
+                        href="{{ route('currency.switch', 'USD') }}"
+                        class="flex items-center justify-between rounded-xl px-3 py-2 font-medium transition-colors {{ $isUsd ? 'bg-wood-primary text-white font-semibold' : 'text-wood-text hover:bg-wood-primary/10' }} mt-1"
+                    >
+                        <span class="flex items-center gap-1.5">
+                            <span>🇺🇸</span>
+                            <span>USD ($)</span>
+                        </span>
+                        @if ($isUsd)
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                            </svg>
+                        @endif
+                    </a>
+                </div>
+            </div>
 
             {{-- SEARCH --}}
             <livewire:frontend.navbar-search />
@@ -281,6 +344,27 @@
                     {{ app(\App\Services\CartService::class)->getItemCount() > 0 ? app(\App\Services\CartService::class)->getItemCount() : '' }}
                 </span>
             </a>
+
+            {{-- Mata Uang Switcher (Mobile) --}}
+            <div class="rounded-2xl border border-wood-border/60 bg-wood-primary/5 p-3 mt-1">
+                <div class="text-[11px] font-semibold text-wood-muted uppercase tracking-wider mb-2">Pilih Mata Uang</div>
+                <div class="grid grid-cols-2 gap-2">
+                    <a
+                        href="{{ route('currency.switch', 'IDR') }}"
+                        class="flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold transition-all {{ !\App\Helpers\Currency::isUsd() ? 'bg-wood-primary text-white shadow-sm' : 'bg-white text-wood-text border border-wood-border/60' }}"
+                    >
+                        <span>🇮🇩</span>
+                        <span>IDR (Rp)</span>
+                    </a>
+                    <a
+                        href="{{ route('currency.switch', 'USD') }}"
+                        class="flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-semibold transition-all {{ \App\Helpers\Currency::isUsd() ? 'bg-wood-primary text-white shadow-sm' : 'bg-white text-wood-text border border-wood-border/60' }}"
+                    >
+                        <span>🇺🇸</span>
+                        <span>USD ($)</span>
+                    </a>
+                </div>
+            </div>
 
             @guest
                 <a

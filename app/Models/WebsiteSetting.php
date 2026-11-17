@@ -58,6 +58,21 @@ class WebsiteSetting extends Model
         'meta_title',
         'meta_description',
         'meta_keywords',
+
+        // Section 8: Pengaturan Mata Uang & Kurs
+        'usd_rate',
+        'default_currency',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'is_maintenance' => 'boolean',
+        'whatsapp_notification_enabled' => 'boolean',
+        'usd_rate' => 'decimal:2',
     ];
 
     /**

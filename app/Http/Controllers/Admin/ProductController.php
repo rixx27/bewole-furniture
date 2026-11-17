@@ -97,11 +97,14 @@ class ProductController extends Controller
             if ($data['discount_percentage'] === null || (int) $data['discount_percentage'] <= 0) {
                 $data['discount_percentage'] = null;
                 $data['discount_price'] = null;
+                $data['discount_price_usd'] = null;
             } else {
                 $price = (int) ($data['price'] ?? 0);
                 $percentage = min(100, max(0, (int) $data['discount_percentage']));
                 $data['discount_percentage'] = $percentage;
                 $data['discount_price'] = (int) round($price - ($price * $percentage / 100));
+                $priceUsd = (float) ($data['price_usd'] ?? 0);
+                $data['discount_price_usd'] = $priceUsd > 0 ? round($priceUsd - ($priceUsd * $percentage / 100), 2) : null;
             }
         }
 
@@ -249,11 +252,14 @@ class ProductController extends Controller
             if ($data['discount_percentage'] === null || (int) $data['discount_percentage'] <= 0) {
                 $data['discount_percentage'] = null;
                 $data['discount_price'] = null;
+                $data['discount_price_usd'] = null;
             } else {
                 $price = (int) ($data['price'] ?? $product->price);
                 $percentage = min(100, max(0, (int) $data['discount_percentage']));
                 $data['discount_percentage'] = $percentage;
                 $data['discount_price'] = (int) round($price - ($price * $percentage / 100));
+                $priceUsd = (float) ($data['price_usd'] ?? $product->price_usd ?? 0);
+                $data['discount_price_usd'] = $priceUsd > 0 ? round($priceUsd - ($priceUsd * $percentage / 100), 2) : null;
             }
         }
 

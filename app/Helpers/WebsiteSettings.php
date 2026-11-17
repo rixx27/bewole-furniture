@@ -193,5 +193,21 @@ class WebsiteSettings
     {
         return static::get('meta_keywords');
     }
+
+    /**
+     * Get the USD exchange rate.
+     */
+    public static function usdRate(): float
+    {
+        return (float) static::get('usd_rate', 18271.95);
+    }
+
+    /**
+     * Get the default website currency ('IDR' or 'USD').
+     */
+    public static function defaultCurrency(): string
+    {
+        return static::get('default_currency', 'IDR');
+    }
 }
 

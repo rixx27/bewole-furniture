@@ -59,6 +59,10 @@ class UpdateWebsiteSettingRequest extends FormRequest
             'meta_title' => ['nullable', 'string', 'max:70'],
             'meta_description' => ['nullable', 'string', 'max:320'],
             'meta_keywords' => ['nullable', 'string', 'max:500'],
+
+            // Section 8: Pengaturan Mata Uang & Kurs
+            'usd_rate' => ['nullable', 'numeric', 'min:1'],
+            'default_currency' => ['nullable', 'string', 'in:IDR,USD'],
         ];
     }
 

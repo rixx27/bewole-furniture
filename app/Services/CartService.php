@@ -47,6 +47,7 @@ class CartService
                 'name' => $product->name,
                 'slug' => $product->slug,
                 'price' => (int) ($product->discount_price ?? $product->price),
+                'price_usd' => (float) ($product->discount_price_usd ?: ($product->price_usd ?: \App\Helpers\Currency::toUsd((float) ($product->discount_price ?? $product->price)))),
                 'original_price' => (int) $product->price,
                 'formatted_price' => $product->formatted_discount_price ?: $product->formatted_price,
                 'quantity' => $qty,
@@ -148,6 +149,35 @@ class CartService
         }
 
         return $total;
+    }
+
+    /**
+     * Calculate subtotal of cart items in USD.
+     */
+    public function getSubtotalUsd(): float
+    {
+        $cart = $this->getCart();
+        $total = 0.0;
+
+        foreach ($cart as $item) {
+            $priceUsd = isset($item['price_usd']) && (float) $item['price_usd'] > 0
+                ? (float) $item['price_usd']
+                : \App\Helpers\Currency::toUsd((float) ($item['price'] ?? 0));
+            $total += ($priceUsd * $item['quantity']);
+        }
+
+        return round($total, 2);
+    }
+
+    /**
+     * Get formatted subtotal based on active currency.
+     */
+    public function getFormattedSubtotal(?string $currency = null): string
+    {
+        if (\App\Helpers\Currency::isUsd()) {
+            return '$ ' . number_format($this->getSubtotalUsd(), 2, '.', ',');
+        }
+        return 'Rp ' . number_format($this->getSubtotal(), 0, ',', '.');
     }
 
     /**

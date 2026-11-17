@@ -313,11 +313,23 @@ class CheckoutPage extends Component
             $waMessage .= "Catatan:\n{$this->notes}\n\n";
         }
 
-        $waMessage .= "Subtotal:\nRp " . number_format($serverSubtotal, 0, ',', '.') . "\n\n";
-        if ($serverCustomFee > 0) {
-            $waMessage .= "Tambahan Meubel Finished:\nRp " . number_format($serverCustomFee, 0, ',', '.') . "\n\n";
+        $isUsd = \App\Helpers\Currency::isUsd();
+        if ($isUsd) {
+            $totalUsd = \App\Helpers\Currency::toUsd((float) $serverTotal);
+            $subtotalUsd = \App\Helpers\Currency::toUsd((float) $serverSubtotal);
+            $waMessage .= "Subtotal:\n$ " . number_format($subtotalUsd, 2) . " (Rp " . number_format($serverSubtotal, 0, ',', '.') . ")\n\n";
+            if ($serverCustomFee > 0) {
+                $customFeeUsd = \App\Helpers\Currency::toUsd((float) $serverCustomFee);
+                $waMessage .= "Tambahan Meubel Finished:\n$ " . number_format($customFeeUsd, 2) . " (Rp " . number_format($serverCustomFee, 0, ',', '.') . ")\n\n";
+            }
+            $waMessage .= "Total:\n$ " . number_format($totalUsd, 2) . " USD\n(Estimasi IDR: Rp " . number_format($serverTotal, 0, ',', '.') . " — Kurs Rp " . number_format(\App\Helpers\Currency::rate(), 2, ',', '.') . ")";
+        } else {
+            $waMessage .= "Subtotal:\nRp " . number_format($serverSubtotal, 0, ',', '.') . "\n\n";
+            if ($serverCustomFee > 0) {
+                $waMessage .= "Tambahan Meubel Finished:\nRp " . number_format($serverCustomFee, 0, ',', '.') . "\n\n";
+            }
+            $waMessage .= "Total:\nRp " . number_format($serverTotal, 0, ',', '.');
         }
-        $waMessage .= "Total:\nRp " . number_format($serverTotal, 0, ',', '.');
 
         $waUrl = "https://wa.me/{$adminWhatsapp}?text=" . rawurlencode($waMessage);
 

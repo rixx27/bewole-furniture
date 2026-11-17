@@ -16,6 +16,10 @@ Route::get('/', [App\Http\Controllers\Frontend\HomeController::class, 'index'])
 Route::get('/sitemap.xml', [App\Http\Controllers\Frontend\SitemapController::class, 'index'])->name('sitemap');
 
 
+// Currency Switcher
+Route::get('/currency/{currency}', [App\Http\Controllers\CurrencyController::class, 'switch'])->name('currency.switch');
+Route::post('/currency/switch', [App\Http\Controllers\CurrencyController::class, 'switch'])->name('currency.switch.post');
+
 // Public frontend routes
 Route::middleware(['maintenance'])->group(function () {
     Route::prefix('/')->name('frontend.')->group(function () {

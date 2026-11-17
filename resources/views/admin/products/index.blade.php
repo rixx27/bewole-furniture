@@ -149,11 +149,17 @@
                                             <p class="text-[11px] text-text-muted mt-0.5">Acuan: {{ $product->formatted_price }}</p>
                                         @endif
                                     @elseif ($product->has_discount)
-                                        <p class="text-sm font-semibold text-text-primary dark:text-black">{{ $product->formatted_discount_price }}</p>
-                                        <p class="text-xs text-text-muted line-through">{{ $product->formatted_price }}</p>
+                                        <p class="text-sm font-semibold text-text-primary dark:text-black">{{ $product->has_discount && $product->discount_price ? 'Rp ' . number_format($product->discount_price, 0, ',', '.') : $product->formatted_price_idr }}</p>
+                                        @if ($product->price_usd)
+                                            <p class="text-[11px] text-amber-700 dark:text-amber-400 font-medium">$ {{ number_format($product->discount_price_usd ?: $product->price_usd, 2) }}</p>
+                                        @endif
+                                        <p class="text-xs text-text-muted line-through">{{ $product->formatted_price_idr }}</p>
                                         <span class="inline-block rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-medium text-red-600 dark:bg-red-950 dark:text-red-400">-{{ $product->discount_percentage }}%</span>
                                     @else
-                                        <p class="text-sm font-semibold text-text-secondary">{{ $product->formatted_price }}</p>
+                                        <p class="text-sm font-semibold text-text-secondary">{{ $product->formatted_price_idr }}</p>
+                                        @if ($product->price_usd)
+                                            <p class="text-[11px] text-amber-700 dark:text-amber-400 font-medium">$ {{ number_format($product->price_usd, 2) }}</p>
+                                        @endif
                                     @endif
                                 </div>
                             </td>

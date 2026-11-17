@@ -22,11 +22,14 @@ class Product extends Model
         'description',
         'short_description',
         'price',
+        'price_usd',
         'price_matang',
+        'price_matang_usd',
         'show_price',
         'packing_fee',
         'discount_percentage',
         'discount_price',
+        'discount_price_usd',
         'sku',
         'material',
         'seat_material_usage',
@@ -49,10 +52,13 @@ class Product extends Model
     {
         return [
             'price' => 'integer',
+            'price_usd' => 'decimal:2',
             'price_matang' => 'integer',
+            'price_matang_usd' => 'decimal:2',
             'show_price' => 'boolean',
             'packing_fee' => 'integer',
             'discount_price' => 'integer',
+            'discount_price_usd' => 'decimal:2',
             'discount_percentage' => 'integer',
             'is_featured' => 'boolean',
             'stock' => 'integer',
@@ -99,6 +105,8 @@ class Product extends Model
             if (empty($product->slug)) {
                 $product->slug = Str::slug($product->name);
             }
+            // Auto-sync IDR and USD prices
+            $product->syncCurrencyPrices();
             // Auto-calculate final price
             $product->calculateFinalPrice();
             // Auto-set status based on stock on creation
@@ -111,6 +119,8 @@ class Product extends Model
             if (empty($product->slug)) {
                 $product->slug = Str::slug($product->name);
             }
+            // Auto-sync IDR and USD prices
+            $product->syncCurrencyPrices();
             // Auto-calculate final price
             $product->calculateFinalPrice();
             // Auto-adjust status only when stock changes and status is not explicitly set
@@ -134,11 +144,39 @@ class Product extends Model
     }
 
     /**
+     * Synchronize IDR and USD prices if one is provided and the other is empty.
+     */
+    public function syncCurrencyPrices(): void
+    {
+        $currencyService = app(\App\Services\CurrencyService::class);
+        $rate = $currencyService->getUsdRate();
+
+        $priceIdr = isset($this->attributes['price']) && $this->attributes['price'] !== '' ? (int) $this->attributes['price'] : 0;
+        $priceUsd = isset($this->attributes['price_usd']) && $this->attributes['price_usd'] !== '' && $this->attributes['price_usd'] !== null ? (float) $this->attributes['price_usd'] : 0;
+
+        if ($priceUsd > 0 && $priceIdr <= 0) {
+            $this->attributes['price'] = $currencyService->toIdr($priceUsd, $rate);
+        } elseif ($priceIdr > 0 && $priceUsd <= 0) {
+            $this->attributes['price_usd'] = $currencyService->toUsd($priceIdr, $rate);
+        }
+
+        $matangIdr = isset($this->attributes['price_matang']) && $this->attributes['price_matang'] !== '' && $this->attributes['price_matang'] !== null ? (int) $this->attributes['price_matang'] : 0;
+        $matangUsd = isset($this->attributes['price_matang_usd']) && $this->attributes['price_matang_usd'] !== '' && $this->attributes['price_matang_usd'] !== null ? (float) $this->attributes['price_matang_usd'] : 0;
+
+        if ($matangUsd > 0 && $matangIdr <= 0) {
+            $this->attributes['price_matang'] = $currencyService->toIdr($matangUsd, $rate);
+        } elseif ($matangIdr > 0 && $matangUsd <= 0) {
+            $this->attributes['price_matang_usd'] = $currencyService->toUsd($matangIdr, $rate);
+        }
+    }
+
+    /**
      * Calculate the final price based on discount percentage or discount price.
      */
     public function calculateFinalPrice(): void
     {
         $price = (int) ($this->attributes['price'] ?? 0);
+        $priceUsd = isset($this->attributes['price_usd']) && $this->attributes['price_usd'] !== null ? (float) $this->attributes['price_usd'] : 0;
 
         // Check if discount_percentage was explicitly set in attributes
         if (array_key_exists('discount_percentage', $this->attributes)) {
@@ -148,23 +186,37 @@ class Product extends Model
                 $validPercentage = min(100, max(0, (int) $percentage));
                 $this->attributes['discount_percentage'] = $validPercentage;
                 $this->attributes['discount_price'] = (int) round($price - ($price * $validPercentage / 100));
+                if ($priceUsd > 0) {
+                    $this->attributes['discount_price_usd'] = round($priceUsd - ($priceUsd * $validPercentage / 100), 2);
+                } else {
+                    $this->attributes['discount_price_usd'] = null;
+                }
             } else {
                 $this->attributes['discount_percentage'] = null;
                 $this->attributes['discount_price'] = null;
+                $this->attributes['discount_price_usd'] = null;
             }
         } elseif (!empty($this->attributes['discount_price']) && $price > 0) {
             // Fallback: if discount_price was explicitly provided (e.g. in test seeders) without discount_percentage
             $discountPrice = (int) $this->attributes['discount_price'];
             if ($discountPrice > 0 && $discountPrice < $price) {
                 $this->attributes['discount_price'] = $discountPrice;
-                $this->attributes['discount_percentage'] = (int) round((1 - $discountPrice / $price) * 100);
+                $percentage = (int) round((1 - $discountPrice / $price) * 100);
+                $this->attributes['discount_percentage'] = $percentage;
+                if ($priceUsd > 0) {
+                    $this->attributes['discount_price_usd'] = round($priceUsd - ($priceUsd * $percentage / 100), 2);
+                } else {
+                    $this->attributes['discount_price_usd'] = null;
+                }
             } else {
                 $this->attributes['discount_price'] = null;
+                $this->attributes['discount_price_usd'] = null;
                 $this->attributes['discount_percentage'] = null;
             }
         } else {
             $this->attributes['discount_percentage'] = null;
             $this->attributes['discount_price'] = null;
+            $this->attributes['discount_price_usd'] = null;
         }
     }
 
@@ -235,11 +287,31 @@ class Product extends Model
     }
 
     /**
-     * Get the formatted price attribute (default / mentah).
+     * Get the formatted price in IDR.
+     */
+    public function getFormattedPriceIdrAttribute(): string
+    {
+        return 'Rp ' . number_format($this->price ?? 0, 0, ',', '.');
+    }
+
+    /**
+     * Get the formatted price in USD.
+     */
+    public function getFormattedPriceUsdAttribute(): string
+    {
+        $usd = $this->price_usd !== null ? (float) $this->price_usd : \App\Helpers\Currency::toUsd((float) ($this->price ?? 0));
+        return '$ ' . number_format($usd, 2, '.', ',');
+    }
+
+    /**
+     * Get the formatted price attribute (default / mentah, respects active currency: USD or IDR).
      */
     public function getFormattedPriceAttribute(): string
     {
-        return 'Rp ' . number_format($this->price, 0, ',', '.');
+        if (\App\Helpers\Currency::isUsd()) {
+            return $this->formatted_price_usd;
+        }
+        return $this->formatted_price_idr;
     }
 
     /**
@@ -247,7 +319,7 @@ class Product extends Model
      */
     public function getFormattedPriceUnfinishedAttribute(): string
     {
-        return 'Rp ' . number_format($this->price, 0, ',', '.');
+        return $this->formatted_price;
     }
 
     public function getFormattedPriceMentahAttribute(): string
@@ -256,12 +328,32 @@ class Product extends Model
     }
 
     /**
-     * Get the formatted finished unit price attribute.
+     * Get the formatted finished unit price in IDR.
+     */
+    public function getFormattedPriceFinishedIdrAttribute(): string
+    {
+        $finishedPrice = $this->price_matang ?: $this->price;
+        return 'Rp ' . number_format($finishedPrice ?? 0, 0, ',', '.');
+    }
+
+    /**
+     * Get the formatted finished unit price in USD.
+     */
+    public function getFormattedPriceFinishedUsdAttribute(): string
+    {
+        $finishedUsd = $this->price_matang_usd ?: ($this->price_usd ?: \App\Helpers\Currency::toUsd((float) $this->finished_price));
+        return '$ ' . number_format($finishedUsd, 2, '.', ',');
+    }
+
+    /**
+     * Get the formatted finished unit price attribute (respects active currency).
      */
     public function getFormattedPriceFinishedAttribute(): string
     {
-        $finishedPrice = $this->price_matang ?: $this->price;
-        return 'Rp ' . number_format($finishedPrice, 0, ',', '.');
+        if (\App\Helpers\Currency::isUsd()) {
+            return $this->formatted_price_finished_usd;
+        }
+        return $this->formatted_price_finished_idr;
     }
 
     public function getFormattedPriceMatangAttribute(): string
@@ -274,6 +366,10 @@ class Product extends Model
      */
     public function getFormattedPackingFeeAttribute(): string
     {
+        if (\App\Helpers\Currency::isUsd()) {
+            $feeUsd = \App\Helpers\Currency::toUsd((float) ($this->packing_fee ?? 0));
+            return '$ ' . number_format($feeUsd, 2, '.', ',');
+        }
         return 'Rp ' . number_format($this->packing_fee ?? 0, 0, ',', '.');
     }
 
@@ -304,15 +400,20 @@ class Product extends Model
     }
 
     /**
-     * Get the formatted discount price attribute.
+     * Get the formatted discount price attribute (respects active currency).
      */
     public function getFormattedDiscountPriceAttribute(): string
     {
-        if ($this->has_discount && !empty($this->discount_price)) {
-            return 'Rp ' . number_format($this->discount_price, 0, ',', '.');
+        if (!$this->has_discount || empty($this->discount_price)) {
+            return '';
         }
 
-        return '';
+        if (\App\Helpers\Currency::isUsd()) {
+            $usd = $this->discount_price_usd ?: \App\Helpers\Currency::toUsd((float) $this->discount_price);
+            return '$ ' . number_format($usd, 2, '.', ',');
+        }
+
+        return 'Rp ' . number_format($this->discount_price, 0, ',', '.');
     }
 
     /**

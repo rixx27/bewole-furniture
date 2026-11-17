@@ -131,6 +131,10 @@ class WebsiteSettingService
             'meta_title' => $settings->meta_title,
             'meta_description' => $settings->meta_description,
             'meta_keywords' => $settings->meta_keywords,
+
+            // Section 8: Mata Uang & Kurs
+            'usd_rate' => $settings->usd_rate ?? 18271.95,
+            'default_currency' => $settings->default_currency ?? 'IDR',
         ];
     }
 
@@ -168,6 +172,8 @@ class WebsiteSettingService
             'meta_title' => null,
             'meta_description' => null,
             'meta_keywords' => null,
+            'usd_rate' => 18271.95,
+            'default_currency' => 'IDR',
         ];
     }
 

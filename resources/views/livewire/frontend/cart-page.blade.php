@@ -62,7 +62,16 @@
                                     <div class="text-right">
                                         <span class="text-[10px] uppercase text-wood-muted block">Subtotal</span>
                                         <span class="text-sm font-bold text-wood-primary">
-                                            Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}
+                                            @if (\App\Helpers\Currency::isUsd())
+                                                @php
+                                                    $itemUsd = isset($item['price_usd']) && (float) $item['price_usd'] > 0
+                                                        ? (float) $item['price_usd']
+                                                        : \App\Helpers\Currency::toUsd((float) ($item['price'] ?? 0));
+                                                @endphp
+                                                $ {{ number_format($itemUsd * $item['quantity'], 2, '.', ',') }}
+                                            @else
+                                                Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}
+                                            @endif
                                         </span>
                                     </div>
 
@@ -108,14 +117,27 @@
                         </div>
                         <div class="flex justify-between text-wood-muted">
                             <span>Estimasi Subtotal</span>
-                            <span class="font-bold text-wood-text">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+                            <span class="font-bold text-wood-text">
+                                @if (\App\Helpers\Currency::isUsd())
+                                    $ {{ number_format(app(\App\Services\CartService::class)->getSubtotalUsd(), 2, '.', ',') }}
+                                @else
+                                    Rp {{ number_format($subtotal, 0, ',', '.') }}
+                                @endif
+                            </span>
                         </div>
                     </div>
 
                     <div class="mt-6 border-t border-wood-border/40 pt-4">
                         <div class="flex justify-between text-base font-bold text-wood-text">
                             <span>Total Pembayaran</span>
-                            <span class="text-lg text-wood-primary">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+                            <span class="text-lg text-wood-primary text-right">
+                                @if (\App\Helpers\Currency::isUsd())
+                                    $ {{ number_format(app(\App\Services\CartService::class)->getSubtotalUsd(), 2, '.', ',') }}
+                                    <span class="block text-xs font-normal text-wood-muted mt-0.5">≈ Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+                                @else
+                                    Rp {{ number_format($subtotal, 0, ',', '.') }}
+                                @endif
+                            </span>
                         </div>
                         <p class="mt-1.5 text-[11px] leading-tight text-wood-muted">
                             * Total belum termasuk <span class="font-semibold text-rose-500">ongkos kirim dan biaya packing</span> (serta biaya kustom khusus jika ada). Biaya ini akan diinformasikan saat konfirmasi pesanan.

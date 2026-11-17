@@ -184,43 +184,97 @@
                     </p>
                 </div>
 
+              
+
                 <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-                    {{-- Harga Unit Unfinished --}}
+                    {{-- Harga Unit Unfinished USD --}}
+                    <div>
+                        <label for="price_usd" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
+                            Harga Unit Unfinished (USD $)
+                        </label>
+                        <div class="relative">
+                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-sm font-bold text-text-muted">$</span>
+                            <input type="number"
+                                   step="0.01"
+                                   min="0"
+                                   id="price_usd"
+                                   name="price_usd"
+                                   value="{{ old('price_usd') }}"
+                                   placeholder="120.00"
+                                   autocomplete="off"
+                                   class="w-full rounded-lg border {{ $errors->has('price_usd') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card pl-8 pr-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors">
+                        </div>
+                        @error('price_usd')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
+                        <p class="mt-1 text-xs text-text-muted">Masukkan harga dollar sesuai file Excel.</p>
+                    </div>
+
+                    {{-- Harga Unit Unfinished IDR --}}
                     <div>
                         <label for="price" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                            Harga Unit Unfinished (Rp) <span class="text-red-500">*</span>
+                            Harga Unit Unfinished (IDR Rp) <span class="text-red-500">*</span>
                         </label>
-                        <input type="text"
-                               id="price"
-                               name="price"
-                               inputmode="numeric"
-                               value="{{ old('price') }}"
-                               placeholder="1.500.000"
-                               autocomplete="off"
-                               class="w-full rounded-lg border {{ $errors->has('price') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors">
+                        <div class="relative">
+                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-sm font-bold text-text-muted">Rp</span>
+                            <input type="text"
+                                   id="price"
+                                   name="price"
+                                   inputmode="numeric"
+                                   value="{{ old('price') }}"
+                                   placeholder="2.193.000"
+                                   autocomplete="off"
+                                   class="w-full rounded-lg border {{ $errors->has('price') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card pl-11 pr-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors">
+                        </div>
                         @error('price')
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                         @enderror
-                        <p class="mt-1 text-xs text-text-muted">Harga dasar produk kayu unfinished.</p>
+                        <p class="mt-1 text-xs text-text-muted">Terisi otomatis dari USD, atau bisa disesuaikan.</p>
                     </div>
 
-                    {{-- Harga Unit Finished --}}
+                    {{-- Harga Unit Finished USD --}}
+                    <div>
+                        <label for="price_matang_usd" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
+                            Harga Unit Finished (USD $)
+                        </label>
+                        <div class="relative">
+                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-sm font-bold text-text-muted">$</span>
+                            <input type="number"
+                                   step="0.01"
+                                   min="0"
+                                   id="price_matang_usd"
+                                   name="price_matang_usd"
+                                   value="{{ old('price_matang_usd') }}"
+                                   placeholder="150.00"
+                                   autocomplete="off"
+                                   class="w-full rounded-lg border {{ $errors->has('price_matang_usd') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card pl-8 pr-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors">
+                        </div>
+                        @error('price_matang_usd')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
+                        <p class="mt-1 text-xs text-text-muted">Harga unit siap pakai dalam USD (opsional).</p>
+                    </div>
+
+                    {{-- Harga Unit Finished IDR --}}
                     <div>
                         <label for="price_matang" class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
-                            Harga Unit Finished (Rp)
+                            Harga Unit Finished (IDR Rp)
                         </label>
-                        <input type="text"
-                               id="price_matang"
-                               name="price_matang"
-                               inputmode="numeric"
-                               value="{{ old('price_matang') }}"
-                               placeholder="1.800.000"
-                               autocomplete="off"
-                               class="w-full rounded-lg border {{ $errors->has('price_matang') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card px-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors">
+                        <div class="relative">
+                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-sm font-bold text-text-muted">Rp</span>
+                            <input type="text"
+                                   id="price_matang"
+                                   name="price_matang"
+                                   inputmode="numeric"
+                                   value="{{ old('price_matang') }}"
+                                   placeholder="2.741.000"
+                                   autocomplete="off"
+                                   class="w-full rounded-lg border {{ $errors->has('price_matang') ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-border focus:border-primary focus:ring-primary' }} bg-card pl-11 pr-4 py-2.5 text-sm text-text-primary placeholder-text-muted outline-hidden ring-0 transition-colors">
+                        </div>
                         @error('price_matang')
                             <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                         @enderror
-                        <p class="mt-1 text-xs text-text-muted">Harga unit finished (siap pakai). Kosongkan jika sama.</p>
+                        <p class="mt-1 text-xs text-text-muted">Harga unit finished Rupiah (kosongkan jika sama).</p>
                     </div>
 
                     {{-- Diskon --}}
@@ -539,24 +593,63 @@
         });
 
         // ===============================
-        // Format Harga Rupiah
+        // Multi-Currency & Format Harga
         // ===============================
+        const USD_RATE = {{ (float) \App\Helpers\Currency::rate() }};
         const currencyInputs = ['price', 'price_matang'];
+        const elPriceUsd = document.getElementById('price_usd');
+        const elPrice = document.getElementById('price');
+        const elPriceMatangUsd = document.getElementById('price_matang_usd');
+        const elPriceMatang = document.getElementById('price_matang');
 
+        function roundIdr(val) {
+            return Math.round(val / 1000) * 1000;
+        }
+
+        // Live sync USD -> IDR (Unfinished)
+        if (elPriceUsd && elPrice) {
+            elPriceUsd.addEventListener('input', function() {
+                const usd = parseFloat(this.value);
+                if (!isNaN(usd) && usd > 0) {
+                    const idr = roundIdr(usd * USD_RATE);
+                    elPrice.value = idr.toLocaleString('id-ID');
+                }
+            });
+
+            elPrice.addEventListener('input', function() {
+                let value = this.value.replace(/\D/g, '');
+                this.value = value === '' ? '' : Number(value).toLocaleString('id-ID');
+                if (value !== '' && (!elPriceUsd.value || document.activeElement === elPrice)) {
+                    elPriceUsd.value = (Number(value) / USD_RATE).toFixed(2);
+                }
+            });
+        }
+
+        // Live sync USD -> IDR (Finished)
+        if (elPriceMatangUsd && elPriceMatang) {
+            elPriceMatangUsd.addEventListener('input', function() {
+                const usd = parseFloat(this.value);
+                if (!isNaN(usd) && usd > 0) {
+                    const idr = roundIdr(usd * USD_RATE);
+                    elPriceMatang.value = idr.toLocaleString('id-ID');
+                }
+            });
+
+            elPriceMatang.addEventListener('input', function() {
+                let value = this.value.replace(/\D/g, '');
+                this.value = value === '' ? '' : Number(value).toLocaleString('id-ID');
+                if (value !== '' && (!elPriceMatangUsd.value || document.activeElement === elPriceMatang)) {
+                    elPriceMatangUsd.value = (Number(value) / USD_RATE).toFixed(2);
+                }
+            });
+        }
+
+        // Initial format if value exists
         currencyInputs.forEach(id => {
             const el = document.getElementById(id);
-            if (el) {
-                // Initial format if value exists
-                if (el.value) {
-                    let digits = el.value.replace(/\D/g, '');
-                    if (digits) el.value = Number(digits).toLocaleString('id-ID');
-                }
-
-                // Format saat mengetik
-                el.addEventListener('input', function() {
-                    let value = this.value.replace(/\D/g, '');
-                    this.value = value === '' ? '' : Number(value).toLocaleString('id-ID');
-                });
+            if (el && el.value) {
+                let digits = el.value.replace(/\D/g, '');
+                if (digits) el.value = Number(digits).toLocaleString('id-ID');
             }
         });
 

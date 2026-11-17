@@ -109,16 +109,22 @@
                         <div>
                             <p class="text-xs font-semibold uppercase tracking-wider text-text-muted">Harga Unit Unfinished</p>
                             @if ($product->has_discount)
-                                <p class="mt-1 text-lg font-bold text-primary">{{ $product->formatted_discount_price }}</p>
-                                <p class="text-xs text-text-muted line-through">{{ $product->formatted_price_unfinished }}</p>
+                                <p class="mt-1 text-lg font-bold text-primary">{{ $product->has_discount && $product->discount_price ? 'Rp ' . number_format($product->discount_price, 0, ',', '.') : $product->formatted_price_idr }}</p>
+                                <p class="text-xs text-text-muted line-through">{{ $product->formatted_price_idr }}</p>
                                 <span class="mt-0.5 inline-block rounded bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600 dark:bg-red-950 dark:text-red-400">-{{ $product->discount_percentage }}%</span>
                             @else
-                                <p class="mt-1 text-lg font-bold text-text-primary dark:text-black">{{ $product->formatted_price_unfinished }}</p>
+                                <p class="mt-1 text-lg font-bold text-text-primary dark:text-black">{{ $product->formatted_price_idr }}</p>
+                            @endif
+                            @if ($product->price_usd)
+                                <p class="mt-0.5 text-xs font-semibold text-amber-700 dark:text-amber-400">$ {{ number_format($product->has_discount && $product->discount_price_usd ? $product->discount_price_usd : $product->price_usd, 2) }} USD</p>
                             @endif
                         </div>
                         <div>
                             <p class="text-xs font-semibold uppercase tracking-wider text-text-muted">Harga Unit Finished</p>
-                            <p class="mt-1 text-lg font-bold text-text-primary dark:text-black">{{ $product->formatted_price_finished }}</p>
+                            <p class="mt-1 text-lg font-bold text-text-primary dark:text-black">{{ $product->formatted_price_finished_idr }}</p>
+                            @if ($product->price_matang_usd || $product->price_usd)
+                                <p class="mt-0.5 text-xs font-semibold text-amber-700 dark:text-amber-400">{{ $product->formatted_price_finished_usd }} USD</p>
+                            @endif
                         </div>
                         <div>
                             <p class="text-xs font-semibold uppercase tracking-wider text-text-muted">Stok</p>

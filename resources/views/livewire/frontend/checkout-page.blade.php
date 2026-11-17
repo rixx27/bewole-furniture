@@ -226,8 +226,17 @@
                                     <span class="text-wood-muted">Qty: {{ $item['quantity'] }} × {{ $item['formatted_price'] }}</span>
                                 </div>
                             </div>
-                            <span class="font-bold text-wood-text">
-                                Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}
+                            <span class="font-bold text-wood-text text-right">
+                                @if (\App\Helpers\Currency::isUsd())
+                                    @php
+                                        $itemUsd = isset($item['price_usd']) && (float) $item['price_usd'] > 0
+                                            ? (float) $item['price_usd']
+                                            : \App\Helpers\Currency::toUsd((float) ($item['price'] ?? 0));
+                                    @endphp
+                                    $ {{ number_format($itemUsd * $item['quantity'], 2, '.', ',') }}
+                                @else
+                                    Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}
+                                @endif
                             </span>
                         </div>
                     @endforeach
@@ -295,8 +304,18 @@
                 <div class="mt-6 border-t border-wood-border/40 pt-4">
                     <div class="flex justify-between text-base font-bold text-wood-text">
                         <span>Total Pembayaran</span>
-                        <span class="text-lg text-wood-primary">
-                            Rp {{ number_format($subtotal + $customization_fee, 0, ',', '.') }}
+                        <span class="text-lg text-wood-primary text-right">
+                            @if (\App\Helpers\Currency::isUsd())
+                                @php
+                                    $subtotalUsd = app(\App\Services\CartService::class)->getSubtotalUsd();
+                                    $customFeeUsd = \App\Helpers\Currency::toUsd((float) $customization_fee);
+                                    $totalUsd = $subtotalUsd + $customFeeUsd;
+                                @endphp
+                                $ {{ number_format($totalUsd, 2, '.', ',') }}
+                                <span class="block text-xs font-normal text-wood-muted mt-0.5">≈ Rp {{ number_format($subtotal + $customization_fee, 0, ',', '.') }}</span>
+                            @else
+                                Rp {{ number_format($subtotal + $customization_fee, 0, ',', '.') }}
+                            @endif
                         </span>
                     </div>
                     <p class="mt-1.5 text-[11px] leading-tight text-wood-muted">
