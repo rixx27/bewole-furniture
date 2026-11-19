@@ -652,23 +652,12 @@
                         @error('inquiryPhone') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
                     </div>
 
-                    {{-- Jumlah & Pilihan Finishing --}}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block font-semibold text-wood-text mb-1">Jumlah Unit <span class="text-rose-500">*</span></label>
-                            <input type="number" wire:model="inquiryQuantity" min="1"
-                                   class="w-full rounded-xl border border-wood-border/70 px-3.5 py-2.5 text-xs text-wood-text focus:border-wood-primary focus:outline-none focus:ring-1 focus:ring-wood-primary">
-                            @error('inquiryQuantity') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
-                        </div>
-                        <div>
-                            <label class="block font-semibold text-wood-text mb-1">Pilihan Finishing <span class="text-rose-500">*</span></label>
-                            <select wire:model="inquiryMeubelType"
-                                    class="w-full rounded-xl border border-wood-border/70 px-3 py-2.5 text-xs text-wood-text focus:border-wood-primary focus:outline-none focus:ring-1 focus:ring-wood-primary">
-                                <option value="finished">Finished (Siap Pakai)</option>
-                                <option value="unfinished">Unfinished (Mentah)</option>
-                            </select>
-                            @error('inquiryMeubelType') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
-                        </div>
+                    {{-- Jumlah Unit --}}
+                    <div>
+                        <label class="block font-semibold text-wood-text mb-1">Jumlah Unit <span class="text-rose-500">*</span></label>
+                        <input type="number" wire:model="inquiryQuantity" min="1"
+                               class="w-full rounded-xl border border-wood-border/70 px-3.5 py-2.5 text-xs text-wood-text focus:border-wood-primary focus:outline-none focus:ring-1 focus:ring-wood-primary">
+                        @error('inquiryQuantity') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
                     </div>
 
                     {{-- Provinsi & Kota/Kabupaten --}}

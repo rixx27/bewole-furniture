@@ -154,50 +154,6 @@
                     </div>
                 </div>
             </div>
-
-            {{-- 3. Pilihan Meubel --}}
-            <div class="rounded-3xl border border-wood-border/60 bg-white p-6 shadow-sm space-y-6">
-                <h2 class="text-lg font-bold text-wood-text border-b border-wood-border/40 pb-3">3. Pilihan Meubel</h2>
-
-                {{-- Jenis Meubel --}}
-                <div>
-                    <h3 class="text-sm font-bold text-wood-text mb-1">Jenis Meubel</h3>
-                    <label class="block text-xs font-semibold text-wood-muted mb-3">Jenis Meubel <span class="text-rose-500">*</span></label>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {{-- Meubel Unfinished --}}
-                        <label class="relative flex flex-col cursor-pointer rounded-2xl border p-4 transition-all focus-within:ring-2 focus-within:ring-wood-primary/20 {{ ($meubel_type === 'unfinished' || $meubel_type === 'mentah') ? 'border-wood-primary bg-wood-primary/5 shadow-sm' : 'border-wood-border/60 bg-white hover:border-wood-primary/40' }}">
-                            <div class="flex items-center gap-3">
-                                <input
-                                    type="radio"
-                                    name="meubel_type"
-                                    value="unfinished"
-                                    wire:model.live="meubel_type"
-                                    class="h-4 w-4 text-wood-primary focus:ring-wood-primary border-wood-border"
-                                >
-                                <span class="text-xs font-bold text-wood-text">Unfinished</span>
-                            </div>
-                            <span class="mt-2 text-[11px] text-wood-muted pl-7">Kondisi kayu unfinished</span>
-                        </label>
-
-                        {{-- Meubel Finished --}}
-                        <label class="relative flex flex-col cursor-pointer rounded-2xl border p-4 transition-all focus-within:ring-2 focus-within:ring-wood-primary/20 {{ ($meubel_type === 'finished' || $meubel_type === 'matang') ? 'border-wood-primary bg-wood-primary/5 shadow-sm' : 'border-wood-border/60 bg-white hover:border-wood-primary/40' }}">
-                            <div class="flex items-center gap-3">
-                                <input
-                                    type="radio"
-                                    name="meubel_type"
-                                    value="finished"
-                                    wire:model.live="meubel_type"
-                                    class="h-4 w-4 text-wood-primary focus:ring-wood-primary border-wood-border"
-                                >
-                                <span class="text-xs font-bold text-wood-text">Finished</span>
-                            </div>
-                            <span class="mt-2 text-[11px] text-wood-muted pl-7">Siap pakai (finishing)</span>
-                        </label>
-                    </div>
-                    @error('meubel_type') <span class="mt-1.5 block text-xs text-rose-500">{{ $message }}</span> @enderror
-                </div>
-            </div>
         </div>
 
         {{-- Order Summary (5 cols) --}}
@@ -242,59 +198,21 @@
                     @endforeach
                 </div>
 
-                {{-- Detail Customisasi Summary --}}
-                <div class="mt-4 rounded-2xl bg-wood-light/20 p-3.5 border border-wood-border/40 space-y-2 text-xs">
-                    <h4 class="font-bold text-wood-text text-[11px] uppercase tracking-wider border-b border-wood-border/30 pb-1 mb-2">Detail Pilihan Meubel</h4>
-                    
-                    <div class="flex justify-between text-wood-muted">
-                        <span>Meubel:</span>
-                        <span class="font-bold text-wood-text">
-                            @if($meubel_type === 'unfinished' || $meubel_type === 'mentah')
-                                Unfinished
-                            @elseif($meubel_type === 'finished' || $meubel_type === 'matang')
-                                Finished
-                            @else
-                                <span class="font-normal italic text-wood-muted/70">Belum dipilih</span>
-                            @endif
-                        </span>
-                    </div>
-
-                    @if ($meubel_type === 'finished' || $meubel_type === 'matang')
-                        @foreach ($cart as $productId => $item)
-                            @php
-                                $breakdown = $itemBreakdowns[$productId] ?? null;
-                            @endphp
-
-                            @if ($breakdown && $breakdown['seat_material_cost'] > 0)
-                                <div class="space-y-0.5 border-l-2 border-amber-600/40 pl-2.5 my-1">
-                                    <div class="flex justify-between font-semibold text-wood-text">
-                                        <span>{{ $item['name'] }}:</span>
-                                        <span>Finished</span>
-                                    </div>
-                                    <div class="flex justify-between text-[11px] text-wood-muted">
-                                        <span>Tambahan Finished:</span>
-                                        <span class="font-bold text-wood-text">+ Rp {{ number_format($breakdown['seat_material_cost'], 0, ',', '.') }}</span>
-                                    </div>
-                                </div>
-                            @endif
-                        @endforeach
-                    @endif
-                </div>
-
                 {{-- Calculation --}}
                 <div class="mt-6 border-t border-wood-border/40 pt-4 space-y-2 text-xs">
                     <div class="flex justify-between text-wood-muted">
                         <span>Subtotal Produk</span>
-                        <span class="font-bold text-wood-text">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+                        <span class="font-bold text-wood-text">
+                            @if (\App\Helpers\Currency::isUsd())
+                                @php
+                                    $subtotalUsd = app(\App\Services\CartService::class)->getSubtotalUsd();
+                                @endphp
+                                $ {{ number_format($subtotalUsd, 2, '.', ',') }}
+                            @else
+                                Rp {{ number_format($subtotal, 0, ',', '.') }}
+                            @endif
+                        </span>
                     </div>
-                    @if ($customization_fee > 0)
-                        <div class="flex justify-between text-wood-muted">
-                            <span>Tambahan Meubel Finished</span>
-                            <span class="font-bold text-wood-text">
-                                Rp {{ number_format($customization_fee, 0, ',', '.') }}
-                            </span>
-                        </div>
-                    @endif
                     <div class="flex justify-between text-wood-muted">
                         <span>Biaya Pengiriman</span>
                         <span class="font-semibold text-emerald-600">Dikonfirmasi via WhatsApp</span>

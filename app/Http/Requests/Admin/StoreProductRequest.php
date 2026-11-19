@@ -55,24 +55,11 @@ class StoreProductRequest extends FormRequest
             $this->merge(['price' => 0, 'price_usd' => 0]);
         }
 
-        // Clean price_matang (IDR)
-        if ($this->has('price_matang')) {
-            $val = $this->input('price_matang');
-            if ($val !== null && $val !== '') {
-                $cleanedMatang = str_replace('.', '', (string) $val);
-                $cleanedMatang = str_replace(',', '.', $cleanedMatang);
-                $this->merge(['price_matang' => $cleanedMatang]);
-            }
-        }
-
-        // Auto-fill price_matang between IDR and USD
-        $valMatangUsd = (float) ($this->input('price_matang_usd') ?? 0);
-        $valMatangIdr = (float) ($this->input('price_matang') ?? 0);
-        if ($valMatangUsd > 0 && $valMatangIdr <= 0) {
-            $this->merge(['price_matang' => \App\Helpers\Currency::toIdr($valMatangUsd)]);
-        } elseif ($valMatangIdr > 0 && $valMatangUsd <= 0) {
-            $this->merge(['price_matang_usd' => \App\Helpers\Currency::toUsd($valMatangIdr)]);
-        }
+        // Keep price_matang and price_matang_usd in sync for database consistency
+        $this->merge([
+            'price_matang' => $this->input('price'),
+            'price_matang_usd' => $this->input('price_usd'),
+        ]);
 
         if ($this->has('weight')) {
             $val = $this->input('weight');

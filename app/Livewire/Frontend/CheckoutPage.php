@@ -25,8 +25,8 @@ class CheckoutPage extends Component
     public string $postal_code = '';
     public string $notes = '';
 
-    // Meubel selection
-    public string $meubel_type = ''; // 'unfinished' or 'finished'
+    // Meubel selection (default to finished ready product)
+    public string $meubel_type = 'finished';
     public ?string $packing_type = null;
     public ?array $customization_selections = [];
     public int $customization_fee = 0;
@@ -45,7 +45,7 @@ class CheckoutPage extends Component
         'city' => 'required|string|max:255',
         'postal_code' => 'nullable|string|max:20',
         'notes' => 'nullable|string|max:1000',
-        'meubel_type' => 'required|in:unfinished,finished,mentah,matang',
+        'meubel_type' => 'nullable|string',
     ];
 
     protected array $messages = [
@@ -54,8 +54,6 @@ class CheckoutPage extends Component
         'province.required' => 'Provinsi wajib dipilih.',
         'city.required' => 'Kota / Kabupaten wajib dipilih.',
         'shipping_address.required' => 'Alamat Lengkap wajib diisi.',
-        'meubel_type.required' => 'Pilihan Meubel (Unfinished / Finished) wajib dipilih.',
-        'meubel_type.in' => 'Pilihan Jenis Meubel tidak valid.',
     ];
 
     public function mount(): void
@@ -114,54 +112,14 @@ class CheckoutPage extends Component
     }
 
     /**
-     * Calculate material costs dynamically based on unit unfinished/finished prices
+     * Calculate material costs (simplified to 0 since products now have a single finished price)
      */
     public function calculateMaterialCosts(): array
     {
-        $totalCustomFee = 0;
-        $itemBreakdowns = [];
-
-        foreach ($this->cart as $productId => $item) {
-            $product = Product::whereIn('status', ['active', 'pre_order'])->find($productId);
-            if (!$product) {
-                continue;
-            }
-
-            $qty = (int) ($item['quantity'] ?? 1);
-
-            // Meubel Finished Customization Cost (Difference between price_matang/price_finished and base price)
-            $seatName = null;
-            $seatCost = 0;
-            $seatUnitPrice = 0;
-
-            if ($this->meubel_type === 'finished' || $this->meubel_type === 'matang') {
-                $basePrice = (int) $product->price;
-                $finishedPrice = (int) ($product->price_matang ?: $product->price);
-                $diff = max(0, $finishedPrice - $basePrice);
-                $seatUnitPrice = $diff;
-                $seatCost = $diff * $qty;
-                $seatName = $diff > 0 ? 'Finished' : null;
-            }
-
-            $totalCustomFee += $seatCost;
-
-            $itemBreakdowns[$productId] = [
-                'product_name' => $product->name,
-                'seat_material_name' => $seatName,
-                'seat_price_per_meter' => $seatUnitPrice,
-                'seat_usage_meter' => 1,
-                'seat_material_cost' => $seatCost,
-                'packing_material_name' => null,
-                'packing_price_per_meter' => 0,
-                'packing_usage_meter' => 0,
-                'packing_material_cost' => 0,
-            ];
-        }
-
         return [
-            'customization_fee' => $totalCustomFee,
+            'customization_fee' => 0,
             'packing_fee' => 0,
-            'item_breakdowns' => $itemBreakdowns,
+            'item_breakdowns' => [],
         ];
     }
 
@@ -239,19 +197,14 @@ class CheckoutPage extends Component
             return redirect()->route('products.index');
         }
 
-        $calc = $this->calculateMaterialCosts();
-        $serverCustomFee = $calc['customization_fee'];
+        $serverCustomFee = 0;
         $serverPackingFee = 0;
-        $itemBreakdowns = $calc['item_breakdowns'];
-        $serverTotal = $serverSubtotal + $serverCustomFee;
-
-        $meubelText = in_array($this->meubel_type, ['finished', 'matang']) ? 'Finished' : 'Unfinished';
+        $itemBreakdowns = [];
+        $serverTotal = $serverSubtotal;
 
         // Format full notes for internal log
         $itemsText = implode("\n", $itemSummaries);
-        $fullNotes = "Detail Pilihan Meubel:\n"
-            . "Jenis Meubel: {$meubelText}\n\n"
-            . "Item Pesanan:\n" . $itemsText;
+        $fullNotes = "Item Pesanan:\n" . $itemsText;
 
         if (!empty($this->notes)) {
             $fullNotes .= "\n\nCatatan Tambahan:\n" . $this->notes;
@@ -270,12 +223,12 @@ class CheckoutPage extends Component
             'shipping_address' => $this->shipping_address . ' (Provinsi: ' . $this->province . ')',
             'city' => $this->city,
             'postal_code' => $this->postal_code,
-            'meubel_type' => $this->meubel_type,
+            'meubel_type' => 'finished',
             'packing_type' => null,
             'customization_details' => null,
-            'customization_fee' => $serverCustomFee,
+            'customization_fee' => 0,
             'packing_fee' => 0,
-            'item_breakdowns' => $itemBreakdowns,
+            'item_breakdowns' => [],
             'quantity' => $totalQuantity,
             'total_price' => $serverTotal,
             'notes' => $fullNotes,
@@ -306,8 +259,7 @@ class CheckoutPage extends Component
             $waMessage .= "{$pName}\nQty: {$pQty}\n";
         }
 
-        $waMessage .= "\nJenis Meubel:\n{$meubelText}\n\n";
-        $waMessage .= "Alamat Pengiriman:\n{$this->shipping_address}, {$this->city}, Provinsi {$this->province}\n\n";
+        $waMessage .= "\nAlamat Pengiriman:\n{$this->shipping_address}, {$this->city}, Provinsi {$this->province}\n\n";
 
         if (!empty($this->notes)) {
             $waMessage .= "Catatan:\n{$this->notes}\n\n";
@@ -318,16 +270,9 @@ class CheckoutPage extends Component
             $totalUsd = \App\Helpers\Currency::toUsd((float) $serverTotal);
             $subtotalUsd = \App\Helpers\Currency::toUsd((float) $serverSubtotal);
             $waMessage .= "Subtotal:\n$ " . number_format($subtotalUsd, 2) . " (Rp " . number_format($serverSubtotal, 0, ',', '.') . ")\n\n";
-            if ($serverCustomFee > 0) {
-                $customFeeUsd = \App\Helpers\Currency::toUsd((float) $serverCustomFee);
-                $waMessage .= "Tambahan Meubel Finished:\n$ " . number_format($customFeeUsd, 2) . " (Rp " . number_format($serverCustomFee, 0, ',', '.') . ")\n\n";
-            }
             $waMessage .= "Total:\n$ " . number_format($totalUsd, 2) . " USD\n(Estimasi IDR: Rp " . number_format($serverTotal, 0, ',', '.') . " — Kurs Rp " . number_format(\App\Helpers\Currency::rate(), 2, ',', '.') . ")";
         } else {
             $waMessage .= "Subtotal:\nRp " . number_format($serverSubtotal, 0, ',', '.') . "\n\n";
-            if ($serverCustomFee > 0) {
-                $waMessage .= "Tambahan Meubel Finished:\nRp " . number_format($serverCustomFee, 0, ',', '.') . "\n\n";
-            }
             $waMessage .= "Total:\nRp " . number_format($serverTotal, 0, ',', '.');
         }
 

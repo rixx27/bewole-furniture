@@ -160,14 +160,9 @@ class Product extends Model
             $this->attributes['price_usd'] = $currencyService->toUsd($priceIdr, $rate);
         }
 
-        $matangIdr = isset($this->attributes['price_matang']) && $this->attributes['price_matang'] !== '' && $this->attributes['price_matang'] !== null ? (int) $this->attributes['price_matang'] : 0;
-        $matangUsd = isset($this->attributes['price_matang_usd']) && $this->attributes['price_matang_usd'] !== '' && $this->attributes['price_matang_usd'] !== null ? (float) $this->attributes['price_matang_usd'] : 0;
-
-        if ($matangUsd > 0 && $matangIdr <= 0) {
-            $this->attributes['price_matang'] = $currencyService->toIdr($matangUsd, $rate);
-        } elseif ($matangIdr > 0 && $matangUsd <= 0) {
-            $this->attributes['price_matang_usd'] = $currencyService->toUsd($matangIdr, $rate);
-        }
+        // Keep price_matang and price_matang_usd in sync for backward compatibility
+        $this->attributes['price_matang'] = $this->attributes['price'] ?? 0;
+        $this->attributes['price_matang_usd'] = $this->attributes['price_usd'] ?? 0;
     }
 
     /**
@@ -332,8 +327,7 @@ class Product extends Model
      */
     public function getFormattedPriceFinishedIdrAttribute(): string
     {
-        $finishedPrice = $this->price_matang ?: $this->price;
-        return 'Rp ' . number_format($finishedPrice ?? 0, 0, ',', '.');
+        return $this->formatted_price_idr;
     }
 
     /**
@@ -341,8 +335,7 @@ class Product extends Model
      */
     public function getFormattedPriceFinishedUsdAttribute(): string
     {
-        $finishedUsd = $this->price_matang_usd ?: ($this->price_usd ?: \App\Helpers\Currency::toUsd((float) $this->finished_price));
-        return '$ ' . number_format($finishedUsd, 2, '.', ',');
+        return $this->formatted_price_usd;
     }
 
     /**
@@ -350,15 +343,12 @@ class Product extends Model
      */
     public function getFormattedPriceFinishedAttribute(): string
     {
-        if (\App\Helpers\Currency::isUsd()) {
-            return $this->formatted_price_finished_usd;
-        }
-        return $this->formatted_price_finished_idr;
+        return $this->formatted_price;
     }
 
     public function getFormattedPriceMatangAttribute(): string
     {
-        return $this->formatted_price_finished;
+        return $this->formatted_price;
     }
 
     /**
@@ -378,12 +368,12 @@ class Product extends Model
      */
     public function getFinishedPriceAttribute(): int
     {
-        return $this->price_matang ?: $this->price;
+        return (int) $this->price;
     }
 
     public function getMatangPriceAttribute(): int
     {
-        return $this->finished_price;
+        return (int) $this->price;
     }
 
     /**
@@ -391,12 +381,12 @@ class Product extends Model
      */
     public function getUnfinishedPriceAttribute(): int
     {
-        return $this->price;
+        return (int) $this->price;
     }
 
     public function getMentahPriceAttribute(): int
     {
-        return $this->unfinished_price;
+        return (int) $this->price;
     }
 
     /**

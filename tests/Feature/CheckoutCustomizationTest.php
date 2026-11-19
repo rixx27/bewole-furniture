@@ -41,7 +41,7 @@ class CheckoutCustomizationTest extends TestCase
             'category_id' => $this->categoryKursi->id,
             'name' => 'Kursi Tamu Minimalis',
             'slug' => 'kursi-tamu-minimalis',
-            'price' => 1760000,
+            'price' => 1780000,
             'price_matang' => 1780000,
             'packing_fee' => 0,
             'status' => 'active',
@@ -52,7 +52,7 @@ class CheckoutCustomizationTest extends TestCase
             'category_id' => $this->categoryMeja->id,
             'name' => 'Meja Makan Jati',
             'slug' => 'meja-makan-jati',
-            'price' => 3500000,
+            'price' => 3600000,
             'price_matang' => 3600000,
             'packing_fee' => 0,
             'status' => 'active',
@@ -61,16 +61,15 @@ class CheckoutCustomizationTest extends TestCase
     }
 
     /**
-     * TEST 1: Meubel Unfinished checkout success.
+     * TEST 1: Checkout success with single finished product price.
      */
-    public function test_meubel_unfinished_checkout_success(): void
+    public function test_standard_checkout_success(): void
     {
         $cartService = app(CartService::class);
         $cartService->add($this->productKursi->id, 5);
 
         Livewire::actingAs($this->user)
             ->test(\App\Livewire\Frontend\CheckoutPage::class)
-            ->set('meubel_type', 'unfinished')
             ->set('customer_name', 'Budi Santoso')
             ->set('customer_phone', '08123456789')
             ->set('province', 'Jawa Tengah')
@@ -83,103 +82,62 @@ class CheckoutCustomizationTest extends TestCase
         $this->assertDatabaseHas('orders', [
             'product_id' => $this->productKursi->id,
             'quantity' => 5,
-            'total_price' => 8800000, // 5 x 1.760.000
-            'meubel_type' => 'unfinished',
-        ]);
-    }
-
-    /**
-     * TEST 2: Meubel Finished checkout success with finished difference added.
-     */
-    public function test_meubel_finished_checkout_success(): void
-    {
-        $cartService = app(CartService::class);
-        $cartService->add($this->productKursi->id, 5);
-
-        Livewire::actingAs($this->user)
-            ->test(\App\Livewire\Frontend\CheckoutPage::class)
-            ->set('meubel_type', 'finished')
-            ->set('customer_name', 'Budi Santoso')
-            ->set('customer_phone', '08123456789')
-            ->set('province', 'Jawa Tengah')
-            ->set('city', 'Jepara')
-            ->set('shipping_address', 'Jl. Pemuda No 10')
-            ->call('placeOrder')
-            ->assertHasNoErrors()
-            ->assertRedirect();
-
-        $order = Order::latest()->first();
-        $this->assertEquals('finished', $order->meubel_type);
-        $this->assertEquals('Finished', $order->meubel_type_label);
-        // Base: 5 x 1.760.000 = 8.800.000
-        // Finished diff: 5 x (1.780.000 - 1.760.000) = 100.000
-        // Total: 8.900.000 (5 x 1.780.000)
-        $this->assertEquals(8900000, $order->total_price);
-        $this->assertEquals(100000, $order->customization_fee);
-
-        $this->assertDatabaseHas('order_items', [
-            'order_id' => $order->id,
-            'product_id' => $this->productKursi->id,
+            'total_price' => 8900000, // 5 x 1.780.000
             'meubel_type' => 'finished',
+            'customization_fee' => 0,
         ]);
     }
 
     /**
-     * TEST 3: Backward compatibility with 'mentah' and 'matang' meubel_type.
+     * TEST 2: Backward compatibility of Order model for historical meubel labels.
      */
-    public function test_backward_compatibility_mentah_and_matang(): void
+    public function test_order_model_backward_compatibility_labels(): void
     {
-        $cartService = app(CartService::class);
-        $cartService->add($this->productKursi->id, 5);
+        $orderFinished = Order::create([
+            'order_code' => 'BWL-TEST-001',
+            'product_id' => $this->productKursi->id,
+            'customer_name' => 'Test Finished',
+            'customer_phone' => '08123456789',
+            'shipping_address' => 'Jepara',
+            'city' => 'Jepara',
+            'meubel_type' => 'finished',
+            'quantity' => 1,
+            'total_price' => 1780000,
+            'status' => 'pending',
+            'payment_status' => 'unpaid',
+            'payment_method' => 'manual_transfer',
+        ]);
 
-        Livewire::actingAs($this->user)
-            ->test(\App\Livewire\Frontend\CheckoutPage::class)
-            ->set('meubel_type', 'mentah')
-            ->set('customer_name', 'Budi Santoso')
-            ->set('customer_phone', '08123456789')
-            ->set('province', 'Jawa Tengah')
-            ->set('city', 'Jepara')
-            ->set('shipping_address', 'Jl. Pemuda No 10')
-            ->call('placeOrder')
-            ->assertHasNoErrors()
-            ->assertRedirect();
+        $orderMentah = Order::create([
+            'order_code' => 'BWL-TEST-002',
+            'product_id' => $this->productKursi->id,
+            'customer_name' => 'Test Mentah',
+            'customer_phone' => '08123456789',
+            'shipping_address' => 'Jepara',
+            'city' => 'Jepara',
+            'meubel_type' => 'unfinished',
+            'quantity' => 1,
+            'total_price' => 1760000,
+            'status' => 'pending',
+            'payment_status' => 'unpaid',
+            'payment_method' => 'manual_transfer',
+        ]);
 
-        $order = Order::latest()->first();
-        $this->assertEquals('mentah', $order->meubel_type);
-        $this->assertEquals('Unfinished', $order->meubel_type_label);
+        $this->assertEquals('Finished', $orderFinished->meubel_type_label);
+        $this->assertEquals('Unfinished', $orderMentah->meubel_type_label);
     }
 
     /**
-     * TEST 4: Missing meubel_type fails validation.
+     * TEST 3: Multiple products in cart checkout correctly.
      */
-    public function test_missing_meubel_type_fails(): void
+    public function test_multiple_products_cart_checkout(): void
     {
         $cartService = app(CartService::class);
-        $cartService->add($this->productKursi->id, 1);
+        $cartService->add($this->productKursi->id, 2); // 2 x 1.780.000 = 3.560.000
+        $cartService->add($this->productMeja->id, 1);  // 1 x 3.600.000 = 3.600.000
 
         Livewire::actingAs($this->user)
             ->test(\App\Livewire\Frontend\CheckoutPage::class)
-            ->set('customer_name', 'Budi Santoso')
-            ->set('customer_phone', '08123456789')
-            ->set('province', 'Jawa Tengah')
-            ->set('city', 'Jepara')
-            ->set('shipping_address', 'Jl. Pemuda No 10')
-            ->call('placeOrder')
-            ->assertHasErrors(['meubel_type']);
-    }
-
-    /**
-     * TEST 5: Multiple products in cart with Meubel Finished.
-     */
-    public function test_multiple_products_cart_finished_checkout(): void
-    {
-        $cartService = app(CartService::class);
-        $cartService->add($this->productKursi->id, 2); // 2 x 1.760.000 (diff: 2 x 20.000 = 40.000)
-        $cartService->add($this->productMeja->id, 1); // 1 x 3.500.000 (diff: 1 x 100.000 = 100.000)
-
-        Livewire::actingAs($this->user)
-            ->test(\App\Livewire\Frontend\CheckoutPage::class)
-            ->set('meubel_type', 'finished')
             ->set('customer_name', 'Budi Santoso')
             ->set('customer_phone', '08123456789')
             ->set('province', 'Jawa Tengah')
@@ -191,10 +149,8 @@ class CheckoutCustomizationTest extends TestCase
 
         $order = Order::latest()->first();
         $this->assertEquals('finished', $order->meubel_type);
-        // Subtotal: 3.520.000 + 3.500.000 = 7.020.000
-        // Finished Fee: 40.000 + 100.000 = 140.000
-        // Total: 7.160.000
-        $this->assertEquals(7160000, $order->total_price);
-        $this->assertEquals(140000, $order->customization_fee);
+        $this->assertEquals(7160000, $order->total_price); // 3.560.000 + 3.600.000
+        $this->assertEquals(0, $order->customization_fee);
     }
 }
+

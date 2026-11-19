@@ -139,7 +139,6 @@ class ProductDetail extends Component
             'inquiryName' => ['required', 'string', 'max:100'],
             'inquiryPhone' => ['required', 'string', 'max:30'],
             'inquiryQuantity' => ['required', 'integer', 'min:1'],
-            'inquiryMeubelType' => ['required', 'string', 'in:finished,unfinished,matang,mentah'],
             'inquiryProvince' => ['required', 'string', 'max:100'],
             'inquiryCity' => ['required', 'string', 'max:100'],
             'inquiryAddress' => ['nullable', 'string', 'max:255'],
@@ -149,7 +148,6 @@ class ProductDetail extends Component
             'inquiryPhone.required' => 'Nomor WhatsApp wajib diisi.',
             'inquiryQuantity.required' => 'Jumlah pesanan wajib diisi.',
             'inquiryQuantity.min' => 'Jumlah pesanan minimal 1 unit.',
-            'inquiryMeubelType.required' => 'Pilihan finishing meubel wajib dipilih.',
             'inquiryProvince.required' => 'Provinsi tujuan wajib dipilih.',
             'inquiryCity.required' => 'Kota atau kabupaten tujuan wajib dipilih.',
         ]);
@@ -175,7 +173,7 @@ class ProductDetail extends Component
                 $order->shipping_address = "{$this->inquiryCity} (Provinsi: {$this->inquiryProvince})";
             }
             $order->city = trim($this->inquiryCity) ?: '-';
-            $order->meubel_type = $this->inquiryMeubelType;
+            $order->meubel_type = 'finished';
             $order->quantity = $this->inquiryQuantity;
             $order->product_subtotal = 0;
             $order->total_price = 0;
@@ -188,7 +186,7 @@ class ProductDetail extends Component
             $order->items()->create([
                 'product_id' => $this->product->id,
                 'quantity' => $this->inquiryQuantity,
-                'meubel_type' => $this->inquiryMeubelType,
+                'meubel_type' => 'finished',
                 'unit_price' => 0,
                 'total_price' => 0,
             ]);
@@ -209,7 +207,6 @@ class ProductDetail extends Component
         }
 
         $trackingUrl = route('frontend.tracking', ['code' => $order->order_code]);
-        $meubelLabel = in_array($this->inquiryMeubelType, ['finished', 'matang']) ? 'Finished (Siap Pakai)' : 'Unfinished (Mentah)';
 
         $destinationStr = '';
         if ($this->inquiryCity && $this->inquiryProvince) {
@@ -226,7 +223,6 @@ class ProductDetail extends Component
             . "🔢 *Kode Pesanan:* {$order->order_code}\n"
             . "👤 *Nama Pemesan:* {$this->inquiryName}\n"
             . "📱 *No. WhatsApp:* {$this->inquiryPhone}\n"
-            . "🪵 *Finishing:* {$meubelLabel}\n"
             . "🔢 *Jumlah:* {$this->inquiryQuantity} unit\n"
             . ($destinationStr ? "📍 *Tujuan:* {$destinationStr}\n" : "")
             . ($this->inquiryNotes ? "📝 *Catatan:* {$this->inquiryNotes}\n" : "")
