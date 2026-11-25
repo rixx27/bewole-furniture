@@ -60,7 +60,7 @@
                          }
                      }
                  }">
-                <h3 class="text-base font-semibold text-text-primary dark:text-white mb-1">Informasi Dasar</h3>
+                <h3 class="text-base font-semibold text-text-primary dark:text-black mb-1">Informasi Dasar</h3>
                 <p class="text-xs text-text-muted mb-5">Data utama produk furniture.</p>
 
                 <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
@@ -157,7 +157,7 @@
             {{-- Panel Harga & Stok --}}
             {{-- ======================== --}}
             <div class="rounded-xl border border-border bg-card p-6 shadow-sm mb-6">
-                <h3 class="text-base font-semibold text-text-primary dark:text-white mb-1">Harga & Stok</h3>
+                <h3 class="text-base font-semibold text-text-primary dark:text-black mb-1">Harga & Stok</h3>
                 <p class="text-xs text-text-muted mb-5">Atur harga produk (USD & IDR), diskon, dan ketersediaan stok.</p>
 
                 {{-- Toggle Tampilkan Harga (Ark UI / Shadcn Style Switch) --}}
@@ -279,7 +279,7 @@
             {{-- Panel Detail Produk --}}
             {{-- ======================== --}}
             <div class="rounded-xl border border-border bg-card p-6 shadow-sm mb-6">
-                <h3 class="text-base font-semibold text-text-primary dark:text-white mb-1">Detail Produk</h3>
+                <h3 class="text-base font-semibold text-text-primary dark:text-black mb-1">Detail Produk</h3>
                 <p class="text-xs text-text-muted mb-5">Informasi tambahan produk.</p>
 
                 <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
@@ -361,7 +361,7 @@
             {{-- Panel Thumbnail --}}
             {{-- ======================== --}}
             <div class="rounded-xl border border-border bg-card p-6 shadow-sm mb-6">
-                <h3 class="text-base font-semibold text-text-primary dark:text-white mb-1">Thumbnail</h3>
+                <h3 class="text-base font-semibold text-text-primary dark:text-black mb-1">Thumbnail</h3>
                 <p class="text-xs text-text-muted mb-5">Gambar utama produk (max. 2MB, format: JPG/PNG/WebP).</p>
 
                 <div>
@@ -394,7 +394,7 @@
             {{-- Panel Galeri --}}
             {{-- ======================== --}}
             <div class="rounded-xl border border-border bg-card p-6 shadow-sm mb-6" x-data="galleryUploader()">
-                <h3 class="text-base font-semibold text-text-primary dark:text-white mb-1">Galeri Gambar</h3>
+                <h3 class="text-base font-semibold text-text-primary dark:text-black mb-1">Galeri Gambar</h3>
                 <p class="text-xs text-text-muted mb-5">Unggah gambar galeri produk (opsional, max. 2MB per gambar, format: JPG/PNG/WebP). Anda bisa menambahkan foto satu per satu atau beberapa sekaligus.</p>
 
                 {{-- New Gallery Upload Area --}}

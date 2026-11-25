@@ -49,6 +49,10 @@ class HeroBanner extends Model
             // Clean up image when deleted
             if ($hero->image) {
                 Storage::disk('public')->delete($hero->image);
+                $webp = preg_replace('/\.(jpe?g|png)$/i', '.webp', $hero->image);
+                if ($webp !== $hero->image) {
+                    Storage::disk('public')->delete($webp);
+                }
             }
         });
     }

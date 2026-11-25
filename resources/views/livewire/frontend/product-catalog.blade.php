@@ -1,4 +1,4 @@
-<div>
+<div id="product-catalog-top" class="scroll-mt-28">
     {{-- Search & Filter Section --}}
     <div class="mb-10 flex flex-col gap-6">
         {{-- Top Bar: Search Input & Sort Selector --}}
@@ -39,24 +39,122 @@
             </div>
         </div>
 
-        {{-- Category Pills (Statis & Rapi: tanpa horizontal scroll, dimensi stabil, tidak bergeser saat dipilih) --}}
-        <div class="flex flex-wrap items-center gap-2">
+        {{-- Category Pills : Option 2 (Primary Categories + Dropdown Kategori Lainnya) --}}
+        @php
+            $primaryLimit = 5;
+            $primaryCategories = $categories->take($primaryLimit);
+            $moreCategories = $categories->skip($primaryLimit);
+            $isMoreActive = $moreCategories->contains('slug', $selectedCategory);
+            $activeMoreCategory = $isMoreActive ? $moreCategories->firstWhere('slug', $selectedCategory) : null;
+        @endphp
+
+        <div class="flex flex-wrap items-center gap-2" x-data="{ open: false, filterSearch: '' }">
+            {{-- Tombol Semua Produk --}}
             <button
                 type="button"
                 wire:click="selectCategory('')"
-                class="rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-colors duration-150 {{ empty($selectedCategory) ? 'border-wood-primary bg-wood-primary text-white shadow-sm' : 'border-wood-border/70 bg-white/80 text-wood-muted hover:border-wood-primary hover:text-wood-primary' }}"
+                @click="open = false"
+                class="rounded-full border px-4 py-2 text-xs font-semibold capitalize transition-all duration-200 cursor-pointer {{ empty($selectedCategory) ? 'border-wood-primary bg-wood-primary text-white shadow-sm scale-[1.02]' : 'border-wood-border/70 bg-white/90 text-wood-text hover:border-wood-primary hover:text-wood-primary hover:bg-white shadow-xs' }}"
             >
                 Semua Produk
             </button>
-            @foreach ($categories as $cat)
+
+            {{-- Kategori Utama (Top 5) --}}
+            @foreach ($primaryCategories as $cat)
                 <button
                     type="button"
                     wire:click="selectCategory('{{ $cat->slug }}')"
-                    class="rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-colors duration-150 {{ $selectedCategory === $cat->slug ? 'border-wood-primary bg-wood-primary text-white shadow-sm' : 'border-wood-border/70 bg-white/80 text-wood-muted hover:border-wood-primary hover:text-wood-primary' }}"
+                    @click="open = false"
+                    class="rounded-full border px-4 py-2 text-xs font-semibold capitalize transition-all duration-200 cursor-pointer {{ $selectedCategory === $cat->slug ? 'border-wood-primary bg-wood-primary text-white shadow-sm scale-[1.02]' : 'border-wood-border/70 bg-white/90 text-wood-text hover:border-wood-primary hover:text-wood-primary hover:bg-white shadow-xs' }}"
                 >
-                    {{ $cat->name }}
+                    {{ ucwords(strtolower($cat->name)) }}
                 </button>
             @endforeach
+
+            {{-- Dropdown Kategori Lainnya --}}
+            @if ($moreCategories->isNotEmpty())
+                <div class="relative" @click.outside="open = false">
+                    <button
+                        type="button"
+                        @click="open = !open"
+                        class="inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-xs font-semibold capitalize transition-all duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-wood-primary {{ $isMoreActive ? 'border-wood-primary bg-wood-primary text-white shadow-sm scale-[1.02]' : 'border-wood-border/70 bg-white/90 text-wood-text hover:border-wood-primary hover:text-wood-primary hover:bg-white shadow-xs' }}"
+                        :aria-expanded="open"
+                        aria-haspopup="true"
+                    >
+                        @if ($isMoreActive && $activeMoreCategory)
+                            <span>{{ ucwords(strtolower($activeMoreCategory->name)) }}</span>
+                        @else
+                            <span>Lainnya ({{ $moreCategories->count() }})</span>
+                        @endif
+                        <svg
+                            class="h-3.5 w-3.5 transition-transform duration-200"
+                            :class="open ? 'rotate-180' : ''"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+
+                    {{-- Floating Dropdown Panel --}}
+                    <div
+                        x-show="open"
+                        x-cloak
+                        x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 translate-y-2 scale-95"
+                        x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                        x-transition:leave="transition ease-in duration-150"
+                        x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                        x-transition:leave-end="opacity-0 translate-y-2 scale-95"
+                        class="absolute left-0 sm:left-auto sm:right-0 top-full mt-2 z-40 w-72 sm:w-80 overflow-hidden rounded-2xl border border-wood-border/80 bg-white p-3 shadow-2xl shadow-wood-primary/15 backdrop-blur-md"
+                    >
+                        <div class="mb-2 flex items-center justify-between border-b border-wood-border/40 px-2 pb-2">
+                            <span class="text-xs font-bold text-wood-primary uppercase tracking-wider">Kategori Lainnya</span>
+                            <span class="text-[10px] text-wood-muted bg-wood-bg px-2 py-0.5 rounded-full font-medium">{{ $moreCategories->count() }} Pilihan</span>
+                        </div>
+
+                        {{-- Mini Search Filter jika kategori banyak --}}
+                        @if ($moreCategories->count() > 6)
+                            <div class="relative mb-2 px-1">
+                                <input
+                                    type="text"
+                                    x-model="filterSearch"
+                                    placeholder="Cari kategori..."
+                                    class="w-full rounded-xl border border-wood-border/60 bg-wood-bg/60 py-1.5 pl-8 pr-3 text-xs text-wood-text placeholder-wood-muted focus:border-wood-primary focus:bg-white focus:outline-none"
+                                >
+                                <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-wood-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                </svg>
+                            </div>
+                        @endif
+
+                        {{-- List Kategori --}}
+                        <div class="max-h-64 overflow-y-auto no-scrollbar py-1 space-y-1">
+                            @foreach ($moreCategories as $cat)
+                                @php
+                                    $catNameFormatted = ucwords(strtolower($cat->name));
+                                @endphp
+                                <button
+                                    type="button"
+                                    wire:click="selectCategory('{{ $cat->slug }}')"
+                                    @click="open = false; filterSearch = ''"
+                                    x-show="!filterSearch || '{{ strtolower($cat->name) }}'.includes(filterSearch.toLowerCase())"
+                                    class="flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-medium text-left transition-colors cursor-pointer {{ $selectedCategory === $cat->slug ? 'bg-wood-primary text-white font-bold' : 'text-wood-text hover:bg-wood-bg hover:text-wood-primary' }}"
+                                >
+                                    <span>{{ $catNameFormatted }}</span>
+                                    @if ($selectedCategory === $cat->slug)
+                                        <svg class="h-4 w-4 shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                    @endif
+                                </button>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -263,7 +361,7 @@
 
         {{-- Pagination --}}
         <div class="mt-12">
-            {{ $products->links() }}
+            {{ $products->links('components.pagination.floating-pill') }}
         </div>
     @else
         {{-- Empty State --}}

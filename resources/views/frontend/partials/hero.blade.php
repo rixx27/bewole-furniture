@@ -14,6 +14,9 @@
 
     $hasImage = $hero && $hero->image;
     $imageUrl = $hasImage ? asset('storage/' . $hero->image) : null;
+    $webpPath = $hasImage ? preg_replace('/\.(jpe?g|png)$/i', '.webp', $hero->image) : null;
+    $hasWebp = $hasImage && $webpPath !== $hero->image && file_exists(public_path('storage/' . $webpPath));
+    $webpUrl = $hasWebp ? asset('storage/' . $webpPath) : null;
 
     // Position mapping & layout classes based on admin setting
     $position = $hero?->text_position ?? 'center';
@@ -66,14 +69,19 @@
          BACKGROUND : Full-width banner image (dari Admin Hero)
          ============================================================ --}}
     @if ($hasImage)
-        <img
-            src="{{ $imageUrl }}"
-            alt="{{ $hero->title }}"
-            fetchpriority="high"
-            loading="eager"
-            decoding="async"
-            class="animate-hero-kenburns pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center"
-        >
+        <picture>
+            @if ($hasWebp)
+                <source srcset="{{ $webpUrl }}" type="image/webp">
+            @endif
+            <img
+                src="{{ $imageUrl }}"
+                alt="{{ $hero->title }}"
+                fetchpriority="high"
+                loading="eager"
+                decoding="async"
+                class="animate-hero-kenburns pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center"
+            >
+        </picture>
 
         {{-- Text readability overlay (gradient dinamis sesuai posisi dan opacity) --}}
         <div

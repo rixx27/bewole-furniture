@@ -132,7 +132,7 @@
                 x-cloak
                 x-ref="mobileScroller"
                 @scroll.passive="onMobileScroll($refs.mobileScroller)"
-                x-init="$nextTick(() => onMobileScroll($refs.mobileScroller))"
+                x-init="requestAnimationFrame(() => onMobileScroll($refs.mobileScroller))"
                 data-reveal
                 class="category-scroll no-scrollbar -mx-4 flex snap-x snap-mandatory gap-5 overflow-x-auto px-4 pb-4 sm:-mx-6 sm:px-6 md:hidden"
                 role="list"

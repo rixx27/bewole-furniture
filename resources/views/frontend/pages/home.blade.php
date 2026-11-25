@@ -1,8 +1,14 @@
 @extends('frontend.layouts.app')
 
 @if (!empty($hero?->image))
+    @php
+        $heroWebp = preg_replace('/\.(jpe?g|png)$/i', '.webp', $hero->image);
+        $heroWebpExists = $heroWebp !== $hero->image && file_exists(public_path('storage/' . $heroWebp));
+        $heroPreloadUrl = $heroWebpExists ? asset('storage/' . $heroWebp) : asset('storage/' . $hero->image);
+        $heroPreloadType = $heroWebpExists ? 'image/webp' : 'image/jpeg';
+    @endphp
     @push('head')
-        <link rel="preload" as="image" href="{{ asset('storage/' . $hero->image) }}" fetchpriority="high">
+        <link rel="preload" as="image" href="{{ $heroPreloadUrl }}" type="{{ $heroPreloadType }}" fetchpriority="high">
     @endpush
 @endif
 

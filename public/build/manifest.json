@@ -1,6 +1,6 @@
 {
   "resources/css/app.css": {
-    "file": "assets/app-Dg4S7LI6.css",
+    "file": "assets/app-ZWJerGtC.css",
     "name": "app",
     "names": [
       "app.css"
@@ -21,7 +21,7 @@
     "isDynamicEntry": true
   },
   "resources/js/frontend.js": {
-    "file": "assets/frontend-I2eyAVVo.js",
+    "file": "assets/frontend-CwNkZ04j.js",
     "name": "frontend",
     "src": "resources/js/frontend.js",
     "isEntry": true,

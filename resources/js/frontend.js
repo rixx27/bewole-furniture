@@ -183,24 +183,36 @@ function initBewoleAlpine(AlpineInstance) {
             return classes.join(' ');
         },
 
+        _scrollTicking: false,
+
         onMobileScroll(scroller) {
-            if (!scroller) return;
+            if (!scroller || this._scrollTicking) return;
+            this._scrollTicking = true;
 
-            const cards = Array.from(scroller.children);
-            const center = scroller.scrollLeft + scroller.clientWidth / 2;
+            requestAnimationFrame(() => {
+                this._scrollTicking = false;
+                const cards = Array.from(scroller.children);
+                if (cards.length === 0) return;
 
-            cards.forEach((card) => {
-                const rect = card.getBoundingClientRect();
-                const cardCenter = rect.left + rect.width / 2;
-                const distance = Math.abs(cardCenter - (scroller.getBoundingClientRect().left + scroller.clientWidth / 2));
-                const isActive = distance < rect.width * 0.45;
+                const scrollerRect = scroller.getBoundingClientRect();
+                const scrollerCenter = scrollerRect.left + scroller.clientWidth / 2;
 
-                card.classList.toggle('category-card-active', isActive);
+                // Phase 1: Batch read layout geometry
+                const updates = cards.map((card) => {
+                    const rect = card.getBoundingClientRect();
+                    const cardCenter = rect.left + rect.width / 2;
+                    const distance = Math.abs(cardCenter - scrollerCenter);
+                    const isActive = distance < rect.width * 0.45;
+                    return { card, isActive, img: card.querySelector('img') };
+                });
 
-                const img = card.querySelector('img');
-                if (img) {
-                    img.classList.toggle('scale-105', isActive);
-                }
+                // Phase 2: Batch write classes
+                updates.forEach(({ card, isActive, img }) => {
+                    card.classList.toggle('category-card-active', isActive);
+                    if (img) {
+                        img.classList.toggle('scale-105', isActive);
+                    }
+                });
             });
         },
 

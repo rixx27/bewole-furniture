@@ -54,6 +54,7 @@ class HeroBannerController extends Controller
         // Upload image
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('heroes', 'public');
+            $this->generateWebpCopy($data['image']);
         }
 
         // Create hero
@@ -95,8 +96,13 @@ class HeroBannerController extends Controller
             // Delete old image
             if ($heroBanner->image) {
                 Storage::disk('public')->delete($heroBanner->image);
+                $oldWebp = preg_replace('/\.(jpe?g|png)$/i', '.webp', $heroBanner->image);
+                if ($oldWebp !== $heroBanner->image) {
+                    Storage::disk('public')->delete($oldWebp);
+                }
             }
             $data['image'] = $request->file('image')->store('heroes', 'public');
+            $this->generateWebpCopy($data['image']);
         } else {
             unset($data['image']);
         }
@@ -141,6 +147,47 @@ class HeroBannerController extends Controller
         return redirect()
             ->route('admin.hero-banners.index')
             ->with('success', 'Hero banner "' . $heroBanner->title . '" berhasil diubah menjadi ' . $statusLabel . '.');
+    }
+
+    /**
+     * Generate an optimized WebP copy of an uploaded image if supported.
+     */
+    private function generateWebpCopy(string $relativePath): void
+    {
+        if (!function_exists('imagewebp')) {
+            return;
+        }
+
+        $fullPath = Storage::disk('public')->path($relativePath);
+        if (!file_exists($fullPath)) {
+            return;
+        }
+
+        $webpPath = preg_replace('/\.(jpe?g|png)$/i', '.webp', $fullPath);
+        if ($webpPath === $fullPath) {
+            return;
+        }
+
+        $info = @getimagesize($fullPath);
+        if (!$info) {
+            return;
+        }
+
+        $image = match ($info['mime']) {
+            'image/jpeg' => @imagecreatefromjpeg($fullPath),
+            'image/png' => @imagecreatefrompng($fullPath),
+            default => null,
+        };
+
+        if ($image) {
+            if ($info['mime'] === 'image/png') {
+                imagepalettetotruecolor($image);
+                imagealphablending($image, true);
+                imagesavealpha($image, true);
+            }
+            imagewebp($image, $webpPath, 82);
+            imagedestroy($image);
+        }
     }
 }
 
