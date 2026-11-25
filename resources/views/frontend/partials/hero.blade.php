@@ -66,12 +66,14 @@
          BACKGROUND : Full-width banner image (dari Admin Hero)
          ============================================================ --}}
     @if ($hasImage)
-        <div
-            class="animate-hero-kenburns absolute inset-0 h-full w-full bg-cover bg-center bg-no-repeat"
-            style="background-image: url('{{ $imageUrl }}');"
-            role="img"
-            aria-label="{{ $hero->title }}"
-        ></div>
+        <img
+            src="{{ $imageUrl }}"
+            alt="{{ $hero->title }}"
+            fetchpriority="high"
+            loading="eager"
+            decoding="async"
+            class="animate-hero-kenburns pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-center"
+        >
 
         {{-- Text readability overlay (gradient dinamis sesuai posisi dan opacity) --}}
         <div

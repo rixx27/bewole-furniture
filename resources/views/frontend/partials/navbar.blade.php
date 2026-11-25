@@ -36,7 +36,6 @@
 
 <header
     x-data="navbar"
-    x-init="init"
     class="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-5 sm:pt-4"
     aria-label="Navigasi utama"
 >
@@ -209,7 +208,9 @@
                             wire:navigate
                             class="flex items-center gap-2 px-4 py-2 text-xs font-medium text-wood-text hover:bg-wood-primary/5 hover:text-wood-primary transition-colors"
                         >
-                            <i class="fa-regular fa-user text-xs text-wood-secondary"></i>
+                            <svg class="h-3.5 w-3.5 text-wood-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                            </svg>
                             Kelola Profil
                         </a>
 
@@ -382,7 +383,9 @@
                     @click="mobileOpen = false"
                     class="mt-2 inline-flex items-center justify-center gap-2 rounded-full border border-wood-border/80 bg-white px-5 py-3 text-sm font-semibold text-wood-text shadow-sm hover:bg-wood-bg transition-colors"
                 >
-                    <i class="fa-regular fa-user text-xs text-wood-secondary"></i>
+                    <svg class="h-4 w-4 text-wood-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                    </svg>
                     Kelola Profil
                 </a>
 

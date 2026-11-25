@@ -21,11 +21,31 @@ function initBewoleAlpine(AlpineInstance) {
         journeyDetail: 'Studio Desain · Menganalisis sketsa & spesifikasi custom Anda',
         journeyProgress: '0%',
         _dispose: null,
+        _observer: null,
+        _loaded: false,
 
-        async init() {
+        init() {
             const root = this.$el;
             if (!root) return;
 
+            // Defer loading heavy 3D Three.js module until user scrolls near the workshop section
+            if ('IntersectionObserver' in window) {
+                this._observer = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting && !this._loaded) {
+                            this._loaded = true;
+                            this._observer?.disconnect();
+                            this.loadScene(root);
+                        }
+                    });
+                }, { rootMargin: '300px 0px' });
+                this._observer.observe(root);
+            } else {
+                this.loadScene(root);
+            }
+        },
+
+        async loadScene(root) {
             try {
                 const { initBewoleScene } = await import('./components/bewole-workshop-3d.js');
                 document.fonts.ready.then(() => {
@@ -47,6 +67,10 @@ function initBewoleAlpine(AlpineInstance) {
         },
 
         destroy() {
+            if (this._observer) {
+                this._observer.disconnect();
+                this._observer = null;
+            }
             if (this._dispose) {
                 this._dispose();
                 this._dispose = null;

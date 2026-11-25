@@ -79,6 +79,7 @@
                                     src="{{ $category->cover_image_url }}"
                                     alt="{{ $category->name }}"
                                     loading="lazy"
+                                    decoding="async"
                                     class="absolute inset-0 h-full w-full scale-100 object-cover object-center transition-all duration-700 ease-in-out group-hover:scale-[1.08]"
                                 >
                             @else
@@ -148,6 +149,7 @@
                                 src="{{ $category->cover_image_url }}"
                                 alt="{{ $category->name }}"
                                 loading="lazy"
+                                decoding="async"
                                 class="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-700 ease-in-out"
                             >
                         @else

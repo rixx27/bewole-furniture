@@ -1,5 +1,10 @@
 @extends('frontend.layouts.app')
 
+@if (!empty($hero?->image))
+    @push('head')
+        <link rel="preload" as="image" href="{{ asset('storage/' . $hero->image) }}" fetchpriority="high">
+    @endpush
+@endif
 
 @section('content')
     {{-- ============================================================

@@ -1271,6 +1271,16 @@ export function initBewoleScene(root, options = {}) {
 
     rafId = requestAnimationFrame(animate)
 
+    if ('IntersectionObserver' in window) {
+        const visObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                visible = entry.isIntersecting
+            })
+        }, { threshold: 0.05 })
+        visObserver.observe(root)
+        cleanups.push(() => visObserver.disconnect())
+    }
+
     cleanups.push(() => {
         cancelAnimationFrame(rafId)
         controls.dispose()

@@ -1,9 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-
 @import "tailwindcss";
 
 @source "../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php";
-@source "../../storage/framework/views/*.php";
 @source "../**/*.blade.php";
 @source "../**/*.js";
 
@@ -311,6 +308,8 @@ div[id] {
 
 .animate-hero-kenburns {
     animation: heroKenBurns 18s ease-in-out infinite alternate;
+    will-change: transform;
+    transform: translateZ(0);
 }
 
 /* ============================================================

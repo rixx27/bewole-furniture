@@ -1,6 +1,6 @@
 {
   "resources/css/app.css": {
-    "file": "assets/app-C6A_9Ac9.css",
+    "file": "assets/app-Dg4S7LI6.css",
     "name": "app",
     "names": [
       "app.css"
@@ -15,13 +15,13 @@
     "isEntry": true
   },
   "resources/js/components/bewole-workshop-3d.js": {
-    "file": "assets/bewole-workshop-3d-D3iIqIfA.js",
+    "file": "assets/bewole-workshop-3d-T7st8srE.js",
     "name": "bewole-workshop-3d",
     "src": "resources/js/components/bewole-workshop-3d.js",
     "isDynamicEntry": true
   },
   "resources/js/frontend.js": {
-    "file": "assets/frontend-C5KGlc7Y.js",
+    "file": "assets/frontend-I2eyAVVo.js",
     "name": "frontend",
     "src": "resources/js/frontend.js",
     "isEntry": true,

@@ -83,6 +83,7 @@
                             src="{{ $imageUrl }}"
                             alt="Foto {{ $siteName }}"
                             loading="lazy"
+                            decoding="async"
                             class="philosophy-image h-full w-full object-cover object-center"
                         >
                     @else

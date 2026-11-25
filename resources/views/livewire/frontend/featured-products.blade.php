@@ -65,6 +65,7 @@
                                     src="{{ asset('storage/' . $product->thumbnail) }}"
                                     alt="{{ $product->name }}"
                                     loading="lazy"
+                                    decoding="async"
                                     class="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.04]"
                                 >
                             @else
