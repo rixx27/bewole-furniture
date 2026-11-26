@@ -320,7 +320,7 @@
         {{-- Pagination --}}
         @if ($reviews->hasPages())
             <div class="border-t border-border px-6 py-4">
-                {{ $reviews->links() }}
+                {{ $reviews->links('components.pagination.admin-floating-pill', ['itemLabel' => 'ulasan', 'isLivewire' => true]) }}
             </div>
         @endif
     </div>

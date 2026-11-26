@@ -223,3 +223,33 @@ test('category with explicit sort_order 1 appears first from the left before cat
         ->and($orderedIds[3])->toBe($catUnordered2->id);
 });
 
+test('admin can replace category cover image and old file is replaced with compressed webp', function () {
+    $this->actingAs($this->admin);
+
+    $oldFile = UploadedFile::fake()->image('old-cover.jpg', 800, 800);
+    $oldPath = $oldFile->store('categories', 'public');
+
+    $category = Category::create([
+        'name' => 'Kursi Bar',
+        'slug' => 'kursi-bar',
+        'cover_image' => $oldPath,
+        'is_active' => true,
+        'show_on_home' => true,
+    ]);
+
+    $newFile = UploadedFile::fake()->image('new-cover.png', 1000, 1000);
+
+    Livewire::test(CategoryManager::class)
+        ->call('openEdit', $category->id)
+        ->set('cover_image', $newFile)
+        ->call('save')
+        ->assertHasNoErrors();
+
+    $fresh = $category->fresh();
+    expect($fresh->cover_image)->not->toBeNull()
+        ->and($fresh->cover_image)->not->toBe($oldPath);
+
+    Storage::disk('public')->assertMissing($oldPath);
+    Storage::disk('public')->assertExists($fresh->cover_image);
+});
+

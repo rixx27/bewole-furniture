@@ -253,7 +253,7 @@
         {{-- Pagination --}}
         @if ($faqs->hasPages())
             <div class="border-t border-border px-6 py-4">
-                {{ $faqs->links() }}
+                {{ $faqs->links('components.pagination.admin-floating-pill', ['itemLabel' => 'FAQ', 'isLivewire' => false]) }}
             </div>
         @endif
     </div>

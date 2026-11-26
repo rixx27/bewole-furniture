@@ -165,11 +165,11 @@
                         <input type="hidden" name="show_price" :value="checked ? '1' : '0'">
                         <span class="text-sm font-medium text-text-primary dark:text-black cursor-pointer select-none"
                               @click="checked = !checked">
-                            Tampilkan Harga di Katalog & Halaman Produk
+                            Tampilkan Harga di Katalog & Halaman Produk (Sinkronisasi Global)
                         </span>
                     </div>
                     <p class="mt-1.5 text-xs text-text-muted leading-relaxed pl-14">
-                        Jika dinonaktifkan, harga tidak akan ditampilkan ke pembeli. Tombol beli otomatis digantikan dengan tombol "Hubungi CS" yang mengarahkan pembeli ke WhatsApp.
+                        Pengaturan ini berlaku global: jika dinonaktifkan, seluruh harga produk akan disembunyikan (diganti tombol "Hubungi CS") dan converter mata uang IDR/USD di website ikut hilang, begitupun sebaliknya saat diaktifkan kembali.
                     </p>
                 </div>
 

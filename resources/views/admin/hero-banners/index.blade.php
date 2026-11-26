@@ -280,7 +280,7 @@
         {{-- Pagination --}}
         @if ($heroes->hasPages())
             <div class="border-t border-border px-6 py-4">
-                {{ $heroes->links() }}
+                {{ $heroes->links('components.pagination.admin-floating-pill', ['itemLabel' => 'banner', 'isLivewire' => false]) }}
             </div>
         @endif
     </div>

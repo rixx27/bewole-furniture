@@ -333,7 +333,7 @@
 
         @if ($logs->hasPages())
             <div class="p-4 border-t border-border">
-                {{ $logs->links() }}
+                {{ $logs->links('components.pagination.admin-floating-pill', ['itemLabel' => 'riwayat', 'isLivewire' => true]) }}
             </div>
         @endif
     </div>

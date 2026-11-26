@@ -53,6 +53,52 @@
         </div>
     </div>
 
+    {{-- Global Price & Currency Converter Control --}}
+    <div class="mb-6 rounded-xl border border-border bg-card px-5 py-4 shadow-sm">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-start gap-3">
+                <div class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg {{ $globalShowPrice ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600' }}">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h3 class="text-sm font-semibold text-text-primary dark:text-black">Visibilitas Harga & Converter IDR/USD</h3>
+                        <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold {{ $globalShowPrice ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-100 text-amber-800' }}">
+                            <span class="h-1.5 w-1.5 rounded-full {{ $globalShowPrice ? 'bg-emerald-500' : 'bg-amber-500' }}"></span>
+                            {{ $globalShowPrice ? 'Aktif (Harga Tampil)' : 'Nonaktif (Mode Hubungi CS)' }}
+                        </span>
+                    </div>
+                    <p class="mt-0.5 text-xs text-text-muted">
+                        Menonaktifkan harga pada salah satu produk otomatis menonaktifkan semua harga produk & menyembunyikan converter IDR/USD di website, begitupun sebaliknya.
+                    </p>
+                </div>
+            </div>
+
+            <form method="POST" action="{{ route('admin.products.toggle-global-price') }}" class="shrink-0">
+                @csrf
+                @method('PATCH')
+                <input type="hidden" name="show_price" value="{{ $globalShowPrice ? '0' : '1' }}">
+                <button type="submit"
+                        class="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold transition-all shadow-xs cursor-pointer {{ $globalShowPrice ? 'border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100' : 'bg-emerald-600 text-white hover:bg-emerald-700' }}">
+                    @if ($globalShowPrice)
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                        </svg>
+                        Nonaktifkan Semua Harga
+                    @else
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        Aktifkan Semua Harga
+                    @endif
+                </button>
+            </form>
+        </div>
+    </div>
+
     {{-- Filter & Search --}}
     <div class="mb-6">
         <form method="GET" action="{{ route('admin.products.index') }}">
@@ -390,7 +436,7 @@
         {{-- Pagination --}}
         @if ($products->hasPages())
             <div class="border-t border-border px-6 py-4">
-                {{ $products->links() }}
+                {{ $products->links('components.pagination.admin-floating-pill', ['itemLabel' => 'produk', 'isLivewire' => false]) }}
             </div>
         @endif
     </div>

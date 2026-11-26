@@ -341,7 +341,7 @@
         {{-- Pagination --}}
         @if($orders->hasPages())
             <div class="border-t border-gray-100 bg-gray-50/50 px-6 py-4">
-                {{ $orders->links() }}
+                {{ $orders->links('components.pagination.admin-floating-pill', ['itemLabel' => 'pesanan', 'isLivewire' => true]) }}
             </div>
         @endif
     </div>

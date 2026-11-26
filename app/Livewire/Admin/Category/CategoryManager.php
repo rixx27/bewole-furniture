@@ -157,12 +157,18 @@ class CategoryManager extends Component
      */
     public function updatedCoverImage(): void
     {
-        $this->validateOnly('cover_image', [
-            'cover_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-        ]);
+        try {
+            $this->validateOnly('cover_image', [
+                'cover_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,jfif', 'max:5120'],
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $this->cover_image = null;
+            $this->dispatch('cover-upload-error');
+            throw $e;
+        }
 
         try {
-            $this->cover_preview = $this->cover_image->temporaryUrl();
+            $this->cover_preview = $this->cover_image?->temporaryUrl();
         } catch (\Throwable $e) {
             $this->cover_preview = null;
         }
@@ -287,11 +293,11 @@ class CategoryManager extends Component
             'is_active' => ['boolean'],
             'show_on_home' => ['boolean'],
             'sort_order' => ['integer', 'min:0', 'max:9999'],
-            'cover_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'cover_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,jfif', 'max:5120'],
         ];
 
-        // Cover wajib saat create
-        if (!$this->editingId) {
+        // Cover wajib saat create atau jika existing cover dihapus pada mode edit
+        if (!$this->editingId || empty($this->existing_cover)) {
             $rules['cover_image'][] = 'required';
         }
 
@@ -314,8 +320,8 @@ class CategoryManager extends Component
             'sort_order.min' => 'Urutan minimal 0.',
             'sort_order.max' => 'Urutan maksimal 9999.',
             'cover_image.image' => 'Cover harus berupa gambar.',
-            'cover_image.mimes' => 'Cover harus berformat jpg, jpeg, png, atau webp.',
-            'cover_image.max' => 'Ukuran cover maksimal 2 MB.',
+            'cover_image.mimes' => 'Cover harus berformat jpg, jpeg, png, webp, atau jfif.',
+            'cover_image.max' => 'Ukuran cover maksimal 5 MB.',
             'cover_image.required' => 'Cover wajib diunggah.',
         ];
     }

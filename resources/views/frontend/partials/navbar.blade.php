@@ -82,7 +82,12 @@
         {{-- Right side: Currency + Cart + Auth --}}
         <div class="flex items-center gap-2">
 
+            @php
+                $showCurrencyConverter = \App\Helpers\Currency::hasVisibleProductPrices();
+            @endphp
+
             {{-- Currency Switcher (Desktop) --}}
+            @if ($showCurrencyConverter)
             <div class="relative hidden sm:block" x-data="{ open: false }">
                 @php
                     $isUsd = \App\Helpers\Currency::isUsd();
@@ -144,6 +149,7 @@
                     </a>
                 </div>
             </div>
+            @endif
 
             {{-- SEARCH --}}
             <livewire:frontend.navbar-search />
@@ -347,6 +353,7 @@
             </a>
 
             {{-- Mata Uang Switcher (Mobile) --}}
+            @if ($showCurrencyConverter)
             <div class="rounded-2xl border border-wood-border/60 bg-wood-primary/5 p-3 mt-1">
                 <div class="text-[11px] font-semibold text-wood-muted uppercase tracking-wider mb-2">Pilih Mata Uang</div>
                 <div class="grid grid-cols-2 gap-2">
@@ -366,6 +373,7 @@
                     </a>
                 </div>
             </div>
+            @endif
 
             @guest
                 <a

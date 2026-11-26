@@ -151,7 +151,7 @@
 
         @if ($orders->hasPages())
             <div class="border-t border-border px-6 py-4">
-                {{ $orders->links() }}
+                {{ $orders->links('components.pagination.admin-floating-pill', ['itemLabel' => 'pesanan', 'isLivewire' => false]) }}
             </div>
         @endif
     </div>

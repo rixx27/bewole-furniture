@@ -21,7 +21,7 @@ class CategoryService
     public function store(array $data, ?UploadedFile $cover = null): Category
     {
         if ($cover instanceof UploadedFile) {
-            $data['cover_image'] = $cover->store(self::UPLOAD_DIR, 'public');
+            $data['cover_image'] = ImageOptimizerService::compressAndStore($cover, self::UPLOAD_DIR);
         }
 
         return Category::create($data);
@@ -38,7 +38,7 @@ class CategoryService
             if ($category->cover_image) {
                 Storage::disk('public')->delete($category->cover_image);
             }
-            $data['cover_image'] = $cover->store(self::UPLOAD_DIR, 'public');
+            $data['cover_image'] = ImageOptimizerService::compressAndStore($cover, self::UPLOAD_DIR);
         }
 
         $category->update($data);

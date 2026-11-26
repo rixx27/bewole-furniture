@@ -72,7 +72,10 @@
                     <label class="mb-1.5 block text-sm font-medium text-text-primary dark:text-black">
                         Cover Image <span class="text-red-500">*</span>
                     </label>
-                    <div class="flex items-start gap-4" x-data="{ localCoverPreview: null }">
+                    <div class="flex items-start gap-4"
+                         x-data="{ localCoverPreview: null }"
+                         x-on:cover-upload-error.window="localCoverPreview = null; if ($refs.coverInput) $refs.coverInput.value = '';"
+                         x-on:category-saved.window="localCoverPreview = null;">
                         {{-- Preview --}}
                         <div class="relative h-28 w-28 shrink-0 overflow-hidden rounded-xl border border-border bg-bg-secondary">
                             <template x-if="localCoverPreview">
@@ -115,15 +118,26 @@
                         <div class="flex-1">
                             <input type="file"
                                    x-ref="coverInput"
-                                   accept="image/jpeg,image/png,image/webp"
+                                   accept="image/jpeg,image/png,image/webp,.jfif"
                                    x-on:change="localCoverPreview = $event.target.files[0] ? URL.createObjectURL($event.target.files[0]) : null"
                                    wire:model="cover_image"
                                    class="block w-full text-sm text-text-secondary file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-primary-dark cursor-pointer">
-                            <p class="mt-2 text-xs text-text-muted">Format: JPG, JPEG, PNG, atau WEBP. Maksimal 2 MB.</p>
+                            <p class="mt-2 text-xs text-text-muted">Format: JPG, JPEG, PNG, WEBP, atau JFIF. Maksimal 5 MB (otomatis dikompres ke WebP).</p>
                             @error('cover_image')
                                 <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                             @enderror
-                            <div wire:loading wire:target="cover_image" class="mt-2 text-xs text-primary">Mengunggah cover...</div>
+                            <div wire:loading wire:target="cover_image" class="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-primary">
+                                <svg class="h-3.5 w-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                </svg>
+                                Mengunggah foto ke server... harap tunggu sebelum menekan Simpan.
+                            </div>
+                            @if ($cover_image && !$errors->has('cover_image'))
+                                <p wire:loading.remove wire:target="cover_image" class="mt-2 text-xs font-medium text-emerald-600">
+                                    ✓ Foto baru siap disimpan.
+                                </p>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -188,11 +202,13 @@
                 <div class="flex items-center gap-3 border-t border-border pt-5">
                     <button type="submit"
                             wire:loading.attr="disabled"
-                            class="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-white transition-all hover:bg-primary-dark shadow-xs disabled:opacity-60">
+                            wire:target="save,cover_image"
+                            class="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-white transition-all hover:bg-primary-dark shadow-xs disabled:opacity-60 disabled:cursor-not-allowed">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
-                        <span wire:loading.remove wire:target="save">Simpan</span>
+                        <span wire:loading.remove wire:target="save,cover_image">Simpan</span>
+                        <span wire:loading wire:target="cover_image">Mengunggah foto...</span>
                         <span wire:loading wire:target="save">Menyimpan...</span>
                     </button>
                     <button type="button"
@@ -256,7 +272,8 @@
                     </thead>
                     <tbody class="divide-y divide-border/50">
                         @forelse ($categories as $category)
-                            <tr class="transition-colors hover:bg-bg-secondary/30">
+                            <tr wire:key="category-row-{{ $category['id'] }}-{{ md5((string) ($category['cover_image'] ?? 'none')) }}"
+                                class="transition-colors hover:bg-bg-secondary/30">
                                 {{-- Cover --}}
                                 <td class="px-6 py-4">
                                     @if ($category['cover_image'])

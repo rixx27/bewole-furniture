@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Product;
 use App\Models\WebsiteSetting;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -12,6 +13,30 @@ class CurrencyService
     public const DEFAULT_USD_RATE = 18271.95;
     public const CURRENCY_IDR = 'IDR';
     public const CURRENCY_USD = 'USD';
+    public const PRICE_VISIBILITY_CACHE_KEY = 'products_show_price_global';
+
+    /**
+     * Determine whether product prices (and the IDR/USD converter) should be visible globally.
+     * Visible if there are no products yet, or at least one product has show_price = true.
+     */
+    public function hasVisibleProductPrices(): bool
+    {
+        return (bool) Cache::remember(self::PRICE_VISIBILITY_CACHE_KEY, 3600, function () {
+            if (!Product::query()->exists()) {
+                return true;
+            }
+
+            return Product::query()->where('show_price', true)->exists();
+        });
+    }
+
+    /**
+     * Clear the cached global product price visibility flag.
+     */
+    public function forgetPriceVisibilityCache(): void
+    {
+        Cache::forget(self::PRICE_VISIBILITY_CACHE_KEY);
+    }
 
     /**
      * Get the active currency code ('IDR' or 'USD').

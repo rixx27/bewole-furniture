@@ -142,7 +142,7 @@
 
             {{-- Pagination --}}
             <div class="mt-8">
-                {{ $orders->links() }}
+                {{ $orders->links('components.pagination.floating-pill', ['itemLabel' => 'pesanan', 'scrollTo' => false, 'isLivewire' => false]) }}
             </div>
         @else
             {{-- Empty State --}}

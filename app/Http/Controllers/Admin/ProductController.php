@@ -46,8 +46,9 @@ class ProductController extends Controller
             ->withQueryString();
 
         $categories = Category::orderBy('name')->get();
+        $globalShowPrice = \App\Helpers\Currency::hasVisibleProductPrices();
 
-        return view('admin.products.index', compact('products', 'search', 'categories', 'categoryFilter', 'statusFilter'));
+        return view('admin.products.index', compact('products', 'search', 'categories', 'categoryFilter', 'statusFilter', 'globalShowPrice'));
     }
 
     /**
@@ -60,8 +61,9 @@ class ProductController extends Controller
         $categoryNextOrders = $categories->mapWithKeys(function ($category) use ($sortOrderService) {
             return [$category->id => $sortOrderService->getNextSortOrder($category->id)];
         });
+        $globalShowPrice = \App\Helpers\Currency::hasVisibleProductPrices();
 
-        return view('admin.products.create', compact('categories', 'categoryNextOrders'));
+        return view('admin.products.create', compact('categories', 'categoryNextOrders', 'globalShowPrice'));
     }
 
     /**
@@ -110,6 +112,9 @@ class ProductController extends Controller
 
         // Create product (final price auto-calculated in model boot)
         $product = Product::create($data);
+
+        // Sync show_price globally across all products & clear currency converter cache
+        $this->syncGlobalShowPrice((bool) $data['show_price']);
 
         // Handle materials options
         if (isset($data['materials']) && is_array($data['materials'])) {
@@ -266,6 +271,9 @@ class ProductController extends Controller
         // Update product (final price auto-calculated in model boot)
         $product->update($data);
 
+        // Sync show_price globally across all products & clear currency converter cache
+        $this->syncGlobalShowPrice((bool) $data['show_price']);
+
         // Handle product material options
         if (isset($data['materials']) && is_array($data['materials'])) {
             $keptIds = [];
@@ -318,6 +326,7 @@ class ProductController extends Controller
 
         // Thumbnail is deleted in model boot deleted event
         $product->delete();
+        \App\Helpers\Currency::forgetPriceVisibilityCache();
 
         return redirect()
             ->route('admin.products.index')
@@ -370,6 +379,38 @@ class ProductController extends Controller
         }
 
         return back()->with('success', 'Urutan produk "' . $product->name . '" berhasil diperbarui.');
+    }
+
+    /**
+     * Toggle global price visibility across all products and currency converter.
+     */
+    public function toggleGlobalPrice(Request $request)
+    {
+        $showPrice = $request->boolean('show_price');
+        $this->syncGlobalShowPrice($showPrice);
+
+        $message = $showPrice
+            ? 'Semua harga produk dan converter IDR/USD berhasil diaktifkan.'
+            : 'Semua harga produk berhasil dinonaktifkan (mode Hubungi CS) dan converter IDR/USD disembunyikan.';
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'show_price' => $showPrice,
+                'message' => $message,
+            ]);
+        }
+
+        return back()->with('success', $message);
+    }
+
+    /**
+     * Synchronize show_price across all products and invalidate price visibility cache.
+     */
+    private function syncGlobalShowPrice(bool $showPrice): void
+    {
+        Product::query()->update(['show_price' => $showPrice]);
+        \App\Helpers\Currency::forgetPriceVisibilityCache();
     }
 }
 

@@ -56,4 +56,14 @@ class Currency
     {
         return static::service()->toUsd($idrAmount, $rate);
     }
+
+    public static function hasVisibleProductPrices(): bool
+    {
+        return static::service()->hasVisibleProductPrices();
+    }
+
+    public static function forgetPriceVisibilityCache(): void
+    {
+        static::service()->forgetPriceVisibilityCache();
+    }
 }
